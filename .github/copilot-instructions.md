@@ -28,15 +28,26 @@ These guidelines outline the process for creating simple, engaging browser-based
 - Keep the codebase small and maintainable (under 500 lines total)
 - Avoid feature creep - do not add "nice-to-have" features
 - Prioritize game feel and responsiveness over complexity
-- Choose simple visual representations over complex graphics
+- Use STRICTLY black and white color scheme with grayscale accents only
+- Design for full-screen, immersive gameplay experience
 - Include only essential UI elements
+- Focus on rich, fluid animations that enhance the core mechanic
+- Create visual feedback through animation rather than color variation
 - Skip optional features like:
   - Complex scoring systems
   - Multiple levels (unless extremely simple)
   - Character customization
   - Settings menus
   - Tutorial screens (use simple in-game cues instead)
-  - Elaborate animations (focus on functional animations)
+
+**Visual Aesthetic Requirements:**
+- Black backgrounds (#000000) with white elements (#FFFFFF)
+- Subtle grayscale variations for depth and hierarchy
+- Clean, geometric shapes and minimal lines
+- Smooth transitions and fluid motion
+- Particle effects and animations to create visual interest
+- Strong contrast to create visual impact
+- Responsive, full-screen design that adapts to any display
 
 **Examples of appropriate minimal games:**
 - Simple clicker games with one interaction
@@ -45,6 +56,7 @@ These guidelines outline the process for creating simple, engaging browser-based
 - Memory games with minimal elements
 - Reaction tests with clear feedback
 - Simple drawing applications
+- Timing-based rhythm games with visual feedback
 
 **Complexity will only be scaled up when explicitly requested.**
 
@@ -64,10 +76,16 @@ These guidelines outline the process for creating simple, engaging browser-based
    - Genre: Clear classification (puzzle, arcade, platformer, etc.)
    - Target Audience: Age range and player experience level
    - Gameplay Description: Core loop and mechanics
-   - Visual Style: Color scheme, art style, UI elements
+   - Visual Style: 
+     - Strictly black and white color palette
+     - Minimalist geometric elements
+     - Use of negative space
+     - Visual feedback through animation and particle effects
+     - Full-screen immersive experience
    - Controls: Input methods and response handling
    - Win/Loss Conditions: Clear objectives and failure states
    - Technical Approach: Canvas vs. DOM, animation techniques, state management
+   - Animation Plan: Specify key animations that will enhance gameplay feel
 
 3. **Implementation Best Practices:**
    - Separate concerns (HTML for structure, CSS for presentation, JS for behavior)
@@ -76,6 +94,8 @@ These guidelines outline the process for creating simple, engaging browser-based
    - Optimize for performance (minimize DOM manipulations, use efficient algorithms)
    - Structure code with clear functions and meaningful variable names
    - Implement proper state management patterns
+   - Focus on fluid, expressive animations that enhance the core mechanic
+   - Create visual impact through motion rather than color
 
 4. **Testing Requirements:**
    - Test just for Chrome
@@ -95,9 +115,11 @@ These guidelines outline the process for creating simple, engaging browser-based
 
 - **CSS:**
   - Logical organization of rules
-  - Use of CSS variables for theming
+  - Use of CSS variables for consistent styling
   - Clear class naming conventions
   - Responsive design principles
+  - Smooth transitions and animations
+  - Full-screen layout optimization
 
 - **JavaScript:**
   - Functional programming approach preferred
@@ -106,6 +128,8 @@ These guidelines outline the process for creating simple, engaging browser-based
   - Clear comments for complex logic
   - Modular function design
   - Proper event handling and cleanup
+  - Animation systems for visual feedback
+  - Particle systems for enhanced visual effects
   - Choose appropriate storage mechanism (localStorage, sessionStorage) based on game needs
 
 ---
@@ -295,3 +319,37 @@ chore(ci): update GitHub actions workflow
    - Game committed to its branch
    - Landing page updated to include the new game
    - All changes pushed to remote repository
+
+## Animation Enhancement Guidelines
+
+Follow these principles when designing animations for the minimalist black and white games:
+
+1. **Purpose-Driven Animation**
+   - Every animation should serve a gameplay purpose
+   - Use motion to communicate feedback to the player
+   - Create visual hierarchy through movement
+
+2. **Types of Animations to Include**
+   - State transitions (menu to game, pause states)
+   - Score or progress feedback
+   - Impact and collision effects
+   - Timing and rhythm indicators
+   - Success/failure indicators
+   - Particles for emphasis and reward
+
+3. **Animation Implementation Techniques**
+   - Use CSS animations for UI elements
+   - Implement canvas-based animations for game elements
+   - Create particle systems for visual embellishment
+   - Use easing functions for natural motion
+   - Layer multiple animation effects for depth
+   - Scale animation intensity based on gameplay importance
+
+4. **Performance Considerations**
+   - Optimize animation code for smooth 60fps
+   - Use requestAnimationFrame for timing
+   - Consider using transform/opacity for DOM animations
+   - Implement object pooling for particle systems
+   - Scale back effects on lower-end devices
+
+Remember that the animation system should enhance the core mechanic without overwhelming it. The black and white aesthetic allows animations to stand out as the primary visual interest element.
