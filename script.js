@@ -1,93 +1,113 @@
-// Browser Games Collection - Main JavaScript
-document.addEventListener('DOMContentLoaded', function () {
-    // Array of available games with their information
-    // In a real-world scenario, this could be loaded from a JSON file or API
+// Browser Games - Main JavaScript
+document.addEventListener('DOMContentLoaded', () => {
+    // Game collection data
     const games = [
         {
             id: 'snake',
             title: 'Snake',
-            description: 'The classic Snake game where you control a snake to eat food and grow without hitting walls or yourself.',
+            description: 'Navigate a snake to collect food without hitting walls or yourself.',
             path: 'games/snake/index.html',
-            image: 'https://via.placeholder.com/300x180?text=Snake+Game' // Placeholder image
+            image: 'games/snake/preview.png',
+            fallbackImage: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="160" viewBox="0 0 300 160"><rect width="300" height="160" fill="%23343a40"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="24" fill="%23f8f9fa">Snake</text></svg>'
         }
-        // More games would be added here as they are developed
+        // More games will be added here as developed
     ];
 
-    // Get the games container element
-    const gamesListElement = document.getElementById('gamesList');
+    // Render all games to the DOM
+    renderGames(games);
 
-    // Render all available games
-    renderGames(games, gamesListElement);
-
-    // Add fade-in animation after a small delay to ensure DOM is ready
-    setTimeout(() => {
-        const gameCards = document.querySelectorAll('.game-card');
-        gameCards.forEach((card, index) => {
-            card.classList.add('fade-in');
-            card.style.animationDelay = `${index * 0.1}s`;
-        });
-    }, 100);
+    // Add subtle entrance animations
+    animateGameCards();
 });
 
 /**
- * Renders game cards into the specified container
- * @param {Array} games - Array of game objects with title, description, path, etc.
- * @param {Element} container - DOM element to render games into
+ * Renders game cards into the games list container
+ * @param {Array} games - Collection of game objects
  */
-function renderGames(games, container) {
-    // Clear the container first
-    container.innerHTML = '';
+function renderGames(games) {
+    const gamesListElement = document.getElementById('gamesList');
 
-    // If no games are available, show a message
+    // Clear previous content
+    gamesListElement.innerHTML = '';
+
+    // Show message if no games available
     if (games.length === 0) {
-        container.innerHTML = '<p class="no-games">No games available yet. Check back soon!</p>';
+        const message = document.createElement('p');
+        message.className = 'no-games';
+        message.textContent = 'No games available yet. Check back soon!';
+        gamesListElement.appendChild(message);
         return;
     }
 
-    // Create and append a card for each game
+    // Create game cards
     games.forEach(game => {
-        const gameCard = document.createElement('div');
-        gameCard.className = 'game-card';
-
-        gameCard.innerHTML = `
-      <div class="game-image">
-        <img src="${game.image}" alt="${game.title}">
-      </div>
-      <div class="game-info">
-        <h2>${game.title}</h2>
-        <p>${game.description}</p>
-        <a href="${game.path}" class="play-button">Play Now</a>
-      </div>
-    `;
-
-        container.appendChild(gameCard);
+        const card = createGameCard(game);
+        gamesListElement.appendChild(card);
     });
 }
 
 /**
- * Checks if an element is in the viewport
- * Used for scroll animations
- * @param {Element} element - DOM element to check
- * @returns {Boolean} - True if element is in viewport
+ * Creates a game card element
+ * @param {Object} game - Game data object
+ * @returns {HTMLElement} - Game card DOM element
  */
-function isInViewport(element) {
-    const rect = element.getBoundingClientRect();
-    return (
-        rect.top >= 0 &&
-        rect.left >= 0 &&
-        rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
-        rect.right <= (window.innerWidth || document.documentElement.clientWidth)
-    );
+function createGameCard(game) {
+    const card = document.createElement('div');
+    card.className = 'game-card';
+    card.setAttribute('data-game-id', game.id);
+
+    // Create image element with fallback
+    const img = document.createElement('img');
+    img.alt = `${game.title} preview`;
+    img.src = game.fallbackImage; // Start with fallback
+
+    // Try to load the actual image
+    const actualImg = new Image();
+    actualImg.onload = () => img.src = game.image;
+    actualImg.onerror = () => console.log(`Could not load image for ${game.title}`);
+    actualImg.src = game.image;
+
+    // Build card structure
+    card.innerHTML = `
+        <div class="game-image"></div>
+        <div class="game-info">
+            <h2>${game.title}</h2>
+            <p>${game.description}</p>
+            <a href="${game.path}" class="play-button">Play</a>
+        </div>
+    `;
+
+    // Insert image
+    card.querySelector('.game-image').appendChild(img);
+
+    return card;
 }
 
-// Add scroll animation - elements fade in as they scroll into view
-window.addEventListener('scroll', () => {
-    const gameCards = document.querySelectorAll('.game-card:not(.visible)');
-    gameCards.forEach(card => {
-        if (isInViewport(card)) {
-            card.classList.add('visible');
-            card.style.opacity = 1;
-            card.style.transform = 'translateY(0)';
-        }
+/**
+ * Adds subtle entrance animations to game cards
+ */
+function animateGameCards() {
+    const cards = document.querySelectorAll('.game-card');
+
+    // Observer for scroll-based animations
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('fade-in');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, {
+        root: null,
+        threshold: 0.1,
+        rootMargin: '0px'
     });
-}, { passive: true });
+
+    // Observe all cards
+    cards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        card.style.animationDelay = `${index * 0.1}s`;
+        observer.observe(card);
+    });
+}
