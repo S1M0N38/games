@@ -265,6 +265,16 @@ chore(ci): update GitHub actions workflow
 - Clean up code and ensure proper organization
 - Create final commit with proper message
 
+### 6. Submission & Integration (1 day)
+- Commit the completed game using the commit instructions:
+  1. Always use the git tool (never direct file uploads)
+  2. Follow the commit message style guidelines
+  3. Ensure all game files are committed to the appropriate game branch
+- Add the new game to the main landing page:
+  1. Update the ./script.js file to include your new game in the games catalog
+  2. Commit this change to the same game branch (NOT to main)
+  3. Use an appropriate commit message (e.g., `feat(main): add [game] to landing page`)
+
 ## Critical Checkpoints
 
 1. **Pre-Implementation Checkpoint**
@@ -278,3 +288,8 @@ chore(ci): update GitHub actions workflow
    - Game is playable and bug-free
    - Code is clean and minimal
    - Documentation complete
+
+4. **Integration Checkpoint**
+   - Game committed to its branch
+   - Landing page updated to include the new game
+   - All changes pushed to remote repository
