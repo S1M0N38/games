@@ -6,6 +6,7 @@ A collection of simple browser-based games implemented using only HTML, CSS, and
 
 - [Balance Beam](./games/balance-beam/) - Test your precision by keeping an object balanced on a beam.
 - [Breakout Blocks](./games/breakout-blocks/) - Classic brick-breaking game where you control a paddle to bounce a ball and destroy blocks.
+- [Pendulum Pulse](./games/pendulum-pulse/) - A minimalist black and white timing game where you click when a pendulum crosses the center line.
 - [Reaction Dots](./games/reaction-dots/) - Test your reflexes by clicking on dots that appear randomly on the screen.
 - [Snake](./games/snake/) - Classic arcade game where you control a snake, eat food, and avoid collisions.
 - [Space Dodger](./games/space-dodger/) - Fast-paced arcade game where you pilot a spaceship through an asteroid field, dodging obstacles and collecting power-ups.
