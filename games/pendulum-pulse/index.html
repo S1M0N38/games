@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pendulum Pulse</title>
+    <link rel="stylesheet" href="style.css">
+    <meta name="description" content="A minimalist timing game where players interact with a hypnotic swinging pendulum">
+</head>
+<body>
+    <div class="game-container">
+        <!-- Game canvas will fill the entire screen -->
+        <canvas id="gameCanvas"></canvas>
+        
+        <!-- Overlay elements for UI -->
+        <div class="ui-overlay">
+            <div id="score">0</div>
+            <div id="accuracy" class="hidden"></div>
+            <div id="menu">
+                <h1>Pendulum Pulse</h1>
+                <p>Click when the pendulum crosses the center line</p>
+                <button id="startButton">Start</button>
+            </div>
+            <div id="gameOver" class="hidden">
+                <h2>Game Over</h2>
+                <p>Final Score: <span id="finalScore">0</span></p>
+                <button id="restartButton">Try Again</button>
+            </div>
+        </div>
+    </div>
+    <script src="game.js"></script>
+</body>
+</html>

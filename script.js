@@ -41,6 +41,14 @@ document.addEventListener('DOMContentLoaded', () => {
             path: 'games/balance-beam/index.html',
             image: 'games/balance-beam/preview.png',
             fallbackImage: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="160" viewBox="0 0 300 160"><rect width="300" height="160" fill="%23222222"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="24" fill="%23ff6f61">Balance Beam</text></svg>'
+        },
+        {
+            id: 'pendulum-pulse',
+            title: 'Pendulum Pulse',
+            description: 'A minimalist timing game - click when the pendulum crosses the center line for perfect rhythm.',
+            path: 'games/pendulum-pulse/index.html',
+            image: 'games/pendulum-pulse/preview.svg',
+            fallbackImage: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="160" viewBox="0 0 300 160"><rect width="300" height="160" fill="%23000000"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="24" fill="%23ffffff">Pendulum Pulse</text></svg>'
         }
         // More games will be added here as developed
     ];
