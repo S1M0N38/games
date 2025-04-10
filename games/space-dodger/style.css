@@ -97,12 +97,14 @@ body {
 
 #score {
     color: var(--accent-primary);
-    margin: 0 auto 0 20px; /* Center the score */
+    margin: 0 auto 0 20px;
+    /* Center the score */
 }
 
 #difficulty {
     color: var(--accent-primary);
-    margin-left: auto; /* Push to the right */
+    margin-left: auto;
+    /* Push to the right */
 }
 
 #power-up-indicator {
@@ -176,8 +178,12 @@ body {
     white-space: nowrap;
 }
 
-#final-score, #high-score, #final-difficulty, #survival-time, 
-#asteroids-destroyed, #powerups-collected {
+#final-score,
+#high-score,
+#final-difficulty,
+#survival-time,
+#asteroids-destroyed,
+#powerups-collected {
     color: var(--accent-primary);
     font-weight: bold;
     margin-left: 0.5rem;
@@ -259,9 +265,17 @@ button:hover {
 }
 
 @keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); }
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+
+    100% {
+        transform: scale(1);
+    }
 }
 
 /* Accessibility Notification */
@@ -454,7 +468,7 @@ button:hover {
     #start-screen h1 {
         font-size: 3rem;
     }
-    
+
     .game-stats {
         font-size: 1rem;
     }
