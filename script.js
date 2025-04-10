@@ -25,6 +25,14 @@ document.addEventListener('DOMContentLoaded', () => {
             path: 'games/reaction-dots/index.html',
             image: 'games/reaction-dots/preview.png',
             fallbackImage: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="160" viewBox="0 0 300 160"><rect width="300" height="160" fill="%233498db"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="24" fill="%23ffffff">Reaction Dots</text></svg>'
+        },
+        {
+            id: 'breakout-blocks',
+            title: 'Breakout Blocks',
+            description: 'Control a paddle to bounce a ball and break bricks in this classic arcade game.',
+            path: 'games/breakout-blocks/index.html',
+            image: 'games/breakout-blocks/preview.png',
+            fallbackImage: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="160" viewBox="0 0 300 160"><rect width="300" height="160" fill="%231a1a2e"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="24" fill="%234d80e4">Breakout Blocks</text></svg>'
         }
         // More games will be added here as developed
     ];
