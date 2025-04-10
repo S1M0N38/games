@@ -42,7 +42,13 @@ const gameState = {
     lastAsteroidSpawn: 0,
     lastDifficultyIncrease: 0,
     animationFrameId: null,
-    highScore: localStorage.getItem('spaceDodgerHighScore') || 0
+    highScore: localStorage.getItem('spaceDodgerHighScore') || 0,
+    // Game statistics
+    statistics: {
+        startTime: 0,
+        asteroidsDestroyed: 0,
+        powerupsCollected: 0
+    }
 };
 
 // DOM Elements
@@ -196,11 +202,14 @@ function startGame() {
         initSounds();
     }
     
+    // Get difficulty settings
+    const settings = difficultySettings[currentDifficulty];
+    
     // Reset game state
     gameState.isActive = true;
     gameState.isPaused = false;
     gameState.score = 0;
-    gameState.lives = 3;
+    gameState.lives = settings.lives;
     gameState.difficulty = 1;
     gameState.asteroids = [];
     gameState.powerUps = [];
@@ -208,6 +217,11 @@ function startGame() {
     gameState.powerUpTimeRemaining = 0;
     gameState.lastAsteroidSpawn = 0;
     gameState.lastDifficultyIncrease = 0;
+    
+    // Reset statistics
+    gameState.statistics.startTime = Date.now();
+    gameState.statistics.asteroidsDestroyed = 0;
+    gameState.statistics.powerupsCollected = 0;
     
     // Reset player position
     gameState.player.x = GAME_WIDTH / 2;
@@ -244,9 +258,19 @@ function endGame() {
         localStorage.setItem('spaceDodgerHighScore', gameState.highScore);
     }
     
-    // Update final score displays
+    // Calculate survival time
+    const survivalTimeMs = Date.now() - gameState.statistics.startTime;
+    const minutes = Math.floor(survivalTimeMs / 60000);
+    const seconds = ((survivalTimeMs % 60000) / 1000).toFixed(0);
+    const formattedTime = `${minutes}:${seconds.padStart(2, '0')}`;
+    
+    // Update final statistics displays
     finalScoreDisplay.textContent = gameState.score;
     highScoreDisplay.textContent = gameState.highScore;
+    document.getElementById('final-difficulty').textContent = gameState.difficulty.toFixed(1);
+    document.getElementById('survival-time').textContent = formattedTime;
+    document.getElementById('asteroids-destroyed').textContent = gameState.statistics.asteroidsDestroyed;
+    document.getElementById('powerups-collected').textContent = gameState.statistics.powerupsCollected;
     
     // Show game over screen
     gameScreen.classList.add('hidden');
@@ -540,16 +564,17 @@ function gameLoop(timestamp = 0) {
         
         // Spawn asteroids at intervals
         const currentTime = performance.now();
-        if (currentTime - gameState.lastAsteroidSpawn > ASTEROID_SPAWN_INTERVAL / gameState.difficulty) {
+        const settings = difficultySettings[currentDifficulty];
+        if (currentTime - gameState.lastAsteroidSpawn > settings.asteroidSpawnInterval / gameState.difficulty) {
             spawnAsteroid();
             gameState.lastAsteroidSpawn = currentTime;
         }
         
         // Increase difficulty over time
-        if (currentTime - gameState.lastDifficultyIncrease > DIFFICULTY_INCREASE_INTERVAL) {
-            gameState.difficulty += 0.2; // Gradual difficulty increase
+        if (currentTime - gameState.lastDifficultyIncrease > settings.difficultyIncreaseInterval) {
+            gameState.difficulty += settings.difficultyMultiplier; // Gradual difficulty increase
             gameState.lastDifficultyIncrease = currentTime;
-        }// Update active power-up timer
+        }
         if (gameState.activePowerUp && gameState.powerUpTimeRemaining > 0) {
             gameState.powerUpTimeRemaining -= deltaTime * 1000;
             
@@ -732,6 +757,9 @@ function updatePowerUps(deltaTime) {
             // Play power-up collection sound
             playSound('powerUp');
             
+            // Track power-up collection in statistics
+            gameState.statistics.powerupsCollected++;
+            
             // Handle power-up collection
             powerUp.effect();
             
@@ -828,6 +856,9 @@ function updateLasers(deltaTime) {
                 
                 // Create explosion at asteroid position
                 createExplosion(asteroid.x, asteroid.y);
+                
+                // Track asteroid destruction in statistics
+                gameState.statistics.asteroidsDestroyed++;
                 
                 // Add points based on asteroid size (smaller = more points)
                 const points = Math.floor((ASTEROID_MAX_SIZE - asteroid.size + 10) * gameState.difficulty);
@@ -1058,3 +1089,78 @@ window.addEventListener('keydown', function(event) {
         event.preventDefault();
     }
 });
+
+// DOM Elements for difficulty buttons
+const easyButton = document.getElementById('easy-button');
+const mediumButton = document.getElementById('medium-button');
+const hardButton = document.getElementById('hard-button');
+
+// Difficulty settings
+const difficultySettings = {
+    easy: {
+        asteroidSpawnInterval: 1200,
+        difficultyIncreaseInterval: 15000,
+        difficultyMultiplier: 0.15,
+        lives: 5
+    },
+    medium: {
+        asteroidSpawnInterval: 1000,
+        difficultyIncreaseInterval: 10000,
+        difficultyMultiplier: 0.2,
+        lives: 3
+    },
+    hard: {
+        asteroidSpawnInterval: 700,
+        difficultyIncreaseInterval: 8000,
+        difficultyMultiplier: 0.3,
+        lives: 1
+    }
+};
+
+// Current difficulty
+let currentDifficulty = 'easy';
+
+// Event Listeners for difficulty buttons
+easyButton.addEventListener('click', () => setDifficulty('easy'));
+mediumButton.addEventListener('click', () => setDifficulty('medium'));
+hardButton.addEventListener('click', () => setDifficulty('hard'));
+
+// Set difficulty
+function setDifficulty(difficulty) {
+    // Update current difficulty
+    currentDifficulty = difficulty;
+    
+    // Update button styling
+    easyButton.classList.remove('selected');
+    mediumButton.classList.remove('selected');
+    hardButton.classList.remove('selected');
+    
+    // Add selected class to chosen difficulty button
+    if (difficulty === 'easy') easyButton.classList.add('selected');
+    else if (difficulty === 'medium') mediumButton.classList.add('selected');
+    else if (difficulty === 'hard') hardButton.classList.add('selected');
+}
+
+// DOM Elements for controls overlay
+const helpButton = document.getElementById('help-button');
+const controlsOverlay = document.getElementById('controls-overlay');
+const closeControlsButton = document.getElementById('close-controls');
+
+// Event listeners for controls overlay
+helpButton.addEventListener('click', showControlsOverlay);
+closeControlsButton.addEventListener('click', hideControlsOverlay);
+
+// Show controls overlay
+function showControlsOverlay() {
+    controlsOverlay.classList.remove('hidden');
+    
+    // Pause the game when showing controls
+    if (gameState.isActive && !gameState.isPaused) {
+        togglePause();
+    }
+}
+
+// Hide controls overlay
+function hideControlsOverlay() {
+    controlsOverlay.classList.add('hidden');
+}
