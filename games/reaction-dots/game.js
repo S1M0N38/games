@@ -1,25 +1,26 @@
 /**
  * Reaction Dots - A simple reaction game
  * Test your reflexes by clicking dots when they change color
+ * Minimal black and white aesthetic
  */
 
 // Game configuration
 const config = {
-    dotCount: 12,           // Number of dots in the grid
+    dotCount: 25,           // Increased from 12 to 25 dots
     initialLives: 3,        // Starting number of lives
-    baseInterval: 2000,     // Base time between dot activations (ms)
-    minInterval: 800,       // Minimum time between dot activations at max difficulty (ms)
-    activeTime: 1000,       // Time a dot stays active (ms)
-    minActiveTime: 600,     // Minimum time a dot stays active at max difficulty (ms)
-    difficultyStep: 5,      // Score increment that increases difficulty
-    wrongPenalty: 500       // Time penalty for wrong clicks (ms)
+    baseInterval: 1800,     // Slightly reduced base time between dot activations (ms)
+    minInterval: 700,       // Slightly reduced minimum time between dot activations (ms)
+    activeTime: 950,        // Slightly reduced time a dot stays active (ms)
+    minActiveTime: 550,     // Slightly reduced minimum time a dot stays active (ms)
+    difficultyStep: 4,      // Reduced difficulty step to account for more dots
+    wrongPenalty: 400       // Slightly reduced time penalty for wrong clicks (ms)
 };
 
 // Game state
 let state = {
     score: 0,
     lives: config.initialLives,
-    gameActive: true,
+    gameActive: false,
     dotsActive: false,
     lastDotIndex: -1,
     difficultyLevel: 0,
@@ -27,7 +28,7 @@ let state = {
 };
 
 // DOM Elements
-let gameArea, scoreDisplay, livesDisplay, gameOverScreen, finalScoreDisplay;
+let gameArea, scoreDisplay, livesDisplay, gameOverScreen, finalScoreDisplay, startMenu;
 let dots = [];
 
 // Initialize the game
@@ -35,25 +36,33 @@ function initGame() {
     // Get DOM elements
     gameArea = document.getElementById('gameArea');
     scoreDisplay = document.getElementById('score');
-    livesDisplay = document.getElementById('lives');
+    livesDisplay = document.getElementById('livesDisplay');
     gameOverScreen = document.getElementById('gameOver');
     finalScoreDisplay = document.getElementById('finalScore');
-
-    // Create dots
-    createDots();
+    startMenu = document.getElementById('startMenu');
 
     // Set up event listeners
+    document.getElementById('startButton').addEventListener('click', startGame);
     document.getElementById('restartButton').addEventListener('click', restartGame);
 
     // Add keyboard controls (space to restart)
     document.addEventListener('keydown', function (event) {
-        if (event.code === 'Space' && !state.gameActive) {
-            restartGame();
+        if (event.code === 'Space') {
+            if (!state.gameActive) {
+                if (gameOverScreen.classList.contains('hidden')) {
+                    startGame();
+                } else {
+                    restartGame();
+                }
+            }
         }
     });
 
-    // Start the game loop
-    startGameLoop();
+    // Create dots
+    createDots();
+
+    // Initialize lives display
+    updateLivesDisplay();
 }
 
 // Create the dots in the game area
@@ -74,6 +83,39 @@ function createDots() {
         gameArea.appendChild(dot);
         dots.push(dot);
     }
+}
+
+// Update the lives display
+function updateLivesDisplay() {
+    livesDisplay.innerHTML = '';
+
+    for (let i = 0; i < config.initialLives; i++) {
+        const lifeElement = document.createElement('div');
+        lifeElement.className = i < state.lives ? 'life' : 'life lost';
+        livesDisplay.appendChild(lifeElement);
+    }
+}
+
+// Start the game
+function startGame() {
+    // Reset game state
+    state.score = 0;
+    state.lives = config.initialLives;
+    state.gameActive = true;
+    state.dotsActive = false;
+    state.lastDotIndex = -1;
+    state.difficultyLevel = 0;
+
+    // Update display
+    scoreDisplay.textContent = state.score;
+    updateLivesDisplay();
+
+    // Hide the start menu
+    startMenu.classList.add('hidden');
+    gameOverScreen.classList.add('hidden');
+
+    // Start game loop
+    startGameLoop();
 }
 
 // Handle dot click events
@@ -108,7 +150,7 @@ function handleDotClick(index) {
     } else {
         // Wrong click!
         state.lives--;
-        livesDisplay.textContent = state.lives;
+        updateLivesDisplay();
 
         // Visual feedback
         dot.classList.add('wrong');
@@ -169,7 +211,7 @@ function activateRandomDot(activeTime) {
         if (dot.classList.contains('target')) {
             dot.classList.remove('target');
             state.lives--;
-            livesDisplay.textContent = state.lives;
+            updateLivesDisplay();
 
             // Check if game is over
             if (state.lives <= 0) {
@@ -188,7 +230,7 @@ function activateRandomDot(activeTime) {
 function endGame() {
     state.gameActive = false;
     finalScoreDisplay.textContent = state.score;
-    gameOverScreen.style.display = 'block';
+    gameOverScreen.classList.remove('hidden');
 
     // Clear any active timeouts
     if (state.timeoutId) {
@@ -198,29 +240,7 @@ function endGame() {
 
 // Restart the game
 function restartGame() {
-    // Reset game state
-    state = {
-        score: 0,
-        lives: config.initialLives,
-        gameActive: true,
-        dotsActive: false,
-        lastDotIndex: -1,
-        difficultyLevel: 0,
-        timeoutId: null
-    };
-
-    // Update display
-    scoreDisplay.textContent = state.score;
-    livesDisplay.textContent = state.lives;
-    gameOverScreen.style.display = 'none';
-
-    // Remove any active classes from dots
-    dots.forEach(dot => {
-        dot.classList.remove('target', 'correct', 'wrong');
-    });
-
-    // Start the game loop
-    startGameLoop();
+    startGame();
 }
 
 // Initialize the game when the DOM is fully loaded

@@ -10,26 +10,35 @@
 
 <body>
     <div class="game-container">
-        <header>
-            <h1>Reaction Dots</h1>
-            <div class="stats">
-                <div class="score">Score: <span id="score">0</span></div>
-                <div class="lives">Lives: <span id="lives">3</span></div>
-            </div>
-        </header>
-
+        <!-- Game area for dots -->
         <div class="game-area" id="gameArea">
             <!-- Dots will be generated here by JavaScript -->
         </div>
 
-        <div class="instructions">
-            <p>Click on dots when they turn <span class="target-color">green</span>!</p>
-        </div>
+        <!-- UI Overlay for scores and instructions -->
+        <div class="ui-overlay">
+            <div class="stats">
+                <div class="lives-display" id="livesDisplay">
+                    <!-- Lives will be generated here by JavaScript -->
+                </div>
+                <div class="score">Score: <span id="score">0</span></div>
+            </div>
 
-        <div class="game-over" id="gameOver">
-            <h2>Game Over</h2>
-            <p>Your score: <span id="finalScore">0</span></p>
-            <button id="restartButton">Play Again</button>
+            <div class="instructions">
+                <p>Click on dots when they turn <span class="target-color">white</span>!</p>
+            </div>
+
+            <div class="start-menu" id="startMenu">
+                <h1>Reaction Dots</h1>
+                <p>Click on dots when they turn white</p>
+                <button id="startButton">Start</button>
+            </div>
+
+            <div class="game-over hidden" id="gameOver">
+                <h2>Game Over</h2>
+                <p>Your score: <span id="finalScore">0</span></p>
+                <button id="restartButton">Play Again</button>
+            </div>
         </div>
     </div>
 
