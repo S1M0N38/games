@@ -3,6 +3,8 @@
     --black: #000000;
     --white: #FFFFFF;
     --error-red: #FF0000;
+    --gray-10: rgba(255, 255, 255, 0.1);
+    --gray-30: rgba(255, 255, 255, 0.3);
 }
 
 * {
@@ -36,15 +38,15 @@ body {
     background-color: var(--black);
 }
 
-/* Progress indicator for level difficulty */
-#progress-container {
+/* Progress indicator for difficulty progression */
+#progress-indicator {
     position: absolute;
     bottom: 20px;
     left: 50%;
     transform: translateX(-50%);
     width: 30%;
     height: 2px;
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: var(--gray-10);
     z-index: 10;
 }
 
@@ -52,7 +54,7 @@ body {
     height: 100%;
     width: 0;
     background-color: var(--white);
-    transition: width 0.3s ease-in-out;
+    transition: width 0.3s ease-in-out, opacity 0.3s ease-in-out;
 }
 
 /* Error overlay - only visible when an error occurs */
@@ -82,7 +84,7 @@ body {
     position: absolute;
 }
 
-/* Creating a simple warning triangle */
+/* Warning triangle */
 #error-icon:before {
     width: 100%;
     height: 100%;
@@ -98,7 +100,6 @@ body {
     left: calc(50% - 5px);
 }
 
-/* Error animation */
 @keyframes tremble {
     0% {
         transform: translate(0, 0) rotate(0);

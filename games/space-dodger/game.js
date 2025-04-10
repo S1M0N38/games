@@ -1,6 +1,6 @@
 /**
  * Space Dodger - A minimalist arcade game
- * Core mechanic: Mouse-based asteroid avoidance with particle effects
+ * Core mechanic: Mouse-based asteroid avoidance
  */
 
 (function () {
@@ -8,170 +8,207 @@
 
     // Game constants
     const GAME_STATE = {
+        INTRO: 'intro',
         PLAYING: 'playing',
-        TRANSITIONING: 'transitioning',
+        RESETTING: 'resetting',
         ERROR: 'error'
     };
 
     // Game variables
     let canvas, ctx;
-    let gameState = GAME_STATE.TRANSITIONING;
-    let frameCount = 0;
+    let gameState = GAME_STATE.INTRO;
     let lastTime = 0;
     let delta = 0;
     let mouseX = 0;
-    let mouseY = 0; // Track mouse Y position
-    let score = 0; // Current score (milliseconds survived)
-    let highScore = 0; // High score
-    let scoreIndicators = []; // Array for score indicator animations
-
-    // Level progression and timing
-    let gameTime = 0; // Time in seconds
-    let currentLevel = 1;
-    let levelThresholds = [30, 60, 90, 120, 180, 240, 300]; // Time thresholds in seconds for level increases
-    let progressBar; // DOM element for progress bar
+    let mouseY = 0;
+    let gameTime = 0;
+    let difficultyProgress = 0;
+    let hasPlayed = false;
+    let highScore = 0;
 
     // Game entities
     let player;
     let asteroids = [];
+    let particles = [];
 
-    // Audio elements (minimal sounds)
-    let nearMissSound;
-    let collisionSound;
-    let ambientSound;
-
-    // Track if game has been played before (for hub integration)
-    let gamePlayed = false;
-
-    // Object pool for asteroids
+    // Pooling for better performance
     const asteroidPool = [];
+    const particlePool = [];
 
-    // Game initialization
+    // DOM elements
+    let progressBar;
+
+    // Audio elements
+    let nearMissSound, collisionSound, ambientSound;
+
+    // Initialization
     function init() {
-        // Set up canvas
-        canvas = document.getElementById('game-canvas');
-        ctx = canvas.getContext('2d');
+        try {
+            // Get canvas and context
+            canvas = document.getElementById('game-canvas');
+            ctx = canvas.getContext('2d');
 
-        // Set canvas to full window size
-        resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
+            // Set canvas dimensions
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
 
-        // Get progress bar element
-        progressBar = document.getElementById('progress-bar');
+            // Get UI elements
+            progressBar = document.getElementById('progress-bar');
 
-        // Create audio elements
-        createAudioElements();
+            // Create audio elements
+            createAudioElements();
 
-        // Mouse movement tracking
-        canvas.addEventListener('mousemove', handleMouseMove);
+            // Mouse tracking
+            canvas.addEventListener('mousemove', handleMouseMove);
 
-        // Check local storage for played state and high score
-        checkGamePlayed();
+            // Check local storage
+            loadGameState();
 
-        // Initialize player
-        initializePlayer();
+            // Initialize game objects
+            initializePlayer();
 
-        // Start with an intro animation
-        startIntroAnimation();
+            // Start the intro sequence
+            startIntro();
 
-        // Start game loop
-        requestAnimationFrame(gameLoop);
+            // Start the game loop
+            requestAnimationFrame(gameLoop);
+        } catch (error) {
+            handleError(error);
+        }
     }
 
-    // Resize canvas to full window
+    // Set canvas to full window size
     function resizeCanvas() {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
     }
 
-    // Create minimal audio elements
+    // Create minimal audio feedback
     function createAudioElements() {
         try {
-            // These would be minimal, non-intrusive sounds
-            // Actual sound files would be added to assets folder if needed
+            // Creating audio objects (would be linked to actual files in production)
             nearMissSound = new Audio();
             collisionSound = new Audio();
             ambientSound = new Audio();
 
-            // Set volume very low for ambient sound
+            // Configure ambient sound
             ambientSound.volume = 0.1;
             ambientSound.loop = true;
         } catch (error) {
             console.error('Audio initialization error:', error);
-            // Game can continue without sound
+            // Continue without sound
         }
     }
 
-    // Check if game has been played before
-    function checkGamePlayed() {
+    // Load saved game state from localStorage
+    function loadGameState() {
         try {
-            gamePlayed = localStorage.getItem('space-dodger-played') === 'true';
-
-            // Get high score from local storage
-            const savedHighScore = localStorage.getItem('space-dodger-high-score');
-            if (savedHighScore) {
-                highScore = parseInt(savedHighScore, 10);
+            hasPlayed = localStorage.getItem('space-dodger-played') === 'true';
+            const savedScore = localStorage.getItem('space-dodger-high-score');
+            if (savedScore) {
+                highScore = parseInt(savedScore, 10);
             }
         } catch (error) {
             console.error('LocalStorage error:', error);
-            // Continue without storage if unavailable
+            // Continue without storage
         }
     }
 
-    // Mark game as played
-    function markGameAsPlayed() {
+    // Save game state to localStorage
+    function saveGameState() {
         try {
             localStorage.setItem('space-dodger-played', 'true');
-            gamePlayed = true;
-        } catch (error) {
-            console.error('LocalStorage error:', error);
-        }
-    }
-
-    // Save high score
-    function saveHighScore() {
-        try {
             localStorage.setItem('space-dodger-high-score', highScore.toString());
         } catch (error) {
             console.error('LocalStorage error:', error);
         }
     }
 
-    // Mouse movement handler
+    // Track mouse position
     function handleMouseMove(event) {
         mouseX = event.clientX;
-        mouseY = event.clientY; // Add tracking for Y position
+        mouseY = event.clientY;
     }
 
-    // Initialize player ship
+    // Create player ship
     function initializePlayer() {
         player = {
             x: canvas.width / 2,
-            y: canvas.height / 2, // Start in the center of the screen
+            y: canvas.height / 2,
             size: 20,
             targetX: canvas.width / 2,
-            targetY: canvas.height / 2, // Add target Y position
-            speed: 0.15, // For smooth easing
-            isAlive: true
+            targetY: canvas.height / 2,
+            speed: 0.15,
+            rotation: 0,
+            active: true
         };
     }
 
-    // Start intro animation with converging particles
-    function startIntroAnimation() {
-        gameState = GAME_STATE.TRANSITIONING;
-        // Clear any existing entities
+    // Start intro animation
+    function startIntro() {
+        gameState = GAME_STATE.INTRO;
         asteroids = [];
+        particles = [];
+        gameTime = 0;
 
-        // After animation completes, start the game
+        // Create converging particles for intro effect
+        for (let i = 0; i < 20; i++) {
+            createParticle(
+                Math.random() * canvas.width,
+                Math.random() * canvas.height,
+                canvas.width / 2,
+                canvas.height / 2,
+                1.5 + Math.random() * 1.5
+            );
+        }
+
+        // Transition to playing state after animation
         setTimeout(() => {
             gameState = GAME_STATE.PLAYING;
-            markGameAsPlayed();
+            hasPlayed = true;
+            saveGameState();
+
             try {
                 ambientSound.play();
             } catch (e) {
-                // Continue without sound if it fails
+                // Continue without sound
             }
-        }, 1000);
+        }, 1500);
+    }
+
+    // Reset game after collision
+    function resetGame() {
+        gameState = GAME_STATE.RESETTING;
+
+        // Create explosion particles
+        for (let i = 0; i < 30; i++) {
+            createParticle(
+                player.x,
+                player.y,
+                player.x + (Math.random() - 0.5) * 200,
+                player.y + (Math.random() - 0.5) * 200,
+                3 + Math.random() * 2
+            );
+        }
+
+        // Reset player position
+        player.x = canvas.width / 2;
+        player.y = canvas.height / 2;
+        player.targetX = canvas.width / 2;
+        player.targetY = canvas.height / 2;
+        player.active = false;
+
+        // Remove all asteroids
+        asteroids.forEach(a => asteroidPool.push(a));
+        asteroids = [];
+
+        // Reset game parameters
+        gameTime = 0;
+        difficultyProgress = 0;
+        updateProgressBar(0);
+
+        // Restart intro sequence after a delay
+        setTimeout(startIntro, 2000);
     }
 
     // Main game loop
@@ -181,82 +218,141 @@
         delta = (timestamp - lastTime) / 1000; // Convert to seconds
         lastTime = timestamp;
 
-        // Increase frame counter
-        frameCount++;
-
         // Clear canvas
         ctx.fillStyle = '#000000';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
         // Update and render based on game state
-        if (gameState === GAME_STATE.PLAYING) {
-            update(delta);
-            render();
-        } else if (gameState === GAME_STATE.TRANSITIONING) {
-            updateTransition(delta);
-            renderTransition();
-        } else if (gameState === GAME_STATE.ERROR) {
-            renderError();
+        switch (gameState) {
+            case GAME_STATE.INTRO:
+            case GAME_STATE.RESETTING:
+                updateTransition(delta);
+                renderTransition();
+                break;
+            case GAME_STATE.PLAYING:
+                updateGame(delta);
+                renderGame();
+                break;
+            case GAME_STATE.ERROR:
+                showErrorOverlay();
+                break;
         }
 
         // Continue game loop
         requestAnimationFrame(gameLoop);
     }
 
-    // Update game logic
-    function update(delta) {
-        // Update player position with smooth easing
+    // Update game state
+    function updateGame(delta) {
+        // Update player with smooth follow
         updatePlayer(delta);
 
-        // Update all asteroids
-        updateAsteroids(delta);
+        // Update game time and difficulty
+        gameTime += delta;
+        difficultyProgress = Math.min(1, gameTime / 180); // Max difficulty after 3 minutes
+        updateProgressBar(difficultyProgress);
 
-        // Update score indicators
-        updateScoreIndicators(delta);
-
-        // Update score based on survival time
-        if (gameState === GAME_STATE.PLAYING) {
-            // Update game time (seconds)
-            gameTime += delta;
-
-            // Update score (milliseconds)
-            score = Math.floor(gameTime * 1000);
-
-            // Check for level progression
-            updateLevelProgression();
-
-            // Update progress bar
-            updateProgressBar();
-
-            // Update high score if current score is higher
-            if (score > highScore) {
-                highScore = score;
-                saveHighScore();
-            }
+        // Update high score
+        if (gameTime * 1000 > highScore) {
+            highScore = Math.floor(gameTime * 1000);
+            saveGameState();
         }
 
-        // Spawn new asteroids at varying intervals
-        if (frameCount % Math.max(10, 60 - Math.floor(frameCount / 1000)) === 0) {
+        // Spawn asteroids based on difficulty
+        if (Math.random() < 0.05 + (difficultyProgress * 0.15)) {
             spawnAsteroid();
         }
+
+        // Update all game entities
+        updateAsteroids(delta);
+        updateParticles(delta);
 
         // Check for collisions
         checkCollisions();
     }
 
-    // Update player
+    // Update player ship
     function updatePlayer(delta) {
+        if (!player.active) return;
+
         // Smooth movement towards mouse position
         player.targetX = mouseX;
-        player.targetY = mouseY; // Update target Y position
+        player.targetY = mouseY;
 
-        // Smooth easing for both X and Y coordinates
         player.x += (player.targetX - player.x) * player.speed * (delta * 60);
         player.y += (player.targetY - player.y) * player.speed * (delta * 60);
 
-        // Keep player within canvas bounds
-        player.x = Math.max(player.size, Math.min(canvas.width - player.size, player.x));
-        player.y = Math.max(player.size, Math.min(canvas.height - player.size, player.y));
+        // Subtle rotation based on movement
+        const dx = player.targetX - player.x;
+        const dy = player.targetY - player.y;
+        const targetRotation = Math.atan2(dy, dx) + Math.PI / 2;
+
+        // Smooth rotation
+        let rotDiff = targetRotation - player.rotation;
+
+        // Normalize angle difference
+        if (rotDiff > Math.PI) rotDiff -= Math.PI * 2;
+        if (rotDiff < -Math.PI) rotDiff += Math.PI * 2;
+
+        player.rotation += rotDiff * 0.1 * (delta * 60);
+
+        // Create subtle trail particles during movement
+        if (Math.random() < 0.2 && (Math.abs(dx) > 1 || Math.abs(dy) > 1)) {
+            const trailX = player.x - Math.cos(player.rotation - Math.PI / 2) * player.size;
+            const trailY = player.y - Math.sin(player.rotation - Math.PI / 2) * player.size;
+
+            createParticle(
+                trailX,
+                trailY,
+                trailX + (Math.random() - 0.5) * 10,
+                trailY + (Math.random() - 0.5) * 10,
+                0.5 + Math.random()
+            );
+        }
+    }
+
+    // Spawn a new asteroid
+    function spawnAsteroid() {
+        // Get asteroid from pool or create new
+        let asteroid = asteroidPool.length > 0 ? asteroidPool.pop() : {};
+
+        // Position outside viewport
+        const side = Math.floor(Math.random() * 4); // 0: top, 1: right, 2: bottom, 3: left
+
+        switch (side) {
+            case 0: // top
+                asteroid.x = Math.random() * canvas.width;
+                asteroid.y = -50;
+                asteroid.speedY = 1 + Math.random() * 3 * (1 + difficultyProgress);
+                asteroid.speedX = (Math.random() - 0.5) * 2 * (1 + difficultyProgress);
+                break;
+            case 1: // right
+                asteroid.x = canvas.width + 50;
+                asteroid.y = Math.random() * canvas.height;
+                asteroid.speedX = -(1 + Math.random() * 3 * (1 + difficultyProgress));
+                asteroid.speedY = (Math.random() - 0.5) * 2 * (1 + difficultyProgress);
+                break;
+            case 2: // bottom
+                asteroid.x = Math.random() * canvas.width;
+                asteroid.y = canvas.height + 50;
+                asteroid.speedY = -(1 + Math.random() * 3 * (1 + difficultyProgress));
+                asteroid.speedX = (Math.random() - 0.5) * 2 * (1 + difficultyProgress);
+                break;
+            case 3: // left
+                asteroid.x = -50;
+                asteroid.y = Math.random() * canvas.height;
+                asteroid.speedX = 1 + Math.random() * 3 * (1 + difficultyProgress);
+                asteroid.speedY = (Math.random() - 0.5) * 2 * (1 + difficultyProgress);
+                break;
+        }
+
+        // Common properties
+        asteroid.size = 15 + Math.random() * 25;
+        asteroid.rotation = Math.random() * Math.PI * 2;
+        asteroid.rotationSpeed = (Math.random() - 0.5) * 0.1;
+        asteroid.shape = Math.floor(Math.random() * 5); // 0: circle, 1: triangle, 2: square, 3: pentagon, 4: hexagon
+
+        asteroids.push(asteroid);
     }
 
     // Update all asteroids
@@ -265,196 +361,181 @@
             const asteroid = asteroids[i];
 
             // Update position
-            asteroid.y += asteroid.speed * delta * 60;
-            asteroid.x += asteroid.horizontalSpeed * delta * 60;
+            asteroid.x += asteroid.speedX * delta * 60;
+            asteroid.y += asteroid.speedY * delta * 60;
 
             // Update rotation
-            asteroid.rotation += asteroid.rotationSpeed * delta;
+            asteroid.rotation += asteroid.rotationSpeed * delta * 60;
 
-            // Remove if off screen
-            if (asteroid.y > canvas.height + asteroid.size) {
-                // Return to object pool
+            // Remove if off screen with padding
+            if (asteroid.x < -100 || asteroid.x > canvas.width + 100 ||
+                asteroid.y < -100 || asteroid.y > canvas.height + 100) {
                 asteroidPool.push(asteroids.splice(i, 1)[0]);
             }
         }
     }
 
-    // Spawn a new asteroid
-    function spawnAsteroid() {
+    // Create particle effect
+    function createParticle(x, y, targetX, targetY, duration) {
         // Get from pool or create new
-        let asteroid;
-        if (asteroidPool.length > 0) {
-            asteroid = asteroidPool.pop();
-        } else {
-            asteroid = {};
+        let particle = particlePool.length > 0 ? particlePool.pop() : {};
+
+        particle.x = x;
+        particle.y = y;
+        particle.startX = x;
+        particle.startY = y;
+        particle.targetX = targetX;
+        particle.targetY = targetY;
+        particle.life = 1.0;
+        particle.duration = duration;
+        particle.size = 1 + Math.random() * 3;
+
+        particles.push(particle);
+        return particle;
+    }
+
+    // Update all particles
+    function updateParticles(delta) {
+        for (let i = particles.length - 1; i >= 0; i--) {
+            const particle = particles[i];
+
+            // Update life
+            particle.life -= delta / particle.duration;
+
+            // Update position using easing
+            const progress = 1 - particle.life;
+            const easedProgress = 1 - Math.pow(1 - progress, 3); // Cubic ease-out
+
+            particle.x = particle.startX + (particle.targetX - particle.startX) * easedProgress;
+            particle.y = particle.startY + (particle.targetY - particle.startY) * easedProgress;
+
+            // Remove dead particles
+            if (particle.life <= 0) {
+                particlePool.push(particles.splice(i, 1)[0]);
+            }
         }
-
-        // Set properties
-        asteroid.x = Math.random() * canvas.width;
-        asteroid.y = -50;
-        asteroid.size = 15 + Math.random() * 20;
-
-        // Make asteroids faster and more challenging
-        // Base speed increases gradually with game time
-        const baseSpeed = 2 + Math.random() * 3; // Increased base speed
-        const timeMultiplier = 1 + (frameCount / 5000); // Faster progression
-        asteroid.speed = baseSpeed * timeMultiplier;
-
-        // More dynamic horizontal movement
-        asteroid.horizontalSpeed = (Math.random() - 0.5) * 3; // Increased horizontal variation
-
-        // More rotation
-        asteroid.rotation = Math.random() * Math.PI * 2;
-        asteroid.rotationSpeed = (Math.random() - 0.5) * 0.1; // Double rotation speed
-
-        // More shape variety (0: circle, 1: triangle, 2: square, 3: pentagon, 4: hexagon, 5: star)
-        asteroid.shape = Math.floor(Math.random() * 6);
-
-        // Add some special properties for certain shapes
-        if (asteroid.shape === 5) { // Star shape
-            asteroid.starPoints = 5 + Math.floor(Math.random() * 3); // 5-7 points
-            asteroid.innerRadius = asteroid.size * 0.4; // Inner radius for star shape
-        }
-
-        // Add to active asteroids
-        asteroids.push(asteroid);
     }
 
     // Check for collisions between player and asteroids
     function checkCollisions() {
-        // Shape-aware collision detection
+        if (!player.active || gameState !== GAME_STATE.PLAYING) return;
+
         for (const asteroid of asteroids) {
             const dx = player.x - asteroid.x;
             const dy = player.y - asteroid.y;
             const distance = Math.sqrt(dx * dx + dy * dy);
 
-            // Base collision threshold for player (triangular ship)
-            const playerCollisionRadius = player.size * 0.8; // Slightly smaller than visual size for better feel
+            // Collision radii adjusted by shape
+            const playerRadius = player.size * 0.7;
+            let asteroidFactor = 0.8;
 
-            // Asteroid collision radius varies by shape
-            let asteroidCollisionFactor = 0.7; // Default
-
-            // Adjust collision radius based on asteroid shape
+            // Adjust collision radius based on shape
             switch (asteroid.shape) {
                 case 0: // Circle
-                    asteroidCollisionFactor = 0.9; // Most accurate
+                    asteroidFactor = 0.9;
                     break;
                 case 1: // Triangle
-                    asteroidCollisionFactor = 0.7; // Pointy corners
-                    break;
-                case 2: // Square
-                    asteroidCollisionFactor = 0.8; // Corners but more substantial
-                    break;
-                case 3: // Pentagon
-                case 4: // Hexagon
-                    asteroidCollisionFactor = 0.85; // More round-like
-                    break;
-                case 5: // Star
-                    asteroidCollisionFactor = 0.65; // Very pointy, smaller collision area
+                    asteroidFactor = 0.7;
                     break;
             }
 
-            // Check for collision with adjusted radius
-            if (distance < playerCollisionRadius + asteroid.size * asteroidCollisionFactor) {
-                handleCollision(asteroid);
+            // Check for collision
+            if (distance < playerRadius + asteroid.size * asteroidFactor) {
+                handleCollision();
                 return;
             }
 
-            // Near miss detection - more generous with stars and triangles
-            const nearMissFactor = asteroid.shape === 5 || asteroid.shape === 1 ? 2.5 : 2;
-            if (distance < playerCollisionRadius + asteroid.size * nearMissFactor && Math.random() < 0.15) {
+            // Near miss detection
+            const nearMissThreshold = playerRadius + asteroid.size * 1.8;
+            if (distance < nearMissThreshold && Math.random() < 0.1) {
                 try {
                     nearMissSound.play();
                 } catch (e) {
                     // Continue without sound
                 }
+
+                // Create subtle particle trail for near miss
+                for (let i = 0; i < 3; i++) {
+                    createParticle(
+                        asteroid.x + (Math.random() - 0.5) * asteroid.size,
+                        asteroid.y + (Math.random() - 0.5) * asteroid.size,
+                        asteroid.x + asteroid.speedX * 20,
+                        asteroid.y + asteroid.speedY * 20,
+                        0.5 + Math.random() * 0.5
+                    );
+                }
             }
         }
     }
 
-    // Reset game variables for new game
-    function resetGame() {
-        // Reset score
-        score = 0;
-        frameCount = 0;
-
-        // Reset time and level progression
-        gameTime = 0;
-        currentLevel = 1;
-
-        // Reset progress bar
-        if (progressBar) {
-            progressBar.style.width = '0%';
-        }
-
-        // Clear asteroids
-        asteroids.forEach(a => asteroidPool.push(a));
-        asteroids = [];
-        scoreIndicators = [];
-    }
-
-    // Handle collision with asteroid
-    function handleCollision(asteroid) {
-        // Play collision sound
+    // Handle collision
+    function handleCollision() {
         try {
             collisionSound.play();
         } catch (e) {
             // Continue without sound
         }
 
-        // Reset player position
-        player.x = canvas.width / 2;
-        player.targetX = canvas.width / 2;
-        player.y = canvas.height / 2;
-        player.targetY = canvas.height / 2;
-
-        // Remove all asteroids
-        asteroids.forEach(a => asteroidPool.push(a));
-        asteroids = [];
-
-        // Reset game variables
         resetGame();
-
-        // Restart with intro animation
-        startIntroAnimation();
     }
 
-    // Update transition animations
+    // Update transitioning state (intro/resetting)
     function updateTransition(delta) {
-        // Placeholder for transition updates
+        updateParticles(delta);
+
+        if (gameState === GAME_STATE.INTRO && player) {
+            // Gradually activate player during intro
+            player.active = true;
+        }
+    }
+
+    // Update progress bar
+    function updateProgressBar(progress) {
+        if (!progressBar) return;
+
+        progressBar.style.width = `${progress * 100}%`;
+
+        // Pulse effect when nearing difficulty increase
+        if (progress > 0 && progress % 0.1 < 0.02) {
+            progressBar.style.opacity = 0.5 + Math.sin(gameTime * 5) * 0.5;
+        } else {
+            progressBar.style.opacity = 1;
+        }
     }
 
     // Render the game
-    function render() {
-        // Render asteroids
+    function renderGame() {
+        // Render game entities
         renderAsteroids();
-
-        // Render player
         renderPlayer();
-
-        // Render stopwatch (score)
-        renderStopwatch();
+        renderParticles();
+        renderScore();
     }
 
-    // Render transition animations
+    // Render transition states
     function renderTransition() {
-        // Render player if ready
-        if (gameState === GAME_STATE.TRANSITIONING && frameCount > 30) {
+        renderParticles();
+
+        if (player && player.active) {
             renderPlayer();
         }
     }
 
     // Render player ship
     function renderPlayer() {
+        if (!player) return;
+
         ctx.save();
         ctx.translate(player.x, player.y);
+        ctx.rotate(player.rotation);
 
         // Draw player ship (triangle)
         ctx.fillStyle = '#FFFFFF';
         ctx.beginPath();
         ctx.moveTo(0, -player.size);
-        ctx.lineTo(-player.size, player.size);
-        ctx.lineTo(player.size, player.size);
+        ctx.lineTo(-player.size * 0.6, player.size * 0.5);
+        ctx.lineTo(0, player.size * 0.3);
+        ctx.lineTo(player.size * 0.6, player.size * 0.5);
         ctx.closePath();
         ctx.fill();
 
@@ -463,275 +544,143 @@
 
     // Render all asteroids
     function renderAsteroids() {
+        ctx.fillStyle = '#FFFFFF';
+
         for (const asteroid of asteroids) {
             ctx.save();
             ctx.translate(asteroid.x, asteroid.y);
             ctx.rotate(asteroid.rotation);
 
-            ctx.fillStyle = '#FFFFFF';
-
             // Draw different shapes based on asteroid type
-            if (asteroid.shape === 0) {
-                // Circle
-                ctx.beginPath();
-                ctx.arc(0, 0, asteroid.size, 0, Math.PI * 2);
-                ctx.fill();
-            } else if (asteroid.shape === 1) {
-                // Triangle
-                ctx.beginPath();
-                const points = 3;
-                const angleStep = (Math.PI * 2) / points;
+            ctx.beginPath();
 
-                for (let i = 0; i < points; i++) {
-                    const angle = i * angleStep;
-                    const x = Math.cos(angle) * asteroid.size;
-                    const y = Math.sin(angle) * asteroid.size;
+            switch (asteroid.shape) {
+                case 0: // Circle
+                    ctx.arc(0, 0, asteroid.size, 0, Math.PI * 2);
+                    break;
 
-                    if (i === 0) {
-                        ctx.moveTo(x, y);
-                    } else {
-                        ctx.lineTo(x, y);
-                    }
-                }
+                case 1: // Triangle
+                    drawPolygon(asteroid.size, 3);
+                    break;
 
-                ctx.closePath();
-                ctx.fill();
-            } else if (asteroid.shape === 2) {
-                // Square
-                ctx.beginPath();
-                const size = asteroid.size * 0.9; // Slightly smaller for equal area perception
-                ctx.rect(-size, -size, size * 2, size * 2);
-                ctx.fill();
-            } else if (asteroid.shape === 3 || asteroid.shape === 4) {
-                // Pentagon (3) or Hexagon (4)
-                ctx.beginPath();
-                const points = asteroid.shape === 3 ? 5 : 6; // Pentagon or Hexagon
-                const angleStep = (Math.PI * 2) / points;
+                case 2: // Square
+                    const squareSize = asteroid.size * 0.9;
+                    ctx.rect(-squareSize, -squareSize, squareSize * 2, squareSize * 2);
+                    break;
 
-                for (let i = 0; i < points; i++) {
-                    const angle = i * angleStep;
-                    const x = Math.cos(angle) * asteroid.size;
-                    const y = Math.sin(angle) * asteroid.size;
+                case 3: // Pentagon
+                    drawPolygon(asteroid.size, 5);
+                    break;
 
-                    if (i === 0) {
-                        ctx.moveTo(x, y);
-                    } else {
-                        ctx.lineTo(x, y);
-                    }
-                }
-
-                ctx.closePath();
-                ctx.fill();
-            } else if (asteroid.shape === 5) {
-                // Star shape
-                ctx.beginPath();
-                const points = asteroid.starPoints || 5;
-                const outerRadius = asteroid.size;
-                const innerRadius = asteroid.innerRadius || (asteroid.size * 0.4);
-                const angleStep = Math.PI / points;
-
-                for (let i = 0; i < points * 2; i++) {
-                    const angle = i * angleStep;
-                    const radius = i % 2 === 0 ? outerRadius : innerRadius;
-                    const x = Math.cos(angle) * radius;
-                    const y = Math.sin(angle) * radius;
-
-                    if (i === 0) {
-                        ctx.moveTo(x, y);
-                    } else {
-                        ctx.lineTo(x, y);
-                    }
-                }
-
-                ctx.closePath();
-                ctx.fill();
+                case 4: // Hexagon
+                    drawPolygon(asteroid.size, 6);
+                    break;
             }
 
+            ctx.closePath();
+            ctx.fill();
             ctx.restore();
         }
     }
 
-    // Render stopwatch as score
-    function renderStopwatch() {
-        // Position in top center
+    // Helper function to draw regular polygons
+    function drawPolygon(radius, sides) {
+        const angleStep = (Math.PI * 2) / sides;
+
+        for (let i = 0; i < sides; i++) {
+            const angle = i * angleStep;
+            const x = Math.cos(angle) * radius;
+            const y = Math.sin(angle) * radius;
+
+            if (i === 0) {
+                ctx.moveTo(x, y);
+            } else {
+                ctx.lineTo(x, y);
+            }
+        }
+    }
+
+    // Render all particles
+    function renderParticles() {
+        ctx.fillStyle = '#FFFFFF';
+
+        for (const particle of particles) {
+            const opacity = particle.life;
+            ctx.globalAlpha = opacity;
+
+            const size = particle.size * (1 + (1 - particle.life) * 0.5);
+
+            ctx.beginPath();
+            ctx.arc(particle.x, particle.y, size, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        ctx.globalAlpha = 1;
+    }
+
+    // Render minimalist stopwatch-style score
+    function renderScore() {
         const x = canvas.width / 2;
         const y = 40;
 
         ctx.save();
 
-        // Background for stopwatch
+        // Draw background
         ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
         ctx.beginPath();
-        ctx.rect(x - 70, y - 15, 140, 30);
+        ctx.rect(x - 50, y - 15, 100, 30);
         ctx.fill();
 
         // Draw stopwatch icon
         ctx.fillStyle = '#FFFFFF';
         ctx.beginPath();
-        ctx.arc(x - 50, y, 10, 0, Math.PI * 2);
+        ctx.arc(x - 35, y, 10, 0, Math.PI * 2);
         ctx.fill();
 
-        // Draw small knob on top of stopwatch
-        ctx.fillRect(x - 52, y - 14, 4, 4);
+        // Draw small knob on top
+        ctx.fillRect(x - 37, y - 14, 4, 4);
 
-        // Draw visual representation of milliseconds
-        // Each segment represents 100ms
-        for (let i = 0; i < 10; i++) {
-            const segmentWidth = 8;
-            const segmentGap = 2;
-            const segmentX = x - 30 + (i * (segmentWidth + segmentGap));
+        // Draw milliseconds as simple number
+        const ms = Math.floor(gameTime * 1000);
 
-            // Fill the segments that represent current time
-            const ms = score % 1000;
-            const filledSegments = Math.floor(ms / 100);
+        // Draw the number
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = '16px monospace';
+        ctx.fillText(ms, x - 15, y);
 
-            if (i <= filledSegments) {
-                ctx.fillStyle = '#FFFFFF';
-            } else {
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-            }
+        // High score indicator (only if close to high score)
+        if (highScore > 0 && ms > highScore * 0.9) {
+            // Simple pulsing circle indicating approaching high score
+            const hsX = x + 45;
+            const pulse = 0.75 + Math.sin(gameTime * 5) * 0.25;
 
-            ctx.fillRect(segmentX, y - 5, segmentWidth, 10);
-        }
-
-        // Indicate seconds with small dots above
-        const seconds = Math.floor(score / 1000);
-        const dotsToShow = Math.min(seconds % 10, 9); // Show up to 9 dots
-
-        for (let i = 0; i < dotsToShow; i++) {
-            ctx.fillStyle = '#FFFFFF';
             ctx.beginPath();
-            ctx.arc(x - 25 + (i * 10), y - 12, 2, 0, Math.PI * 2);
+            ctx.arc(hsX, y, 5 * pulse, 0, Math.PI * 2);
             ctx.fill();
-        }
-
-        // Show high score indicator if current score is approaching high score
-        if (highScore > 0 && score > highScore * 0.8) {
-            const indicator = (score / highScore) > 0.95 ? "●" : "○";
-            const indicatorX = x + 65;
-
-            ctx.fillStyle = '#FFFFFF';
-            ctx.beginPath();
-            ctx.arc(indicatorX, y, 4, 0, Math.PI * 2);
-            if ((score / highScore) > 0.95) {
-                ctx.fill();
-            } else {
-                ctx.stroke();
-            }
         }
 
         ctx.restore();
     }
 
-    // Render error screen
-    function renderError() {
-        // Show the error overlay
+    // Show error overlay
+    function showErrorOverlay() {
         const errorOverlay = document.getElementById('error-overlay');
-        errorOverlay.style.display = 'flex';
+        if (errorOverlay) {
+            errorOverlay.style.display = 'flex';
+        }
     }
 
-    // Error handler for the whole game
+    // Handle errors
     function handleError(error) {
         console.error('Game error:', error);
         gameState = GAME_STATE.ERROR;
+        showErrorOverlay();
     }
 
-    // Create a score indicator (visual feedback for points/multiplier)
-    function createScoreIndicator(type, x, y) {
-        const indicator = {
-            x: x,
-            y: y,
-            targetY: y - 50, // Float upward
-            opacity: 1,
-            scale: 1,
-            life: 1000, // 1 second lifetime
-            maxLife: 1000,
-            type: type // "+" for multiplier increase, or numeric for points
-        };
-
-        scoreIndicators.push(indicator);
-        return indicator;
-    }
-
-    // Update all score indicators
-    function updateScoreIndicators(delta) {
-        for (let i = scoreIndicators.length - 1; i >= 0; i--) {
-            const indicator = scoreIndicators[i];
-
-            // Update lifetime
-            indicator.life -= delta * 1000;
-
-            // Update position (float upward with easing)
-            indicator.y += (indicator.targetY - indicator.y) * 0.05;
-
-            // Update scale and opacity
-            indicator.scale = 1 + (0.5 * (1 - indicator.life / indicator.maxLife)); // Grow slightly
-            indicator.opacity = indicator.life / indicator.maxLife; // Fade out
-
-            // Remove dead indicators
-            if (indicator.life <= 0) {
-                scoreIndicators.splice(i, 1);
-            }
-        }
-    }
-
-    // Update the level progression based on game time
-    function updateLevelProgression() {
-        // Check if we should increase the level
-        if (currentLevel - 1 < levelThresholds.length && gameTime > levelThresholds[currentLevel - 1]) {
-            // Level up!
-            currentLevel++;
-        }
-    }
-
-    // Update the progress bar to reflect game time and level
-    function updateProgressBar() {
-        if (!progressBar) return;
-
-        // Calculate which level section we're in
-        let targetLevel = currentLevel;
-        if (targetLevel > levelThresholds.length) {
-            targetLevel = levelThresholds.length;
-        }
-
-        let prevThreshold = 0;
-        if (targetLevel > 1) {
-            prevThreshold = levelThresholds[targetLevel - 2];
-        }
-
-        let nextThreshold = levelThresholds[targetLevel - 1];
-        if (targetLevel > levelThresholds.length) {
-            nextThreshold = prevThreshold * 1.5; // After final threshold, just keep going
-        }
-
-        // Calculate progress within current level
-        const levelProgress = (gameTime - prevThreshold) / (nextThreshold - prevThreshold);
-
-        // Calculate overall progress percentage (0-100)
-        let totalProgress = ((targetLevel - 1) / (levelThresholds.length + 1)) * 100;
-        totalProgress += (levelProgress / (levelThresholds.length + 1)) * 100;
-
-        // Cap at 100%
-        totalProgress = Math.min(100, totalProgress);
-
-        // Update the progress bar width
-        progressBar.style.width = `${totalProgress}%`;
-
-        // Pulse effect when close to level change
-        if (targetLevel <= levelThresholds.length && levelProgress > 0.9) {
-            progressBar.style.opacity = 0.5 + Math.sin(gameTime * 5) * 0.5;
-        } else {
-            progressBar.style.opacity = 1;
-        }
-    }
-
-    // Try to initialize the game, catch any errors
-    try {
-        // Wait for DOM to be ready
-        window.addEventListener('load', init);
-    } catch (error) {
-        handleError(error);
-    }
+    // Initialize on load
+    window.addEventListener('load', init);
 
     // Global error handler
     window.addEventListener('error', function (event) {
