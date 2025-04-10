@@ -1,355 +1,317 @@
-# Browser-Based Minimal Game Development Guidelines
+**Browser-Based Minimal Game Development Guidelines**
 
-These guidelines outline the process for creating simple, engaging browser-based games using only HTML, CSS, and JavaScript. Follow this structure to develop clean, well-documented games that require no external libraries or frameworks, with an emphasis on minimalism and core mechanics.
+These guidelines outline the process for creating simple, engaging browser-based games using only HTML, CSS, and JavaScript. They provide a clear, disciplined approach that emphasizes minimalism, a strict black-and-white (plus grayscale and red for error feedback) aesthetic, and a singular focus on one core mechanic per game.
 
 ---
 
-## Game Development Requirements
+### Game Development Requirements
 
-- Technologies:
+- **Technologies**:
   - HTML5 for structure
   - CSS3 for styling
   - Vanilla JavaScript (ES6+) for logic
   - No external libraries or frameworks
 
-- File Structure:
-  - `index.html` (game container and HTML elements)
-  - `style.css` (game styling and animations)
-  - `script.js` (game logic and mechanics)
-  - `README.md` (game documentation)
+- **File Structure**:
+  - `index.html`: The game container and HTML elements
+  - `style.css`: Game styling and animations
+  - `script.js`: Game logic and mechanics
+  - `README.md`: Game documentation (including the full in-line Game Design Document)
 
 ---
 
-## NEW: Minimalist Approach Priority
+### Minimalist Approach Priority
 
-**Focus on creating minimal games with these principles:**
+**Design and development must adhere to these strict principles:**
 
-- Implement only one core mechanic and execute it well
-- Keep the codebase small and maintainable (under 500 lines total)
-- Avoid feature creep - do not add "nice-to-have" features
-- Prioritize game feel and responsiveness over complexity
-- Use STRICTLY black and white color scheme with grayscale accents only
-- Design for full-screen, immersive gameplay experience
-- Include only essential UI elements
-- Focus on rich, fluid animations that enhance the core mechanic
-- Create visual feedback through animation rather than color variation
-- Skip optional features like:
-  - Complex scoring systems
-  - Multiple levels (unless extremely simple)
-  - Character customization
-  - Settings menus
-  - Tutorial screens (use simple in-game cues instead)
+- **Core Mechanic**:  
+  - Implement only one core gameplay mechanic and execute it exceptionally well.
+  - The game’s loop must be infinite or extremely long (e.g., an endless snake-like game), with no hard “game over” screens interrupting the experience.
 
-**Visual Aesthetic Requirements:**
-- Black backgrounds (#000000) with white elements (#FFFFFF)
-- Subtle grayscale variations for depth and hierarchy
-- Clean, geometric shapes and minimal lines
-- Smooth transitions and fluid motion
-- Particle effects and animations to create visual interest
-- Strong contrast to create visual impact
-- Responsive, full-screen design that adapts to any display
+- **Codebase and Feature Set**:
+  - Keep the total code small and maintainable. Aim for fewer than 500 lines per file; JavaScript files must not exceed 2000 lines.
+  - Avoid adding nonessential features – no scoring systems, levels, customization, settings menus, or tutorial screens unless integrated in a truly minimal way.
+  
+- **Visual and Interaction Design**:
+  - **Color Palette**:  
+    - Use strictly black (`#000000`), white (`#FFFFFF`), and grayscale accents.  
+    - The color red (`#FF0000`) is reserved exclusively for error feedback.
+  - **Typography**:  
+    - No text is allowed anywhere in the game (UI, tutorials, feedback). All communication must be via icons, shapes, and animations.
+  - **Input**:  
+    - Only one input mode is permitted per game—either keyboard or mouse, never both.
+  - **Animations and Effects**:
+    - All animations must use smooth, ease-in-out transitions.
+    - Rich, fluid animations are required to enhance the core mechanic.
+    - Particle effects are a must, used to deliver visual feedback and rewards, integrated in a purpose-driven way.
+  - **Audio**:
+    - Minimal audio feedback is allowed. Sounds should be light, pleasing, and satisfying—never overwhelming.
+  - **Desktop-Only**:
+    - The games are designed exclusively for desktop environments (no touchscreen or mobile optimization).
 
-**Examples of appropriate minimal games:**
-- Simple clicker games with one interaction
-- Basic matching puzzles
-- Single-screen platformers with limited controls
-- Memory games with minimal elements
-- Reaction tests with clear feedback
-- Simple drawing applications
-- Timing-based rhythm games with visual feedback
+- **Data Persistence**:
+  - Minimal data, such as high scores or basic game state (new/played), may be stored using localStorage.
 
-**Complexity will only be scaled up when explicitly requested.**
+- **Error Handling**:
+  - In case of a critical game error (e.g., a JavaScript crash), a full-screen red error overlay must appear, employing a standard visual error state (red panel with a trembling border, accompanied by an iconographic warning, and no text).
 
 ---
 
-## Development Process
+### Visual Aesthetic Requirements
 
-1. **Game Concept Design:**
-   - Choose a game concept that's feasible with browser technologies
-   - Prioritize games with simple mechanics but engaging gameplay
-   - Focus on simplicity and fun rather than complexity
-   - Consider performance limitations of browser environments
-   - Focus on one core gameplay mechanic and execute it well
-
-2. **Game Design Document (GDD):**
-   - Title: Descriptive and engaging name
-   - Genre: Clear classification (puzzle, arcade, platformer, etc.)
-   - Target Audience: Age range and player experience level
-   - Gameplay Description: Core loop and mechanics
-   - Visual Style: 
-     - Strictly black and white color palette
-     - Minimalist geometric elements
-     - Use of negative space
-     - Visual feedback through animation and particle effects
-     - Full-screen immersive experience
-   - Controls: Input methods and response handling
-   - Win/Loss Conditions: Clear objectives and failure states
-   - Technical Approach: Canvas vs. DOM, animation techniques, state management
-   - Animation Plan: Specify key animations that will enhance gameplay feel
-
-3. **Implementation Best Practices:**
-   - Separate concerns (HTML for structure, CSS for presentation, JS for behavior)
-   - Use requestAnimationFrame for smooth animations
-   - Implement responsive design for different screen sizes
-   - Optimize for performance (minimize DOM manipulations, use efficient algorithms)
-   - Structure code with clear functions and meaningful variable names
-   - Implement proper state management patterns
-   - Focus on fluid, expressive animations that enhance the core mechanic
-   - Create visual impact through motion rather than color
-
-4. **Testing Requirements:**
-   - Test just for Chrome
-   - Focus on desktop environments (large screens, mouse and keyboard input)
-   - Use manual testing for all game features
-   - Test for performance issues with longer gameplay sessions
-   - Validate win/loss conditions function correctly
+- **Background**: Pure black.
+- **Foreground & Elements**:  
+  - Main elements are rendered in white with subtle variations of grayscale to denote hierarchy and depth.
+  - All shapes must be clean, geometric, and minimal.
+- **Motion**:
+  - Animations and transitions should be smooth and natural using only ease-in-out timing.
+  - Fluid, layered particle effects enhance the interaction feedback.
+- **Layout**:
+  - Full-screen immersive design that adapts to various desktop resolutions.
+  - Minimal use of UI elements; any overlays (such as a subtle timer or state indicator) must be integrated discreetly.
 
 ---
 
-## Code Quality Standards
+### Development Process
 
-- **HTML:**
-  - Semantic markup
-  - Proper document structure
-  - Accessibility considerations (ARIA attributes where needed)
+1. **Game Concept Design**:
+   - Choose a concept that is technically feasible with browser-only technologies.
+   - Focus on a single, well-defined core mechanic to create an engaging gameplay loop.
+   - Decide in advance which input mode (mouse OR keyboard) will be used.
 
-- **CSS:**
-  - Logical organization of rules
-  - Use of CSS variables for consistent styling
-  - Clear class naming conventions
-  - Responsive design principles
-  - Smooth transitions and animations
-  - Full-screen layout optimization
+2. **Game Design Document (GDD)**:
+   - Include in the README.md:
+     - Title, genre, and target audience.
+     - Detailed gameplay description focusing on the one core mechanic.
+     - Visual style specifications (black/white/grayscale with red only for errors).
+     - Controls (mouse OR keyboard only).
+     - Technical approach (Canvas vs. DOM, animation techniques, state management).
+     - Animation plan that details the implementation of smooth ease-in-out transitions and robust particle systems.
+     - Audio guidelines for minimal, pleasant sound feedback.
+     
+3. **Implementation Best Practices**:
+   - Separate concerns: HTML for structure, CSS for presentation, JavaScript for behavior.
+   - Use `requestAnimationFrame` for all animations to ensure smooth performance.
+   - Emphasize code modularity, clear state management, and proper event cleanup.
+   - Maintain a strict code size: aim for fewer than 500 lines, with an absolute maximum of 2000 lines per JavaScript file.
+   - No in-game text—communicate solely via visuals (icons, shapes, motion).
 
-- **JavaScript:**
-  - Functional programming approach preferred
-  - Consistent coding style
-  - Comprehensive error handling
-  - Clear comments for complex logic
-  - Modular function design
-  - Proper event handling and cleanup
-  - Animation systems for visual feedback
-  - Particle systems for enhanced visual effects
-  - Choose appropriate storage mechanism (localStorage, sessionStorage) based on game needs
-
----
-
-## Deliverables
-
-1. Complete GDD in markdown format
-2. Clean, commented source code in HTML, CSS, and JavaScript
-3. Playable game that runs directly in the browser (will be deployed by GitHub action on GitHub pages)
+4. **Testing Requirements**:
+   - Testing should be carried out on Chrome, in desktop environments only (mouse input only).
+   - Manual testing across long gameplay sessions to ensure performance stability.
+   - Verify that all interactive elements and fail/win state behaviors (e.g., the red error overlay) function as intended.
 
 ---
 
-## Constraints
+### Code Quality Standards
 
-- No build steps or transpilation
-- No external dependencies or CDN resources
-- Single HTML, CSS, and JS file only
-- No server-side components or backend dependencies. It must works as static site.
-- For game assets (images, sounds), request them from the repository owner
-- Choose rendering approach (Canvas or DOM) based on what's best for the specific game
+- **HTML**:
+  - Use semantic markup and accessible structure where necessary (ARIA only if needed).
+  - The HTML must remain lean and free of unnecessary bloat.
+
+- **CSS**:
+  - Use CSS variables for consistent styling.
+  - Follow a logical and consistent class naming scheme.
+  - Ensure a responsive full-screen layout.
+  - All animations and transitions must adhere to an ease-in-out standard.
+
+- **JavaScript**:
+  - Adopt a modular and functional coding style.
+  - Ensure comprehensive error handling, including the standardized red error overlay.
+  - Optimize for performance: minimize DOM manipulations, employ object pooling for particles, and leverage `requestAnimationFrame`.
+  - Use localStorage sparingly, only for essential data persistence (e.g., high scores).
+  
+---
+
+### Deliverables
+
+1. **README.md**  
+   - Must include the complete in-line GDD and game instructions.
+
+2. **Game Folder Structure**:
+   Each game must be fully self-contained:
+   - `index.html`: Game container and HTML structure.
+   - `style.css`: Game-specific styling.
+   - `game.js`: Game logic and mechanics.
+   - `README.md`: Contains the integrated GDD with all game specifications.
+   - `assets/`: Folder for any game-specific assets like images or sounds.
+
+3. The game must run directly in the browser without any build or server-side processes.
 
 ---
 
-## Repository Structure
+### Constraints
 
-For a collection of games maintained in a single repository, follow this structure:
+- **No Build Steps or External Resources**:
+  - No transpilation, bundling, or external CDNs.
+  - The entire project must work as a pure static site using HTML, CSS, and JavaScript.
+  
+- **Rendering Approach**:
+  - Either Canvas or DOM may be used based on the game’s requirements.
+  
+- **Self-Containment**:
+  - Each game must be completely independent with no code sharing between them.
+  
+- **Assets Management**:
+  - All assets must be stored within the game’s own folder.
+  
+- **No Text in the Game**:
+  - Communication and instructions must rely solely on icons, shapes, animations, and subtle visual cues.
+
+---
+
+### Repository Structure
 
 ```
 ├── games
-│   └── snake
-│       ├── assets
-│       │   ├── image1.png
-│       │   └── sound1.mp3
-│       ├── game.js
-│       ├── index.html
-│       ├── README.md
-│       └── style.css
-├── index.html
-├── LICENSE
-├── README.md
-├── script.js
-└── style.css
+│   ├── game1
+│   │   ├── assets
+│   │   ├── game.js
+│   │   ├── index.html
+│   │   ├── README.md (includes integrated GDD)
+│   │   └── style.css
+│   ├── game2
+│   └── ... (up to a total of 10 games)
+├── index.html         (Landing page hub)
+├── style.css          (Styling for the landing page)
+├── script.js          (Interactivity for the landing hub)
+├── README.md          (Project overview and general documentation)
+└── LICENSE
 ```
 
-- **Root Directory**:
-  - `index.html`: Main landing page that links to all games
-  - `style.css`: Styling for the landing page
-  - `script.js`: Any JavaScript needed for the landing page
-  - `README.md`: Project overview, setup instructions, and game catalog
-  - `LICENSE`: Project license file
-
-- **Games Directory**:
-  - Each game has its own subfolder (e.g., `snake`)
-  - Each game folder is completely self-contained with all necessary files
-  - Game-specific files follow the pattern of:
-    - `index.html`: Game container and HTML elements
-    - `style.css`: Game-specific styling
-    - `game.js`: Game logic and mechanics
-    - `README.md`: Game design document and specific instructions
-    - `assets/`: Directory for game-specific assets (images, sounds, etc.)
-  - Keep all assets for a game within its own assets directory
-  - Never share code between games - each game must be completely independent
-
-This structure ensures modular development where each game is independent while maintaining a consistent organization across the repository.
+- The root landing page serves as the navigation hub, hosting up to 10 game panels.
+- Each game is isolated in its own folder and branch (see Git Workflow).
 
 ---
 
-## Git Workflow & Commit Standards
+### Git Workflow & Commit Standards
 
-### Branch Management
+- **Branch Management**:
+  - Create a separate branch for each game (named after the game, e.g., `snake`).
+  - Never commit directly to the `main` branch.
+  - Use Git UI tools exclusively; avoid terminal commands.
 
-- When working on a game:
-  1. Create a new branch with the same name as the game (e.g., `snake`)
-  2. Switch to that branch
-  3. Write code and make changes
-  4. Check status to see what files have changed
-  5. Review changes before staging
-  6. Stage changes
-  7. Verify staged changes
-  8. Commit changes following commit message style
-  9. Push the branch to remote
+- **Commit Message Style (Conventional Commits)**:
+  - Use prefixes such as `feat`, `fix`, `style`, `refactor`, `docs`, or `chore`.
+  - Scopes include `main`, `ci`, or the individual game name (e.g., `feat(snake): add particles`).
 
-**IMPORTANT:** NEVER COMMIT OR MERGE INTO MAIN. The repository owner will handle merges to the main branch.
-
-**IMPORTANT** NEVER USE TERMINAL COMMANDS BUT USE GIT TOOLS (e.g. git_status, git_add, git_commit, ...)
-
-Each game will have its own development branch, and when a new version is ready, it will be manually merged into main by the repository owner. For updates to existing games, continue using the same branch - do not create new branches for updates to the same game.
-
-### Commit Message Style
-
-Follow conventional commits with these guidelines:
-
-1. Understand the git status of the repo before committing
-2. Create atomic commits following best practices (one commit per logical change)
-3. Use conventional commits style with standard types:
-   - `feat`: New features
-   - `fix`: Bug fixes
-   - `style`: Style/formatting changes
-   - `refactor`: Code refactoring
-   - `docs`: Documentation updates
-   - `chore`: Maintenance tasks
-
-4. Use the following scopes to indicate which part of the project is affected:
-   - `[type](ci)`: For files related to CI (usually files in .github/workflows)
-   - `[type](main)`: For changes to root files (./index.html, ./style.css, ./script.js)
-   - `[type]([game])`: For commits related to a specific game (e.g., `feat(snake): add collision detection`)
-
-Examples of well-formatted commit messages:
+Examples:
 ```
-feat(snake): implement game over screen
-fix(snake): fix collision detection with walls
-style(tetris): improve block colors and visibility
-docs(main): update repository README with new game
-refactor(snake): optimize game loop performance
-chore(ci): update GitHub actions workflow
+feat(game): implement new mechanic
+fix(game): resolve edge-case bug
+style(game): refine animation transitions
+docs(main): update landing page with new game
+refactor(game): optimize game loop
+chore(ci): update deployment configuration
 ```
 
 ---
 
-## Minimalist Game Development Process
+### Minimalist Game Development Process
 
-### 1. Idea Generation & Evaluation (1 day)
-- Brainstorm 2-3 minimal game concepts
-- Evaluate ideas based on:
-  - Technical simplicity (lower is better)
-  - Single core mechanic focus
-  - Feasibility to complete in a short timeframe
-- Select one concept to pursue
+1. **Idea Generation (1 day)**:
+   - Brainstorm 2–3 concepts.
+   - Select the idea that best satisfies simplicity, clarity, a singular input method (either keyboard or mouse), and strong animation potential.
 
-### 2. Simplified Game Design Document (1 day)
-- Create a concise GDD with:
-  - Game Overview: title, one-paragraph summary
-  - Core Mechanic: detailed explanation of the ONE gameplay loop
-  - Controls: specific input method (keep it simple)
-  - Visual Design: minimal color palette (3-4 colors maximum)
-  - Technical Approach: Canvas vs. DOM
-  - MVP Features: absolute minimum needed for playable game
+2. **Game Design Document (GDD) (1 day)**:
+   - Write the GDD in the README.md.
+   - Focus on a single core mechanic, its infinite (or extremely long) loop, and strict visual style.
 
-### 3. Technical Implementation (2-3 days)
-- Build minimal HTML structure
-- Implement basic CSS for essential styling only
-- Create JavaScript for:
-  - Game initialization
-  - Core game loop
-  - Simple state management
-  - Basic collision detection if needed
-  - Input handling (keyboard OR mouse, not both unless necessary)
+3. **Implementation (2–3 days)**:
+   - Choose the appropriate rendering approach (Canvas preferred) and build the essential HTML/CSS/JS scaffold.
+   - Develop the game loop, input handling (single mode), state management, and integrate smooth animations with particle effects.
+   - Integrate minimal, pleasing audio feedback for critical interactions.
 
-### 4. Testing & Refinement (1 day)
-- Test core gameplay functionality
-- Fix any critical bugs
-- Add minimal polish:
-  - Basic feedback for player actions
-  - Simple win/loss indicators
-  - Score display if needed
+4. **Testing & Refinement (1 day)**:
+   - Verify the game’s smooth performance and responsiveness.
+   - Test that all visual feedback works correctly, including the red error overlay in case of failure.
+   - Confirm that no text appears anywhere in the game; all instructions are conveyed visually.
 
-### 5. Documentation & Delivery (1 day)
-- Complete README with brief game description and instructions
-- Clean up code and ensure proper organization
-- Create final commit with proper message
+5. **Documentation & Delivery (1 day)**:
+   - Clean up code and ensure it adheres to style guidelines.
+   - Include the full GDD in the README.md.
+   - Finalize commits following the commit message guidelines.
 
-### 6. Submission & Integration (1 day)
-- Commit the completed game using the commit instructions:
-  1. Always use the git tool (never direct file uploads)
-  2. Follow the commit message style guidelines
-  3. Ensure all game files are committed to the appropriate game branch
-- Add the new game to the main landing page:
-  1. Update the ./script.js file to include your new game in the games catalog
-  2. Commit this change to the same game branch (NOT to main)
-  3. Use an appropriate commit message (e.g., `feat(main): add [game] to landing page`)
+6. **Submission & Integration (1 day)**:
+   - Commit all game files to the game’s specific branch.
+   - Update the landing hub (in `script.js`) to include the new game panel.
+   - Use a commit message like `feat(main): add [game] to landing page`.
 
-## Critical Checkpoints
+---
 
-1. **Pre-Implementation Checkpoint**
-   - Minimal GDD completed
-   - Technical approach decided
+### Animation Enhancement Guidelines
 
-2. **Core Mechanic Checkpoint**
-   - Single gameplay mechanic functioning
+1. **Purpose-Driven Animation**:
+   - Every animation must directly communicate a state change or reinforce a game mechanic.
+   - Use motion to provide immediate visual feedback during interactions.
 
-3. **Delivery Checkpoint**
-   - Game is playable and bug-free
-   - Code is clean and minimal
-   - Documentation complete
+2. **Types of Animation Required**:
+   - Transitions between states (e.g., from menu to game, pause states).
+   - Interactive feedback animations for player input.
+   - Collision or impact effects.
+   - Timing cues and rhythm indicators.
+   - Particle effects for rewards or impact, layered to add depth.
 
-4. **Integration Checkpoint**
-   - Game committed to its branch
-   - Landing page updated to include the new game
-   - All changes pushed to remote repository
+3. **Implementation Techniques**:
+   - Use CSS animations for UI elements and Canvas animations for in-game elements.
+   - All animations must use `ease-in-out` timing.
+   - Implement object pooling for particle systems to optimize performance.
+   - Layer multiple animation effects (scale, opacity, translation) to create fluid, natural motion.
 
-## Animation Enhancement Guidelines
+4. **Performance Considerations**:
+   - Maintain a minimum of 60 FPS through careful optimization.
+   - Use `requestAnimationFrame` for all time-sensitive animations.
+   - Favor transform and opacity changes for DOM animations to leverage hardware acceleration.
 
-Follow these principles when designing animations for the minimalist black and white games:
+---
 
-1. **Purpose-Driven Animation**
-   - Every animation should serve a gameplay purpose
-   - Use motion to communicate feedback to the player
-   - Create visual hierarchy through movement
+### Error Handling
 
-2. **Types of Animations to Include**
-   - State transitions (menu to game, pause states)
-   - Score or progress feedback
-   - Impact and collision effects
-   - Timing and rhythm indicators
-   - Success/failure indicators
-   - Particles for emphasis and reward
+- All games must implement a generic error handling mechanism:
+  - If a critical JavaScript error occurs, a red full-screen overlay must appear.
+  - The error overlay includes a standard icon (e.g., a triangle with an exclamation mark) and a trembling border—all rendered without text.
 
-3. **Animation Implementation Techniques**
-   - Use CSS animations for UI elements
-   - Implement canvas-based animations for game elements
-   - Create particle systems for visual embellishment
-   - Use easing functions for natural motion
-   - Layer multiple animation effects for depth
-   - Scale animation intensity based on gameplay importance
+---
 
-4. **Performance Considerations**
-   - Optimize animation code for smooth 60fps
-   - Use requestAnimationFrame for timing
-   - Consider using transform/opacity for DOM animations
-   - Implement object pooling for particle systems
-   - Scale back effects on lower-end devices
+### Game Hub Layout (Landing Page) – Interface Design
 
-Remember that the animation system should enhance the core mechanic without overwhelming it. The black and white aesthetic allows animations to stand out as the primary visual interest element.
+**Purpose:**  
+Design a visually consistent, minimalist, and intuitive desktop interface to host 10 experimental web-based games. The page functions both as the visual gateway and the navigation hub.
+
+**Design Principles:**  
+- **Visual Language**:  
+  - A high-contrast monochrome palette: pure black for the background, white with grayscale accents for game elements, and red strictly for error alerts.
+  - No textual elements; all information is conveyed via icons, shapes, and animations.
+- **Animation Style**:  
+  - Smooth, minimal animations using only ease-in-out transitions.
+  - Embedded particle effects in game panels emphasize interactivity.
+- **Layout Overview**:  
+  - Full-screen interface with a solid black background.
+  - A grid layout (2 rows x 5 columns) displaying 10 game panels.
+  - Each game panel is a clickable cell that displays a representative abstract icon and a looping micro-animation preview.
+  - On hover, a panel slightly zooms in and starts its preview animation.
+  - On click, a ripple or wave effect transitions the view and loads the game in full-screen mode.
+- **States & Feedback**:  
+  - **New Game**: Indicated by a pulsing white glow.
+  - **Played Game**: Denoted by a static soft gray border.
+  - **Error State**: If a game fails to load, the panel flashes a solid red overlay with a trembling border and a standardized error icon.
+- **Interaction Constraints**:  
+  - Interaction is based solely on mouse input; no keyboard or touch input is supported.
+- **Technical Considerations**:  
+  - The landing page (index.html) uses HTML/CSS/JS without external libraries.
+  - It handles navigation to each game’s dedicated folder.
+  - Game states (new/played) are stored via localStorage.
+  
+**File Structure for the Hub:**
+```
+/index.html        → Landing page hub
+/style.css         → Styling for the landing page
+/script.js         → Logic for panel animations and navigation
+/games/            → Contains each game as a separate folder (game1, game2, …, game10)
+```
+
+---
+
+**Final Notes**
+
+This comprehensive document defines a highly disciplined, minimalist approach to browser-based game development. Every element—from the singular focus on one gameplay mechanic, to the wordless, icon-driven communication, and the robust particle effects and animations—must align to create a unified, immersive desktop experience. The guidelines ensure that from the individual game code to the landing hub interface, every component is coherent, clean, and purpose-driven.
