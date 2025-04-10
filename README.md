@@ -5,6 +5,7 @@ A collection of simple browser-based games implemented using only HTML, CSS, and
 ## Available Games
 
 - [Snake](./games/snake/) - Classic arcade game where you control a snake, eat food, and avoid collisions.
+- [Space Dodger](./games/space-dodger/) - Fast-paced arcade game where you pilot a spaceship through an asteroid field, dodging obstacles and collecting power-ups.
 
 ## Features
 

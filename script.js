@@ -9,6 +9,14 @@ document.addEventListener('DOMContentLoaded', () => {
             path: 'games/snake/index.html',
             image: 'games/snake/preview.png',
             fallbackImage: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="160" viewBox="0 0 300 160"><rect width="300" height="160" fill="%23343a40"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="24" fill="%23f8f9fa">Snake</text></svg>'
+        },
+        {
+            id: 'space-dodger',
+            title: 'Space Dodger',
+            description: 'Pilot a spaceship through an asteroid field, dodge obstacles and collect power-ups.',
+            path: 'games/space-dodger/index.html',
+            image: 'games/space-dodger/preview.png',
+            fallbackImage: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="160" viewBox="0 0 300 160"><rect width="300" height="160" fill="%23343a40"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="24" fill="%23f8f9fa">Space Dodger</text></svg>'
         }
         // More games will be added here as developed
     ];
