@@ -11,17 +11,24 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Pages
-        uses: actions/configure-pages@v3
+        uses: actions/configure-pages@v4
 
       - name: Create landing page
         run: |
+          # Create build directory
+          mkdir -p _site
+          
           # Create a landing page that links to all games
-          echo '<!DOCTYPE html>
+          cat > _site/index.html << 'EOF'
+          <!DOCTYPE html>
           <html lang="en">
           <head>
             <meta charset="UTF-8">
@@ -77,9 +84,10 @@ jobs:
             <h1>Browser Games Collection</h1>
             <p>A collection of simple browser-based games implemented using only HTML, CSS, and JavaScript.</p>
             
-            <div class="games-list">' > index.html
+            <div class="games-list">
+          EOF
           
-          # Loop through all game directories and add links to them
+          # Copy game files to _site directory
           for game in $(find games -mindepth 1 -maxdepth 1 -type d); do
             game_name=$(basename $game)
             game_title=$(echo $game_name | sed -r 's/(^|_)([a-z])/\U\2/g')
@@ -98,24 +106,37 @@ jobs:
               description="A browser-based game."
             fi
             
+            # Copy game files to _site
+            mkdir -p _site/$game
+            cp -r $game/* _site/$game/
+            
+            # Add game card to index
             echo "              <div class=\"game-card\">
                 <h2>$game_title</h2>
                 <p>$description</p>
                 <a href=\"$game/index.html\">Play Now</a>
-              </div>" >> index.html
+              </div>" >> _site/index.html
           done
           
-          echo '            </div>
+          # Close HTML document
+          cat >> _site/index.html << 'EOF'
+            </div>
             <footer>
               <p>&copy; 2025 Browser Games Collection. Licensed under the <a href="LICENSE">MIT License</a>.</p>
             </footer>
           </body>
-          </html>' >> index.html
+          </html>
+          EOF
+
+          # Copy LICENSE file to _site if it exists
+          if [ -f "LICENSE" ]; then
+            cp LICENSE _site/
+          fi
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: '.'
+          path: './_site'
 
       - name: Deploy to GitHub Pages
         id: deployment
