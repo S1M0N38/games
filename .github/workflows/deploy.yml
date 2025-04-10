@@ -26,113 +26,22 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
-      - name: Create landing page
+      - name: Setup build directory
         run: |
           # Create build directory
           mkdir -p _site
           
-          # Create a landing page that links to all games
-          cat > _site/index.html << 'EOF'
-          <!DOCTYPE html>
-          <html lang="en">
-          <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Browser Games Collection</title>
-            <style>
-              body {
-                font-family: Arial, sans-serif;
-                max-width: 800px;
-                margin: 0 auto;
-                padding: 2rem;
-                line-height: 1.6;
-              }
-              h1 {
-                text-align: center;
-                margin-bottom: 2rem;
-              }
-              .games-list {
-                display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-                gap: 1.5rem;
-              }
-              .game-card {
-                border: 1px solid #ddd;
-                border-radius: 8px;
-                padding: 1rem;
-                text-align: center;
-              }
-              .game-card h2 {
-                margin-top: 0;
-              }
-              a {
-                display: inline-block;
-                margin-top: 0.5rem;
-                padding: 0.5rem 1rem;
-                background-color: #4CAF50;
-                color: white;
-                text-decoration: none;
-                border-radius: 4px;
-              }
-              a:hover {
-                background-color: #3e8e41;
-              }
-              footer {
-                margin-top: 2rem;
-                text-align: center;
-                font-size: 0.9rem;
-                color: #666;
-              }
-            </style>
-          </head>
-          <body>
-            <h1>Browser Games Collection</h1>
-            <p>A collection of simple browser-based games implemented using only HTML, CSS, and JavaScript.</p>
-            
-            <div class="games-list">
-          EOF
+          # Copy main files
+          cp index.html _site/
+          cp style.css _site/
+          cp script.js _site/
           
           # Copy game files to _site directory
           for game in $(find games -mindepth 1 -maxdepth 1 -type d); do
-            game_name=$(basename $game)
-            game_title=$(echo $game_name | sed -r 's/(^|_)([a-z])/\U\2/g')
-            
-            # Try to extract description from README if available
-            description=""
-            if [ -f "$game/README.md" ]; then
-              description=$(grep -A 3 "## Game Description" $game/README.md | tail -n 1)
-              if [ -z "$description" ]; then
-                # Fallback to first line after heading
-                description=$(grep -A 2 "## Game Description" $game/README.md | tail -n 1)
-              fi
-            fi
-            
-            if [ -z "$description" ]; then
-              description="A browser-based game."
-            fi
-            
-            # Copy game files to _site
             mkdir -p _site/$game
             cp -r $game/* _site/$game/
-            
-            # Add game card to index
-            echo "              <div class=\"game-card\">
-                <h2>$game_title</h2>
-                <p>$description</p>
-                <a href=\"$game/index.html\">Play Now</a>
-              </div>" >> _site/index.html
           done
           
-          # Close HTML document
-          cat >> _site/index.html << 'EOF'
-            </div>
-            <footer>
-              <p>&copy; 2025 Browser Games Collection. Licensed under the <a href="LICENSE">MIT License</a>.</p>
-            </footer>
-          </body>
-          </html>
-          EOF
-
           # Copy LICENSE file to _site if it exists
           if [ -f "LICENSE" ]; then
             cp LICENSE _site/
