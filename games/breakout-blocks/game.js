@@ -12,13 +12,27 @@ const restartButton = document.getElementById('restartButton');
 const PADDLE_HEIGHT = 10;
 const PADDLE_WIDTH = 75;
 const BALL_RADIUS = 8;
-const BRICK_ROW_COUNT = 4;
+const BRICK_ROW_COUNT = 5;  // Added an extra row for more colors
 const BRICK_COLUMN_COUNT = 8;
 const BRICK_WIDTH = 65;
 const BRICK_HEIGHT = 20;
 const BRICK_PADDING = 10;
 const BRICK_OFFSET_TOP = 30;
 const BRICK_OFFSET_LEFT = 30;
+const INITIAL_BALL_SPEED = 6;  // Increased from 4 to 6 for faster gameplay
+const SPEED_INCREMENT = 0.001; // Doubled from 0.0005 for more rapid speed increases
+
+// Color constants
+const COLORS = {
+    BACKGROUND: '#0c0c2a',
+    PADDLE: '#0ff7ff',
+    BALL: '#ff3cac',
+    BRICK_1: '#ff0055',
+    BRICK_2: '#ff9500',
+    BRICK_3: '#ffea00',
+    BRICK_4: '#00ff9f',
+    TEXT: '#ffffff'
+};
 
 // Game variables
 let paddleX;
@@ -26,6 +40,7 @@ let ballX;
 let ballY;
 let ballDX;
 let ballDY;
+let ballSpeed;  // To track current ball speed
 let score;
 let lives;
 let gameActive;
@@ -41,8 +56,13 @@ function initGame() {
     paddleX = (canvas.width - PADDLE_WIDTH) / 2;
     ballX = canvas.width / 2;
     ballY = canvas.height - 30;
-    ballDX = 2;
-    ballDY = -2;
+    ballSpeed = INITIAL_BALL_SPEED;
+
+    // Set random initial direction with fixed speed
+    const angle = Math.random() * Math.PI / 3 - Math.PI / 6; // -30 to +30 degrees
+    ballDX = ballSpeed * Math.sin(angle);
+    ballDY = -ballSpeed * Math.cos(angle);
+
     score = 0;
     lives = 3;
     gameActive = true;
@@ -67,14 +87,21 @@ function initBricks() {
         bricks[c] = [];
         for (let r = 0; r < BRICK_ROW_COUNT; r++) {
             // Determine brick color based on row
-            let colorIndex = Math.min(r + 1, 3);
-            let brickColor = `var(--brick-color-${colorIndex})`;
+            let brickColor;
+            switch (r) {
+                case 0: brickColor = COLORS.BRICK_1; break;
+                case 1: brickColor = COLORS.BRICK_2; break;
+                case 2: brickColor = COLORS.BRICK_3; break;
+                case 3: brickColor = COLORS.BRICK_4; break;
+                default: brickColor = COLORS.BRICK_1; break;
+            }
 
             bricks[c][r] = {
                 x: 0,
                 y: 0,
                 status: 1,
-                color: brickColor
+                color: brickColor,
+                points: (BRICK_ROW_COUNT - r) * 10 // Higher rows worth more points
             };
         }
     }
@@ -84,17 +111,28 @@ function initBricks() {
 function drawPaddle() {
     ctx.beginPath();
     ctx.rect(paddleX, canvas.height - PADDLE_HEIGHT, PADDLE_WIDTH, PADDLE_HEIGHT);
-    ctx.fillStyle = 'var(--paddle-color)';
+    ctx.fillStyle = COLORS.PADDLE;
     ctx.fill();
     ctx.closePath();
+
+    // Add glow effect
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = COLORS.PADDLE;
+    ctx.stroke();
+    ctx.shadowBlur = 0;
 }
 
 // Draw ball
 function drawBall() {
     ctx.beginPath();
     ctx.arc(ballX, ballY, BALL_RADIUS, 0, Math.PI * 2);
-    ctx.fillStyle = 'var(--ball-color)';
+    ctx.fillStyle = COLORS.BALL;
+
+    // Add glow effect
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = COLORS.BALL;
     ctx.fill();
+    ctx.shadowBlur = 0;
     ctx.closePath();
 }
 
@@ -112,7 +150,12 @@ function drawBricks() {
                 ctx.beginPath();
                 ctx.rect(brickX, brickY, BRICK_WIDTH, BRICK_HEIGHT);
                 ctx.fillStyle = bricks[c][r].color;
+
+                // Add glow effect based on brick color
+                ctx.shadowBlur = 8;
+                ctx.shadowColor = bricks[c][r].color;
                 ctx.fill();
+                ctx.shadowBlur = 0;
                 ctx.closePath();
             }
         }
@@ -134,11 +177,11 @@ function checkBrickCollision() {
                 ) {
                     ballDY = -ballDY;
                     brick.status = 0;
-                    score++;
+                    score += brick.points;
                     scoreElement.textContent = score;
 
                     // Check for win
-                    if (score === BRICK_ROW_COUNT * BRICK_COLUMN_COUNT) {
+                    if (score === calculateTotalScore()) {
                         showMessage('YOU WIN!');
                         gameActive = false;
                         restartButton.style.display = 'block';
@@ -149,8 +192,27 @@ function checkBrickCollision() {
     }
 }
 
+// Calculate total possible score
+function calculateTotalScore() {
+    let total = 0;
+    for (let c = 0; c < BRICK_COLUMN_COUNT; c++) {
+        for (let r = 0; r < BRICK_ROW_COUNT; r++) {
+            total += bricks[c][r].points;
+        }
+    }
+    return total;
+}
+
 // Move the ball
 function moveBall() {
+    // Gradually increase ball speed
+    ballSpeed += SPEED_INCREMENT;
+
+    // Normalize direction vector and apply current speed
+    const magnitude = Math.sqrt(ballDX * ballDX + ballDY * ballDY);
+    ballDX = (ballDX / magnitude) * ballSpeed;
+    ballDY = (ballDY / magnitude) * ballSpeed;
+
     // Check for wall collisions
     if (ballX + ballDX > canvas.width - BALL_RADIUS || ballX + ballDX < BALL_RADIUS) {
         ballDX = -ballDX;
@@ -164,8 +226,13 @@ function moveBall() {
             // Calculate bounce angle based on where ball hit the paddle
             // Hit on the left side of paddle = bounce left, right side = bounce right
             const hitPosition = (ballX - paddleX) / PADDLE_WIDTH;
-            ballDX = 4 * (hitPosition - 0.5); // Range from -2 to 2
-            ballDY = -ballDY;
+
+            // Create more dynamic angles: range from -60 to +60 degrees
+            const angle = (hitPosition - 0.5) * Math.PI * 0.6;
+
+            // Set direction vector using the angle, maintaining current speed
+            ballDX = Math.sin(angle) * ballSpeed;
+            ballDY = -Math.cos(angle) * ballSpeed;
         } else if (ballY + ballDY > canvas.height - BALL_RADIUS) {
             // Ball missed paddle
             lives--;
@@ -179,8 +246,13 @@ function moveBall() {
                 // Reset ball position
                 ballX = canvas.width / 2;
                 ballY = canvas.height - 30;
-                ballDX = 2;
-                ballDY = -2;
+                ballSpeed = INITIAL_BALL_SPEED;
+
+                // Set random initial direction
+                const angle = Math.random() * Math.PI / 3 - Math.PI / 6;
+                ballDX = ballSpeed * Math.sin(angle);
+                ballDY = -ballSpeed * Math.cos(angle);
+
                 paddleX = (canvas.width - PADDLE_WIDTH) / 2;
             }
         }
@@ -220,10 +292,12 @@ function gameLoop() {
 document.addEventListener('keydown', (e) => {
     if (!gameActive) return;
 
+    const moveSpeed = 12; // Increased paddle speed for better control with faster ball
+
     if (e.key === 'ArrowRight' && paddleX < canvas.width - PADDLE_WIDTH) {
-        paddleX += 7;
+        paddleX += moveSpeed;
     } else if (e.key === 'ArrowLeft' && paddleX > 0) {
-        paddleX -= 7;
+        paddleX -= moveSpeed;
     }
 });
 

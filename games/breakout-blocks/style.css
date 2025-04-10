@@ -1,11 +1,15 @@
 :root {
-    --bg-color: #1a1a2e;
-    --paddle-color: #4d80e4;
-    --ball-color: #ffffff;
-    --brick-color-1: #e76f51;
-    --brick-color-2: #f4a261;
-    --brick-color-3: #e9c46a;
+    --bg-color: #0c0c2a;
+    --paddle-color: #0ff7ff;
+    --ball-color: #ff3cac;
+    --brick-color-1: #ff0055;
+    --brick-color-2: #ff9500;
+    --brick-color-3: #ffea00;
+    --brick-color-4: #00ff9f;
     --text-color: #ffffff;
+    --glow-blue: 0 0 8px #0ff7ff;
+    --glow-pink: 0 0 8px #ff3cac;
+    --glow-orange: 0 0 8px #ff9500;
 }
 
 * {
@@ -40,33 +44,42 @@ body {
     max-width: 600px;
     margin-bottom: 10px;
     padding: 0 10px;
+    font-size: 1.2rem;
+    text-shadow: var(--glow-blue);
 }
 
 canvas {
     background-color: var(--bg-color);
-    border: 2px solid var(--text-color);
+    border: 2px solid var(--paddle-color);
     max-width: 100%;
+    box-shadow: var(--glow-blue);
 }
 
 .message {
     height: 30px;
     margin: 15px 0;
-    font-size: 1.2rem;
+    font-size: 1.5rem;
     font-weight: bold;
+    color: var(--ball-color);
+    text-shadow: var(--glow-pink);
 }
 
 .restart-button {
     background-color: var(--paddle-color);
-    color: var(--text-color);
+    color: var(--bg-color);
     border: none;
     padding: 10px 20px;
     border-radius: 5px;
     cursor: pointer;
-    font-size: 1rem;
-    margin-top: 10px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin-top: 15px;
     display: none;
+    box-shadow: var(--glow-blue);
+    transition: all 0.2s;
 }
 
 .restart-button:hover {
-    opacity: 0.9;
+    background-color: var(--ball-color);
+    box-shadow: var(--glow-pink);
 }
