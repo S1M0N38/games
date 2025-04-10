@@ -33,6 +33,14 @@ document.addEventListener('DOMContentLoaded', () => {
             path: 'games/breakout-blocks/index.html',
             image: 'games/breakout-blocks/preview.png',
             fallbackImage: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="160" viewBox="0 0 300 160"><rect width="300" height="160" fill="%231a1a2e"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="24" fill="%234d80e4">Breakout Blocks</text></svg>'
+        },
+        {
+            id: 'balance-beam',
+            title: 'Balance Beam',
+            description: 'Test your precision by keeping a ball balanced on a tilting beam for as long as possible.',
+            path: 'games/balance-beam/index.html',
+            image: 'games/balance-beam/preview.png',
+            fallbackImage: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="160" viewBox="0 0 300 160"><rect width="300" height="160" fill="%23222222"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="24" fill="%23ff6f61">Balance Beam</text></svg>'
         }
         // More games will be added here as developed
     ];
