@@ -1,67 +1,46 @@
-# Space Dodger
-
-A fast-paced arcade game where you control a spaceship navigating through an asteroid field. Dodge obstacles, collect power-ups, and survive as long as possible!
+# Space Dodger - Game Design Document
 
 ## Game Overview
+Space Dodger is a minimalist arcade game where players control a small spacecraft navigating through an endless field of incoming asteroids. The game focuses on precision movement and spatial awareness, creating an engaging and meditative gameplay experience in a stark black and white aesthetic.
 
-**Genre:** Arcade / Space Shooter  
-**Target Audience:** All ages, casual gamers  
+## Core Mechanic
+The game revolves around a single core mechanic: **mouse-based avoidance**. Players control a white triangular spacecraft that follows mouse movements within the game area. The goal is to dodge incoming asteroids (represented by white geometric shapes) that descend from the top of the screen at varying speeds and trajectories. The game has no end state - it continues indefinitely, with the challenge progressively increasing as the player survives longer.
 
-Space Dodger is a classic arcade-style game where players control a spaceship to navigate through a dangerous asteroid field. The goal is to survive as long as possible while dodging incoming asteroids and collecting helpful power-ups. The game features increasing difficulty, power-ups with various effects, and a satisfying laser shooting mechanic to destroy asteroids.
+## Technical Approach
+- **Rendering**: Canvas-based for smooth animations
+- **Input**: Mouse-only control scheme
+- **Animation**: Smooth ease-in-out transitions for all movements
+- **Scoring**: Simple stopwatch display that counts milliseconds survived
 
-## How to Play
+## Visual Design
+- **Color Palette**: Strict black (#000000) background with white (#FFFFFF) game elements and subtle grayscale accents
+- **Player Ship**: Minimalist white triangle
+- **Asteroids**: Varied white geometric shapes (circles, polygons) with different rotation patterns
+- **Feedback**: No text UI, only visual feedback through animations
+- **Screen Layout**: Full-screen canvas with minimal visual indicators for game state
+- **Score Display**: Stopwatch-style display that shows elapsed time in milliseconds
 
-1. **Controls:**
-   - **Mouse movement:** Control ship position
-   - **Arrow keys / WASD:** Alternative ship movement
-   - **Space / Mouse click:** Fire laser
-   - **P / ESC:** Pause game
-   - **Alt+A:** Toggle accessibility mode
-   - **Alt+M:** Toggle sound
+## Animation Plan
+- **Player Movement**: Smooth following of mouse with slight lag for natural feel
+- **Asteroid Movement**: Each asteroid has unique rotation and subtle wobble patterns
+- **Game Start**: Simple fade-in animation for the player ship
 
-2. **Power-ups:**
-   - **Shield (S):** Protects from one asteroid hit
-   - **Time Slow (T):** Temporarily slows all asteroids
-   - **Points (P):** Gives bonus points
+## Audio Approach
+- Minimal, pleasing audio feedback for:
+  - Near misses (soft whoosh sound)
+  - Collisions (subtle impact sound)
+  - Background ambiance (very low, ambient tone)
 
-3. **Objective:**
-   Survive as long as possible by avoiding asteroids. Your score increases over time and when destroying asteroids with your laser. The game gets progressively more difficult as your score increases.
+## Technical Implementation Details
+1. **Game Loop**: Uses requestAnimationFrame for smooth 60FPS gameplay
+2. **Collision Detection**: Shape-based collision detection for different asteroid types
+3. **State Management**: Minimal states (playing, transitioning, error)
+4. **Performance Optimization**: Object pooling for asteroid management
 
-## Technical Implementation
+## Error Handling
+If a critical JavaScript error occurs, a full-screen red error overlay with trembling border will appear, conforming to the error state visual specification.
 
-### Core Technologies
-- **HTML5** for structure
-- **CSS3** for styling
-- **Vanilla JavaScript** for game logic
-
-### Technical Highlights
-- Canvas-based rendering for smooth animations
-- Particle systems for explosions and engine effects
-- Collision detection using distance-based calculations
-- Delta-time based movement for consistent speed across different devices
-- State management system for game progression
-- Sound system with fallbacks for browser compatibility
-- Local storage for high score persistence
-
-### Code Structure
-- Event-driven architecture for user interactions
-- Object-oriented approach for game entities
-- Modular functions with clear responsibilities
-- Performance optimization with requestAnimationFrame
-
-## Accessibility Features
-
-Space Dodger includes several accessibility considerations:
-- High-contrast mode (Alt+A)
-- Audio toggle (Alt+M)
-- Multiple control options (mouse or keyboard)
-- Visual feedback for all game events
-- Scalable UI elements
-
-## Future Improvements
-
-- Additional power-up types
-- Enemy ships with different movement patterns
-- Multiple player ships with unique abilities
-- Level progression with boss encounters
-- Mobile touch support
+## Local Storage Usage
+Minimal data storage for:
+- Recording if the game has been played before
+- Storing the player's longest survival time (without displaying explicit numbers)

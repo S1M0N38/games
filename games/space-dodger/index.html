@@ -9,104 +9,13 @@
 </head>
 
 <body>
-    <div class="game-container">
-        <!-- Start Screen -->
-        <div id="start-screen" class="screen">
-            <h1>Space Dodger</h1>
-            <p>Survive in the asteroid field as long as possible!</p>
-            <div class="instructions-container">
-                <div class="instruction-block">
-                    <h3>Controls</h3>
-                    <p>Mouse: Move ship</p>
-                    <p>WASD/Arrows: Alternative movement</p>
-                    <p>Space/Click: Fire laser</p>
-                    <p>P/ESC: Pause game</p>
-                </div>
-                <div class="instruction-block">
-                    <h3>Power-Ups</h3>
-                    <p><span class="power-icon shield">S</span> Shield: Protects from one hit</p>
-                    <p><span class="power-icon slow">T</span> Time Slow: Slows asteroids</p>
-                    <p><span class="power-icon points">P</span> Points: Bonus score</p>
-                </div>
-            </div>
-            <p class="accessibility-info">Accessibility: Alt+A for high contrast, Alt+M for audio toggle</p>
-            <div class="difficulty-selector">
-                <h3>Select Difficulty</h3>
-                <div class="difficulty-buttons">
-                    <button id="easy-button" class="difficulty-btn selected">Easy</button>
-                    <button id="medium-button" class="difficulty-btn">Medium</button>
-                    <button id="hard-button" class="difficulty-btn">Hard</button>
-                </div>
-            </div>
-            <button id="start-button">Start Game</button>
+    <div id="game-container">
+        <canvas id="game-canvas"></canvas>
+        <div id="progress-container">
+            <div id="progress-bar"></div>
         </div>
-
-        <!-- Game Screen -->
-        <div id="game-screen" class="screen hidden">
-            <div class="game-stats">
-                <div id="lives">Lives: 3</div>
-                <div id="score">Score: 0</div>
-                <div id="difficulty">Difficulty: 1</div>
-                <button id="audio-toggle" class="icon-button" aria-label="Toggle Sound">🔊</button>
-                <button id="help-button" class="icon-button" aria-label="Show Controls">❓</button>
-            </div>
-            <canvas id="game-canvas"></canvas>
-            <div id="power-up-indicator" class="hidden">
-                <span>Power-up: <span id="power-up-type"></span></span>
-                <div id="power-up-timer">
-                    <div id="power-up-timer-bar"></div>
-                </div>
-            </div>
-            <div id="controls-overlay" class="hidden">
-                <div class="controls-panel">
-                    <h3>Controls</h3>
-                    <div class="controls-grid">
-                        <div class="control-item">
-                            <span class="key-icon">↑/W</span>
-                            <span>Move Up</span>
-                        </div>
-                        <div class="control-item">
-                            <span class="key-icon">↓/S</span>
-                            <span>Move Down</span>
-                        </div>
-                        <div class="control-item">
-                            <span class="key-icon">←/A</span>
-                            <span>Move Left</span>
-                        </div>
-                        <div class="control-item">
-                            <span class="key-icon">→/D</span>
-                            <span>Move Right</span>
-                        </div>
-                        <div class="control-item">
-                            <span class="key-icon">Space</span>
-                            <span>Fire Laser</span>
-                        </div>
-                        <div class="control-item">
-                            <span class="key-icon">P/Esc</span>
-                            <span>Pause Game</span>
-                        </div>
-                    </div>
-                    <button id="close-controls" class="small-button">Close</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Game Over Screen -->
-        <div id="game-over-screen" class="screen hidden">
-            <h2>Game Over</h2>
-            <div class="stats-container">
-                <div class="stats-column">
-                    <p>Your score: <span id="final-score">0</span></p>
-                    <p>High score: <span id="high-score">0</span></p>
-                    <p>Difficulty reached: <span id="final-difficulty">1.0</span></p>
-                </div>
-                <div class="stats-column">
-                    <p>Survival time: <span id="survival-time">0:00</span></p>
-                    <p>Asteroids destroyed: <span id="asteroids-destroyed">0</span></p>
-                    <p>Power-ups collected: <span id="powerups-collected">0</span></p>
-                </div>
-            </div>
-            <button id="restart-button">Play Again</button>
+        <div id="error-overlay">
+            <div id="error-icon"></div>
         </div>
     </div>
     <script src="game.js"></script>
