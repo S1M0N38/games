@@ -147,17 +147,21 @@ This structure ensures modular development where each game is independent while 
 
 ### Branch Management
 
-- To perform git operations, use git and GitHub tools
+- To perform git operations, use the provided Git tools (`git_status`, `git_diff_unstaged`, `git_diff_staged`, `git_diff`, `git_commit`, `git_add`, ...) rather than terminal commands
 - When working on a game:
   1. Create a new branch with the same name as the game (e.g., `snake`)
-  2. Switch to that branch
+  2. Switch to that branch using appropriate Git tools
   3. Write code and make changes
-  4. Commit changes on that branch following commit message style
-  5. Push the branch to remote
+  4. Check status with `git_status` to see what files have changed
+  5. Review changes with `git_diff_unstaged` before staging
+  6. Stage changes with `git_add`
+  7. Verify staged changes with `git_diff_staged`
+  8. Commit changes with `git_commit` following commit message style
+  9. Push the branch to remote
 
 **IMPORTANT:** NEVER COMMIT OR MERGE INTO MAIN. The repository owner will handle merges to the main branch.
 
-Each game will have its own development branch, and when a new version is ready, it will be manually merged into main by the repository owner.
+Each game will have its own development branch, and when a new version is ready, it will be manually merged into main by the repository owner. For updates to existing games, continue using the same branch - do not create new branches for updates to the same game.
 
 ### Commit Message Style
 
