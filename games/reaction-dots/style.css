@@ -1,0 +1,163 @@
+/* Base styles and reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f0f0f0;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.game-container {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    width: 90%;
+    max-width: 600px;
+    padding: 20px;
+    text-align: center;
+}
+
+header {
+    margin-bottom: 20px;
+}
+
+h1 {
+    margin-bottom: 10px;
+    color: #2c3e50;
+}
+
+.stats {
+    display: flex;
+    justify-content: space-between;
+    font-size: 18px;
+    margin-bottom: 15px;
+}
+
+.game-area {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-gap: 15px;
+    margin: 20px auto;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+}
+
+.dot {
+    width: 100%;
+    aspect-ratio: 1;
+    background-color: #3498db;
+    /* Default dot color */
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.dot.target {
+    background-color: #2ecc71;
+    /* Target color (green) */
+}
+
+.dot.wrong {
+    background-color: #e74c3c;
+    /* Wrong click color (red) */
+    animation: shake 0.5s;
+}
+
+.dot.correct {
+    animation: pulse 0.5s;
+}
+
+.instructions {
+    margin: 15px 0;
+    font-size: 16px;
+}
+
+.target-color {
+    color: #2ecc71;
+    font-weight: bold;
+}
+
+.game-over {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(255, 255, 255, 0.95);
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    display: none;
+}
+
+.game-over h2 {
+    margin-bottom: 15px;
+    color: #2c3e50;
+}
+
+.game-over p {
+    margin-bottom: 20px;
+    font-size: 18px;
+}
+
+#restartButton {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+#restartButton:hover {
+    background-color: #2980b9;
+}
+
+/* Animations */
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes shake {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-5px);
+    }
+
+    75% {
+        transform: translateX(5px);
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+    .game-area {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}

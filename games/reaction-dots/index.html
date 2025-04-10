@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reaction Dots</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="game-container">
+        <header>
+            <h1>Reaction Dots</h1>
+            <div class="stats">
+                <div class="score">Score: <span id="score">0</span></div>
+                <div class="lives">Lives: <span id="lives">3</span></div>
+            </div>
+        </header>
+
+        <div class="game-area" id="gameArea">
+            <!-- Dots will be generated here by JavaScript -->
+        </div>
+
+        <div class="instructions">
+            <p>Click on dots when they turn <span class="target-color">green</span>!</p>
+        </div>
+
+        <div class="game-over" id="gameOver">
+            <h2>Game Over</h2>
+            <p>Your score: <span id="finalScore">0</span></p>
+            <button id="restartButton">Play Again</button>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+
+</html>
