@@ -190,6 +190,8 @@ This structure ensures modular development where each game is independent while 
 
 **IMPORTANT:** NEVER COMMIT OR MERGE INTO MAIN. The repository owner will handle merges to the main branch.
 
+**IMPORTANT** NEVER USE TERMINAL COMMANDS BUT USE GIT TOOLS (e.g. git_status, git_add, git_commit, ...)
+
 Each game will have its own development branch, and when a new version is ready, it will be manually merged into main by the repository owner. For updates to existing games, continue using the same branch - do not create new branches for updates to the same game.
 
 ### Commit Message Style
