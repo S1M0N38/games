@@ -1,6 +1,6 @@
-# Browser-Based Game Development Guidelines
+# Browser-Based Minimal Game Development Guidelines
 
-These guidelines outline the process for creating simple, engaging browser-based games using only HTML, CSS, and JavaScript. Follow this structure to develop clean, well-documented games that require no external libraries or frameworks.
+These guidelines outline the process for creating simple, engaging browser-based games using only HTML, CSS, and JavaScript. Follow this structure to develop clean, well-documented games that require no external libraries or frameworks, with an emphasis on minimalism and core mechanics.
 
 ---
 
@@ -17,6 +17,36 @@ These guidelines outline the process for creating simple, engaging browser-based
   - `style.css` (game styling and animations)
   - `script.js` (game logic and mechanics)
   - `README.md` (game documentation)
+
+---
+
+## NEW: Minimalist Approach Priority
+
+**Focus on creating minimal games with these principles:**
+
+- Implement only one core mechanic and execute it well
+- Keep the codebase small and maintainable (under 500 lines total)
+- Avoid feature creep - do not add "nice-to-have" features
+- Prioritize game feel and responsiveness over complexity
+- Choose simple visual representations over complex graphics
+- Include only essential UI elements
+- Skip optional features like:
+  - Complex scoring systems
+  - Multiple levels (unless extremely simple)
+  - Character customization
+  - Settings menus
+  - Tutorial screens (use simple in-game cues instead)
+  - Elaborate animations (focus on functional animations)
+
+**Examples of appropriate minimal games:**
+- Simple clicker games with one interaction
+- Basic matching puzzles
+- Single-screen platformers with limited controls
+- Memory games with minimal elements
+- Reaction tests with clear feedback
+- Simple drawing applications
+
+**Complexity will only be scaled up when explicitly requested.**
 
 ---
 
@@ -147,16 +177,15 @@ This structure ensures modular development where each game is independent while 
 
 ### Branch Management
 
-- To perform git operations, use the provided Git tools (`git_status`, `git_diff_unstaged`, `git_diff_staged`, `git_diff`, `git_commit`, `git_add`, ...) rather than terminal commands
 - When working on a game:
   1. Create a new branch with the same name as the game (e.g., `snake`)
-  2. Switch to that branch using appropriate Git tools
+  2. Switch to that branch
   3. Write code and make changes
-  4. Check status with `git_status` to see what files have changed
-  5. Review changes with `git_diff_unstaged` before staging
-  6. Stage changes with `git_add`
-  7. Verify staged changes with `git_diff_staged`
-  8. Commit changes with `git_commit` following commit message style
+  4. Check status to see what files have changed
+  5. Review changes before staging
+  6. Stage changes
+  7. Verify staged changes
+  8. Commit changes following commit message style
   9. Push the branch to remote
 
 **IMPORTANT:** NEVER COMMIT OR MERGE INTO MAIN. The repository owner will handle merges to the main branch.
@@ -194,120 +223,58 @@ chore(ci): update GitHub actions workflow
 
 ---
 
-## Step-by-Step Game Development Process
+## Minimalist Game Development Process
 
-### 1. Idea Generation & Evaluation (1-2 days)
-- Brainstorm 3-5 game concepts that can be built with HTML/CSS/JavaScript
-- For each idea, list core mechanics and technical feasibility
+### 1. Idea Generation & Evaluation (1 day)
+- Brainstorm 2-3 minimal game concepts
 - Evaluate ideas based on:
-  - Technical complexity (lower is better for prototyping)
-  - Engagement factor (is it fun with minimal features?)
-  - Scope (can it be completed in the timeframe?)
+  - Technical simplicity (lower is better)
+  - Single core mechanic focus
+  - Feasibility to complete in a short timeframe
 - Select one concept to pursue
 
-### 2. Game Design Document Creation (1 day)
-- Create a structured GDD with the following sections:
-  - Game Overview: title, genre, one-paragraph summary
-  - Core Mechanics: detailed explanation of gameplay loops
-  - Controls: specific input methods and response behaviors
-  - Visual Design: color palette, art style references, UI mockups
-  - Technical Specifications: Canvas vs. DOM, state management approach
-  - MVP Features: minimum features needed for a playable prototype
-  - Stretch Goals: additional features if time permits
-- Include basic sketches or wireframes of key game screens
+### 2. Simplified Game Design Document (1 day)
+- Create a concise GDD with:
+  - Game Overview: title, one-paragraph summary
+  - Core Mechanic: detailed explanation of the ONE gameplay loop
+  - Controls: specific input method (keep it simple)
+  - Visual Design: minimal color palette (3-4 colors maximum)
+  - Technical Approach: Canvas vs. DOM
+  - MVP Features: absolute minimum needed for playable game
 
-### 3. Technical Planning (1 day)
-- Define the game's technical architecture:
-  - Game state structure (objects, properties, relationships)
-  - Core functions and their responsibilities
-  - Event handling approach
-  - Animation and rendering strategy
-- Create pseudocode for critical game mechanics
-- Prepare HTML structure outline (key elements and containers)
-- Define CSS approach (classes, variables, responsive strategy)
-
-### 4. Core Mechanics Implementation (2-3 days)
-- Build skeleton HTML structure
-- Implement basic CSS for layout positioning
+### 3. Technical Implementation (2-3 days)
+- Build minimal HTML structure
+- Implement basic CSS for essential styling only
 - Create JavaScript for:
-  - Game initialization and setup
-  - Core game loop with requestAnimationFrame
-  - State management functions
+  - Game initialization
+  - Core game loop
+  - Simple state management
   - Basic collision detection if needed
-  - Input handling (keyboard, mouse, touch)
-- Test core interactions without visual polish
+  - Input handling (keyboard OR mouse, not both unless necessary)
 
-### 5. Visual Implementation (1-2 days)
-- Complete HTML structure with all game elements
-- Implement full CSS styling:
-  - Game container and layout
-  - UI elements (menus, score displays, controls)
-  - Game object appearances
-  - Basic animations and transitions
-- Add visual feedback for game states and interactions
-- Implement responsive design adjustments
+### 4. Testing & Refinement (1 day)
+- Test core gameplay functionality
+- Fix any critical bugs
+- Add minimal polish:
+  - Basic feedback for player actions
+  - Simple win/loss indicators
+  - Score display if needed
 
-### 6. Game Logic Completion (2-3 days)
-- Implement complete game cycle:
-  - Start game/menu functionality
-  - Win/loss condition checking
-  - Score or progress tracking
-  - Level progression if applicable
-- Add sound effects triggers (if using)
-- Implement any special mechanics unique to the game
-- Complete all core gameplay interactions
-
-### 7. Polishing & Refinement (1-2 days)
-- Add juice (visual feedback that makes interactions satisfying):
-  - Animation flourishes on important events
-  - Transition effects between game states
-  - Visual/audio feedback for player actions
-- Improve performance:
-  - Optimize animation and rendering
-  - Reduce unnecessary calculations
-  - Ensure smooth gameplay at target framerates
-- Add final UI touches and quality-of-life features
-
-### 8. Testing & Debugging (1 day)
-- Systematically test all game features and interactions
-- Verify game works across different screen sizes
-- Check for edge cases in gameplay
-- Fix all identified bugs and issues
-- Test complete gameplay sessions multiple times
-- Verify all win/loss conditions trigger correctly
-
-### 9. Final Documentation & Delivery (1 day)
-- Complete README with:
-  - Game description and instructions
-  - Development decisions and technical approach
-  - Known issues or limitations
-  - Future improvement possibilities
-- Clean up code:
-  - Remove console logs and debug code
-  - Add final comments where needed
-  - Ensure consistent formatting
-- Ensure all files are properly organized in the repository
+### 5. Documentation & Delivery (1 day)
+- Complete README with brief game description and instructions
+- Clean up code and ensure proper organization
 - Create final commit with proper message
 
 ## Critical Checkpoints
 
 1. **Pre-Implementation Checkpoint**
-   - Fully completed GDD
-   - Technical plan with pseudocode for core mechanics
-   - HTML/CSS/JS structure planned
+   - Minimal GDD completed
+   - Technical approach decided
 
-2. **Core Mechanics Checkpoint**
-   - Game is interactive with basic input handling
-   - Core game loop is functioning
-   - Basic collision or game rules implemented
+2. **Core Mechanic Checkpoint**
+   - Single gameplay mechanic functioning
 
-3. **Gameplay Complete Checkpoint**
-   - All game mechanics implemented
-   - Win/loss conditions functioning
-   - Game cycle (start→play→end) works completely
-
-4. **Delivery Checkpoint**
-   - All visual elements implemented
-   - Bug-free gameplay
-   - Complete documentation
-   - Code is clean and commented
+3. **Delivery Checkpoint**
+   - Game is playable and bug-free
+   - Code is clean and minimal
+   - Documentation complete
