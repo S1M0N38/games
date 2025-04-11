@@ -1,55 +1,52 @@
-# Breakout Blocks
+# Breakout Blocks - Game Design Document
 
-A retro-styled brick-breaking game where players control a paddle to bounce a ball and break colorful bricks.
+## Title, Genre, and Target Audience
+**Title:** Breakout Blocks  
+**Genre:** Minimal Arcade Game  
+**Target Audience:** Desktop users seeking a classic brick-breaking challenge with simple mechanics
 
-## Game Design Document
+## Gameplay Description
+Breakout Blocks focuses on a single core mechanic: controlling a paddle to bounce a ball and break bricks. The player moves a horizontal paddle at the bottom of the screen using keyboard controls (left and right arrow keys). A ball bounces around the screen, and the player must prevent it from falling off the bottom edge.
 
-### Game Overview
-**Title**: Breakout Blocks
+The angle of the ball's bounce depends on where it hits the paddle, allowing for strategic aiming. Each brick broken adds to the player's score. The player starts with three lives and loses one each time the ball falls below the paddle. The game ends when all lives are depleted or all bricks are cleared.
 
-**Genre**: Arcade
+## Visual Style
+- **Color Palette:** Strictly black (`#000000`) background with white (`#FFFFFF`) and grayscale elements. Red (`#FF0000`) appears only for error feedback.
+- **Graphics Approach:** All visual elements are created through code using simple geometric shapes (rectangles for bricks and paddle, circle for ball).
+- **UI Elements:**
+  - Score counter: Top-right corner (numerical display only)
+  - Lives indicator: Top-left corner (represented by white dots/circles)
+  - Help button ("?"): Bottom-right corner
+- **Help Panel:** Toggles on "?" button click, containing minimal text explaining the goal and controls
 
-**Target Audience**: All ages, casual players
+## Controls
+- **Input Mode:** Keyboard-only
+- **Interactions:**
+  - Left Arrow Key: Move paddle left
+  - Right Arrow Key: Move paddle right
+  - ESC key: Pause/resume gameplay
+  - Q key: Exit to landing page
 
-**Summary**: A neon-infused brick-breaking game with retro arcade styling. Players control a paddle to bounce a fast-paced ball, aiming to break all the colorful bricks at the top of the screen. The game focuses on the core mechanic of angled bouncing with vibrant visuals inspired by 80s arcade games.
+## Technical Approach
+- **Rendering Method:** Canvas-based implementation for efficient collision detection
+- **Animation Techniques:**
+  - requestAnimationFrame for smooth game loop
+  - Ease-in-out transitions for all animations
+  - Subtle glow effects for active elements
+- **State Management:** Game state tracking:
+  - Playing, paused, game over states
+  - Score
+  - Lives remaining
+  - Ball and paddle positions
+- **Data Persistence:** Local storage for high score only
 
-### Core Mechanic
-The player controls a horizontal paddle at the bottom of the screen using left and right arrow keys. A ball bounces around the screen, and the player must prevent it from falling off the bottom edge by bouncing it with the paddle. When the ball hits a brick, the brick disappears. The goal is to clear all bricks. The ball bounces at different angles based on where it hits the paddle, allowing for strategic aiming.
-
-### Controls
-- Left Arrow Key: Move paddle left
-- Right Arrow Key: Move paddle right
-
-### Visual Design
-- Retro Arcade Style with neon glow effects
-- Color Palette:
-  - Background: Deep blue (#0c0c2a)
-  - Paddle: Cyan (#0ff7ff)
-  - Ball: Hot pink (#ff3cac)
-  - Bricks: Gradient of neon colors (pink, orange, yellow, green)
-  - UI Text: White with glow effects
-- Glowing elements with subtle shadow effects for authentic arcade feel
-
-### Game Features
-- Progressive difficulty with increasing ball speed
-- Row-based scoring system (higher rows worth more points)
-- Paddle angle physics for strategic shot placement
-- Retro glow effects on all game elements
-
-### Win/Loss Conditions
-- Win: Break all bricks in the level
-- Loss: Ball falls below the paddle and player loses all lives
-
-### Technical Approach
-- Canvas-based rendering with shadow effects for glow
-- requestAnimationFrame for smooth animation
-- Physics-based ball movement with normalized vectors
-- Angle-based paddle reflection
-
-## How to Play
-1. Use the left and right arrow keys to move the paddle
-2. Keep the ball from falling off the bottom of the screen
-3. Aim the ball to hit and break all the bricks
-4. You have 3 lives - game ends when all lives are lost
-5. Higher bricks are worth more points!
-6. The ball gradually speeds up - be prepared for increasing challenge!
+## Visual Feedback Guidelines
+- **Ball Animation:**
+  - White circle with subtle glow effect
+  - Impact animations when hitting bricks
+- **Brick Destruction:**
+  - Brick flashes and fades out when hit
+  - Different grayscale shades for brick rows (darker at bottom, lighter at top)
+- **Life Loss:** Visual feedback through life indicator reduction
+- **Game Over:** Fade overlay with restart option
+- **Error Handling:** Red full-screen overlay with warning icon (no text) and trembling border if a critical error occurs

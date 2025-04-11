@@ -9,14 +9,46 @@
 </head>
 
 <body>
-    <div class="game-container">
-        <div class="game-header">
-            <div class="score">Score: <span id="score">0</span></div>
-            <div class="lives">Lives: <span id="lives">3</span></div>
+    <div id="game-container">
+        <!-- Lives indicator (top-left) -->
+        <div id="lives-container"></div>
+
+        <!-- Score display (top-right) -->
+        <div id="score-container">
+            <span id="score">0</span>
         </div>
+
+        <!-- Game canvas (center) -->
         <canvas id="gameCanvas" width="600" height="400"></canvas>
-        <div id="message" class="message"></div>
-        <button id="restartButton" class="restart-button">Restart Game</button>
+
+        <!-- Help button (bottom-right) -->
+        <div id="help-button">?</div>
+
+        <!-- Help panel (hidden by default) -->
+        <div id="help-panel" class="hidden">
+            <div id="help-content">
+                <p>Use paddle to bounce ball and break all bricks.</p>
+                <p>← →: Move paddle</p>
+                <p>ESC: Pause/Resume game</p>
+                <p>Q: Return to games hub</p>
+                <div id="close-help">×</div>
+            </div>
+        </div>
+
+        <!-- Pause overlay (hidden by default) -->
+        <div id="pause-overlay" class="hidden"></div>
+
+        <!-- Game over overlay (hidden by default) -->
+        <div id="game-over" class="hidden">
+            <div id="final-score"></div>
+            <div id="high-score"></div>
+            <div id="restart-button"></div>
+        </div>
+
+        <!-- Error overlay (hidden by default) -->
+        <div id="error-overlay" class="hidden">
+            <div id="error-icon"></div>
+        </div>
     </div>
     <script src="game.js"></script>
 </body>
