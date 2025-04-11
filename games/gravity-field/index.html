@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gravity Field</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div id="game-container">
+        <!-- Lives indicator (top-left) -->
+        <div id="lives-container"></div>
+
+        <!-- Score display (top-right) -->
+        <div id="score-container">
+            <span id="score">0</span>
+        </div>
+
+        <!-- Game canvas (center) -->
+        <canvas id="game-canvas"></canvas>
+
+        <!-- Help button (bottom-right) -->
+        <div id="help-button">?</div>
+
+        <!-- Help panel (hidden by default) -->
+        <div id="help-panel" class="hidden">
+            <div id="help-content">
+                <p>Attract target objects to the center</p>
+                <p>Click and hold to create gravity field</p>
+                <p>ESC: Pause/Resume game</p>
+                <p>Q: Return to games hub</p>
+                <div id="close-help">×</div>
+            </div>
+        </div>
+
+        <!-- Pause overlay (hidden by default) -->
+        <div id="pause-overlay" class="hidden"></div>
+
+        <!-- Game over overlay (hidden by default) -->
+        <div id="game-over" class="hidden">
+            <div id="final-score"></div>
+            <div id="high-score"></div>
+            <div id="restart-button"></div>
+        </div>
+
+        <!-- Error overlay (hidden by default) -->
+        <div id="error-overlay" class="hidden">
+            <div id="error-icon"></div>
+        </div>
+    </div>
+    <script src="game.js"></script>
+</body>
+
+</html>
