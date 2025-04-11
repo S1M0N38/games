@@ -1,68 +1,132 @@
-// Game constants
-const PADDLE_HEIGHT = 10;
-const PADDLE_WIDTH = 75;
-const BALL_RADIUS = 8;
-const BRICK_ROW_COUNT = 4;
-const BRICK_COLUMN_COUNT = 8;
-const BRICK_WIDTH = 65;
-const BRICK_HEIGHT = 20;
-const BRICK_PADDING = 10;
-const BRICK_OFFSET_TOP = 30;
-const BRICK_OFFSET_LEFT = 30;
-const BALL_SPEED = 4;
-const PADDLE_SPEED = 7;
-const INITIAL_LIVES = 3;
+/**
+ * Breakout Blocks - Minimalist Arcade Game
+ * A classic brick-breaking game with keyboard controls
+ */
 
-// Game state
-const gameState = {
-    isPlaying: false,
-    isPaused: false,
-    score: 0,
-    lives: INITIAL_LIVES,
-    highScore: 0,
-    timers: [],
-    lastTime: 0,
-    delta: 0
+// ==========================================
+// Game constants
+// ==========================================
+const CONFIG = {
+    // Game settings
+    INITIAL_LIVES: 3,
+    STORAGE_KEY: 'breakoutBlocksHighScore',
+
+    // Visual settings
+    VISUAL: {
+        MAIN_COLOR: '#FFFFFF',
+        SECONDARY_COLOR: '#999999',
+        TRANSITION_SPEED: 0.3, // seconds
+    },
+
+    // Physics/gameplay constants
+    PHYSICS: {
+        PADDLE_HEIGHT: 10,
+        PADDLE_WIDTH: 75,
+        BALL_RADIUS: 8,
+        BALL_SPEED: 4,
+        PADDLE_SPEED: 7,
+    },
+
+    // Brick layout
+    BRICKS: {
+        ROW_COUNT: 4,
+        COLUMN_COUNT: 8,
+        WIDTH: 65,
+        HEIGHT: 20,
+        PADDING: 10,
+        OFFSET_TOP: 30,
+        OFFSET_LEFT: 30,
+        COLORS: [
+            '#FFFFFF', // White for top row
+            '#CCCCCC', // Light gray
+            '#999999', // Medium gray
+            '#666666'  // Dark gray for bottom row
+        ]
+    },
+
+    // Various states the game can be in
+    GAME_STATE: {
+        INTRO: 'intro',
+        PLAYING: 'playing',
+        PAUSED: 'paused',
+        GAME_OVER: 'gameover',
+        WIN: 'win',
+        ERROR: 'error'
+    }
 };
 
-// Ball and paddle positions
-let paddleX = 0;
-let ballX = 0;
-let ballY = 0;
-let ballDX = 0;
-let ballDY = 0;
-let rightPressed = false;
-let leftPressed = false;
-let bricks = [];
+// ==========================================
+// Game state
+// ==========================================
+const gameState = {
+    // Core game state
+    state: CONFIG.GAME_STATE.INTRO,
+    score: 0,
+    lives: CONFIG.INITIAL_LIVES,
+    highScore: 0,
+    isPlaying: false,
+    isPaused: false,
 
-// Brick grayscale colors (from light to dark)
-const brickColors = [
-    '#FFFFFF', // White for top row
-    '#CCCCCC', // Light gray
-    '#999999', // Medium gray
-    '#666666'  // Dark gray for bottom row
-];
+    // Animation and timing
+    lastTime: 0,
+    delta: 0,
+    animationFrameId: null,
+    timers: [],
 
+    // Input state
+    keys: {
+        left: false,
+        right: false
+    },
+
+    // Game-specific state variables
+    paddle: {
+        x: 0
+    },
+    ball: {
+        x: 0,
+        y: 0,
+        dx: 0,
+        dy: 0
+    },
+    bricks: []
+};
+
+// ==========================================
 // DOM elements
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
-const scoreDisplay = document.getElementById('score');
-const livesContainer = document.getElementById('lives-container');
-const helpButton = document.getElementById('help-button');
-const helpPanel = document.getElementById('help-panel');
-const closeHelp = document.getElementById('close-help');
-const pauseOverlay = document.getElementById('pause-overlay');
-const gameOverOverlay = document.getElementById('game-over');
-const finalScoreDisplay = document.getElementById('final-score');
-const highScoreDisplay = document.getElementById('high-score');
-const restartButton = document.getElementById('restart-button');
-const errorOverlay = document.getElementById('error-overlay');
+// ==========================================
+let canvas, ctx;
+let scoreDisplay, livesContainer;
+let helpButton, helpPanel, closeHelp;
+let pauseOverlay, gameOverOverlay, finalScoreDisplay, highScoreDisplay, restartButton;
+let errorOverlay;
 
-// Initialize game
+// ==========================================
+// Initialization
+// ==========================================
 function initGame() {
     try {
+        // Get DOM elements
+        canvas = document.getElementById('gameCanvas');
+        ctx = canvas.getContext('2d');
+
+        scoreDisplay = document.getElementById('score');
+        livesContainer = document.getElementById('lives-container');
+
+        helpButton = document.getElementById('help-button');
+        helpPanel = document.getElementById('help-panel');
+        closeHelp = document.getElementById('close-help');
+
+        pauseOverlay = document.getElementById('pause-overlay');
+        gameOverOverlay = document.getElementById('game-over');
+        finalScoreDisplay = document.getElementById('final-score');
+        highScoreDisplay = document.getElementById('high-score');
+        restartButton = document.getElementById('restart-button');
+
+        errorOverlay = document.getElementById('error-overlay');
+
         // Load high score from localStorage
-        gameState.highScore = parseInt(localStorage.getItem('breakoutBlocksHighScore')) || 0;
+        gameState.highScore = parseInt(localStorage.getItem(CONFIG.STORAGE_KEY)) || 0;
 
         // Create lives indicators
         createLivesIndicators();
@@ -70,113 +134,117 @@ function initGame() {
         // Add event listeners
         addEventListeners();
 
+        // Initialize game-specific elements
+        initializeGameElements();
+
         // Start the game
         startGame();
+
     } catch (error) {
-        showErrorOverlay();
-        console.error('Game initialization error:', error);
+        handleError('Game initialization error:', error);
     }
 }
 
-// Create lives indicators
+// ==========================================
+// Setup functions
+// ==========================================
 function createLivesIndicators() {
     livesContainer.innerHTML = '';
-    for (let i = 0; i < INITIAL_LIVES; i++) {
+    for (let i = 0; i < CONFIG.INITIAL_LIVES; i++) {
         const life = document.createElement('div');
         life.className = 'life';
         livesContainer.appendChild(life);
     }
 }
 
-// Initialize brick array
-function initBricks() {
-    bricks = [];
-    for (let c = 0; c < BRICK_COLUMN_COUNT; c++) {
-        bricks[c] = [];
-        for (let r = 0; r < BRICK_ROW_COUNT; r++) {
-            const brickX = c * (BRICK_WIDTH + BRICK_PADDING) + BRICK_OFFSET_LEFT;
-            const brickY = r * (BRICK_HEIGHT + BRICK_PADDING) + BRICK_OFFSET_TOP;
+function addEventListeners() {
+    // Keyboard controls
+    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('keyup', handleKeyUp);
 
-            bricks[c][r] = {
+    // UI controls
+    helpButton.addEventListener('click', toggleHelpPanel);
+    closeHelp.addEventListener('click', toggleHelpPanel);
+    restartButton.addEventListener('click', startGame);
+
+    // Error handling
+    window.addEventListener('error', (event) => {
+        handleError('Global error:', event.error);
+    });
+}
+
+function initializeGameElements() {
+    // Initialize brick array
+    initBricks();
+}
+
+function initBricks() {
+    gameState.bricks = [];
+    for (let c = 0; c < CONFIG.BRICKS.COLUMN_COUNT; c++) {
+        gameState.bricks[c] = [];
+        for (let r = 0; r < CONFIG.BRICKS.ROW_COUNT; r++) {
+            const brickX = c * (CONFIG.BRICKS.WIDTH + CONFIG.BRICKS.PADDING) + CONFIG.BRICKS.OFFSET_LEFT;
+            const brickY = r * (CONFIG.BRICKS.HEIGHT + CONFIG.BRICKS.PADDING) + CONFIG.BRICKS.OFFSET_TOP;
+
+            gameState.bricks[c][r] = {
                 x: brickX,
                 y: brickY,
                 status: 1,
-                color: brickColors[r],
-                points: (BRICK_ROW_COUNT - r) * 10 // Higher rows worth more points
+                color: CONFIG.BRICKS.COLORS[r],
+                points: (CONFIG.BRICKS.ROW_COUNT - r) * 10 // Higher rows worth more points
             };
         }
     }
 }
 
-// Add event listeners
-function addEventListeners() {
-    // Keyboard controls
-    document.addEventListener('keydown', keyDownHandler);
-    document.addEventListener('keyup', keyUpHandler);
-
-    // Help button toggle
-    helpButton.addEventListener('click', toggleHelpPanel);
-    closeHelp.addEventListener('click', toggleHelpPanel);
-
-    // Restart button
-    restartButton.addEventListener('click', startGame);
-}
-
-// Toggle help panel
+// ==========================================
+// UI functions
+// ==========================================
 function toggleHelpPanel() {
     helpPanel.classList.toggle('hidden');
 }
 
-// Handle key down
-function keyDownHandler(e) {
-    if (e.key === 'Right' || e.key === 'ArrowRight') {
-        rightPressed = true;
-    } else if (e.key === 'Left' || e.key === 'ArrowLeft') {
-        leftPressed = true;
-    } else if (e.key === 'Escape') {
-        togglePause();
-    } else if (e.key === 'q' || e.key === 'Q') {
-        navigateToLanding();
+function togglePause() {
+    if (!gameState.isPlaying) return;
+
+    gameState.isPaused = !gameState.isPaused;
+    gameState.state = gameState.isPaused ? CONFIG.GAME_STATE.PAUSED : CONFIG.GAME_STATE.PLAYING;
+    pauseOverlay.classList.toggle('hidden', !gameState.isPaused);
+
+    if (gameState.isPaused) {
+        // Clear any animation frame
+        cancelAnimationFrame(gameState.animationFrameId);
+    } else {
+        // Resume game loop
+        gameState.lastTime = performance.now();
+        gameLoop(gameState.lastTime);
     }
 }
 
-// Handle key up
-function keyUpHandler(e) {
-    if (e.key === 'Right' || e.key === 'ArrowRight') {
-        rightPressed = false;
-    } else if (e.key === 'Left' || e.key === 'ArrowLeft') {
-        leftPressed = false;
-    }
+function updateLivesDisplay() {
+    const lifeElements = document.querySelectorAll('.life');
+    lifeElements.forEach((life, index) => {
+        life.classList.toggle('lost', index >= gameState.lives);
+    });
 }
 
-// Navigate to landing page
 function navigateToLanding() {
     window.location.href = '../../index.html';
 }
 
-// Toggle pause state
-function togglePause() {
-    gameState.isPaused = !gameState.isPaused;
-    pauseOverlay.classList.toggle('hidden', !gameState.isPaused);
-
-    if (!gameState.isPaused && gameState.isPlaying) {
-        // Resume the game loop with the current time
-        gameState.lastTime = performance.now();
-        requestAnimationFrame(gameLoop);
-    }
-}
-
-// Start game
+// ==========================================
+// Game state functions
+// ==========================================
 function startGame() {
     // Reset game state
+    gameState.state = CONFIG.GAME_STATE.PLAYING;
     gameState.isPlaying = true;
     gameState.isPaused = false;
     gameState.score = 0;
-    gameState.lives = INITIAL_LIVES;
+    gameState.lives = CONFIG.INITIAL_LIVES;
 
-    // Reset ball and paddle
-    paddleX = (canvas.width - PADDLE_WIDTH) / 2;
-    resetBall();
+    // Reset paddle and ball
+    resetGameState();
 
     // Initialize bricks
     initBricks();
@@ -191,79 +259,154 @@ function startGame() {
 
     // Start game loop
     gameState.lastTime = performance.now();
-    requestAnimationFrame(gameLoop);
+    gameLoop(gameState.lastTime);
 }
 
-// Reset the ball position
+function resetGameState() {
+    // Reset paddle
+    gameState.paddle.x = (canvas.width - CONFIG.PHYSICS.PADDLE_WIDTH) / 2;
+
+    // Reset ball
+    resetBall();
+}
+
 function resetBall() {
-    ballX = canvas.width / 2;
-    ballY = canvas.height - 30;
+    gameState.ball.x = canvas.width / 2;
+    gameState.ball.y = canvas.height - 30;
     // Random horizontal direction, always upward
-    ballDX = (Math.random() > 0.5 ? 1 : -1) * (2 + Math.random() * 2);
-    ballDY = -BALL_SPEED;
+    gameState.ball.dx = (Math.random() > 0.5 ? 1 : -1) * (2 + Math.random() * 2);
+    gameState.ball.dy = -CONFIG.PHYSICS.BALL_SPEED;
 }
 
-// Game loop using requestAnimationFrame
-function gameLoop(timestamp) {
-    if (!gameState.isPlaying) return;
-    if (gameState.isPaused) {
-        requestAnimationFrame(gameLoop);
-        return;
+function gameOver() {
+    gameState.state = CONFIG.GAME_STATE.GAME_OVER;
+    gameState.isPlaying = false;
+
+    // Cancel animation frame
+    cancelAnimationFrame(gameState.animationFrameId);
+
+    // Check for high score
+    if (gameState.score > gameState.highScore) {
+        gameState.highScore = gameState.score;
+        localStorage.setItem(CONFIG.STORAGE_KEY, gameState.highScore);
     }
 
-    // Calculate delta time
+    // Update game over screen
+    finalScoreDisplay.textContent = gameState.score;
+    highScoreDisplay.textContent = gameState.highScore;
+
+    // Show game over overlay
+    gameOverOverlay.classList.remove('hidden');
+}
+
+function gameWin() {
+    gameState.state = CONFIG.GAME_STATE.WIN;
+    gameState.isPlaying = false;
+
+    // Cancel animation frame
+    cancelAnimationFrame(gameState.animationFrameId);
+
+    // Check for high score
+    if (gameState.score > gameState.highScore) {
+        gameState.highScore = gameState.score;
+        localStorage.setItem(CONFIG.STORAGE_KEY, gameState.highScore);
+    }
+
+    // Update game over screen
+    finalScoreDisplay.textContent = gameState.score;
+    highScoreDisplay.textContent = gameState.highScore;
+
+    // Show game over overlay
+    gameOverOverlay.classList.remove('hidden');
+}
+
+// ==========================================
+// Input handlers
+// ==========================================
+function handleKeyDown(e) {
+    if (e.key === 'Right' || e.key === 'ArrowRight') {
+        gameState.keys.right = true;
+    } else if (e.key === 'Left' || e.key === 'ArrowLeft') {
+        gameState.keys.left = true;
+    } else if (e.key === 'Escape') {
+        togglePause();
+    } else if (e.key === 'q' || e.key === 'Q') {
+        navigateToLanding();
+    }
+}
+
+function handleKeyUp(e) {
+    if (e.key === 'Right' || e.key === 'ArrowRight') {
+        gameState.keys.right = false;
+    } else if (e.key === 'Left' || e.key === 'ArrowLeft') {
+        gameState.keys.left = false;
+    }
+}
+
+// ==========================================
+// Game loop
+// ==========================================
+function gameLoop(timestamp) {
+    if (!gameState.isPlaying || gameState.isPaused) return;
+
+    // Calculate delta time for smooth animation
     gameState.delta = timestamp - gameState.lastTime;
     gameState.lastTime = timestamp;
 
-    // Clear canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    try {
+        // Update game state
+        update(gameState.delta / 16.67); // Normalize to 60FPS
 
-    // Update game state
-    update(gameState.delta / 16.67); // Normalize to 60FPS
+        // Render frame
+        render();
 
-    // Draw game elements
-    draw();
-
-    // Continue game loop
-    requestAnimationFrame(gameLoop);
+        // Continue loop
+        gameState.animationFrameId = requestAnimationFrame(gameLoop);
+    } catch (error) {
+        handleError('Game loop error:', error);
+    }
 }
 
-// Update game state
+// ==========================================
+// Update and render
+// ==========================================
 function update(deltaMultiplier) {
-    // Move paddle
-    if (rightPressed && paddleX < canvas.width - PADDLE_WIDTH) {
-        paddleX += PADDLE_SPEED * deltaMultiplier;
-    } else if (leftPressed && paddleX > 0) {
-        paddleX -= PADDLE_SPEED * deltaMultiplier;
+    // Move paddle based on key state
+    if (gameState.keys.right && gameState.paddle.x < canvas.width - CONFIG.PHYSICS.PADDLE_WIDTH) {
+        gameState.paddle.x += CONFIG.PHYSICS.PADDLE_SPEED * deltaMultiplier;
+    } else if (gameState.keys.left && gameState.paddle.x > 0) {
+        gameState.paddle.x -= CONFIG.PHYSICS.PADDLE_SPEED * deltaMultiplier;
     }
 
     // Keep paddle within bounds
-    paddleX = Math.max(0, Math.min(canvas.width - PADDLE_WIDTH, paddleX));
+    gameState.paddle.x = Math.max(0, Math.min(canvas.width - CONFIG.PHYSICS.PADDLE_WIDTH, gameState.paddle.x));
 
     // Move ball
-    ballX += ballDX * deltaMultiplier;
-    ballY += ballDY * deltaMultiplier;
+    gameState.ball.x += gameState.ball.dx * deltaMultiplier;
+    gameState.ball.y += gameState.ball.dy * deltaMultiplier;
 
     // Ball collision with walls
-    if (ballX + ballDX > canvas.width - BALL_RADIUS || ballX + ballDX < BALL_RADIUS) {
-        ballDX = -ballDX;
+    if (gameState.ball.x + gameState.ball.dx > canvas.width - CONFIG.PHYSICS.BALL_RADIUS ||
+        gameState.ball.x + gameState.ball.dx < CONFIG.PHYSICS.BALL_RADIUS) {
+        gameState.ball.dx = -gameState.ball.dx;
     }
 
     // Ball collision with top
-    if (ballY + ballDY < BALL_RADIUS) {
-        ballDY = -ballDY;
+    if (gameState.ball.y + gameState.ball.dy < CONFIG.PHYSICS.BALL_RADIUS) {
+        gameState.ball.dy = -gameState.ball.dy;
     }
 
     // Ball collision with bottom
-    if (ballY + ballDY > canvas.height - BALL_RADIUS) {
+    if (gameState.ball.y + gameState.ball.dy > canvas.height - CONFIG.PHYSICS.BALL_RADIUS) {
         // Check if ball hits paddle
-        if (ballX > paddleX && ballX < paddleX + PADDLE_WIDTH) {
+        if (gameState.ball.x > gameState.paddle.x &&
+            gameState.ball.x < gameState.paddle.x + CONFIG.PHYSICS.PADDLE_WIDTH) {
             // Calculate hit position on paddle (0 to 1)
-            const hitPosition = (ballX - paddleX) / PADDLE_WIDTH;
+            const hitPosition = (gameState.ball.x - gameState.paddle.x) / CONFIG.PHYSICS.PADDLE_WIDTH;
 
             // Adjust ball direction based on where it hit the paddle
-            ballDX = BALL_SPEED * (hitPosition - 0.5) * 2;
-            ballDY = -Math.abs(ballDY); // Always go up
+            gameState.ball.dx = CONFIG.PHYSICS.BALL_SPEED * (hitPosition - 0.5) * 2;
+            gameState.ball.dy = -Math.abs(gameState.ball.dy); // Always go up
         } else {
             // Ball missed paddle
             gameState.lives--;
@@ -281,20 +424,19 @@ function update(deltaMultiplier) {
     checkBrickCollisions();
 }
 
-// Check for collisions between ball and bricks
 function checkBrickCollisions() {
-    for (let c = 0; c < BRICK_COLUMN_COUNT; c++) {
-        for (let r = 0; r < BRICK_ROW_COUNT; r++) {
-            const brick = bricks[c][r];
+    for (let c = 0; c < CONFIG.BRICKS.COLUMN_COUNT; c++) {
+        for (let r = 0; r < CONFIG.BRICKS.ROW_COUNT; r++) {
+            const brick = gameState.bricks[c][r];
 
             if (brick.status === 1) {
                 // Check if ball is inside brick boundaries
-                if (ballX > brick.x &&
-                    ballX < brick.x + BRICK_WIDTH &&
-                    ballY > brick.y &&
-                    ballY < brick.y + BRICK_HEIGHT) {
+                if (gameState.ball.x > brick.x &&
+                    gameState.ball.x < brick.x + CONFIG.BRICKS.WIDTH &&
+                    gameState.ball.y > brick.y &&
+                    gameState.ball.y < brick.y + CONFIG.BRICKS.HEIGHT) {
 
-                    ballDY = -ballDY; // Reverse ball direction
+                    gameState.ball.dy = -gameState.ball.dy; // Reverse ball direction
                     brick.status = 0; // Brick is hit
 
                     // Update score
@@ -309,13 +451,12 @@ function checkBrickCollisions() {
     }
 }
 
-// Check if all bricks are cleared
 function checkWinCondition() {
     let bricksRemaining = 0;
 
-    for (let c = 0; c < BRICK_COLUMN_COUNT; c++) {
-        for (let r = 0; r < BRICK_ROW_COUNT; r++) {
-            if (bricks[c][r].status === 1) {
+    for (let c = 0; c < CONFIG.BRICKS.COLUMN_COUNT; c++) {
+        for (let r = 0; r < CONFIG.BRICKS.ROW_COUNT; r++) {
+            if (gameState.bricks[c][r].status === 1) {
                 bricksRemaining++;
             }
         }
@@ -326,78 +467,30 @@ function checkWinCondition() {
     }
 }
 
-// Win condition
-function gameWin() {
-    gameState.isPlaying = false;
+function render() {
+    // Clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Check for high score
-    if (gameState.score > gameState.highScore) {
-        gameState.highScore = gameState.score;
-        localStorage.setItem('breakoutBlocksHighScore', gameState.highScore);
-    }
-
-    // Update game over screen
-    finalScoreDisplay.textContent = gameState.score;
-    highScoreDisplay.textContent = gameState.highScore;
-
-    // Show game over overlay
-    gameOverOverlay.classList.remove('hidden');
-}
-
-// Game over
-function gameOver() {
-    gameState.isPlaying = false;
-
-    // Check for high score
-    if (gameState.score > gameState.highScore) {
-        gameState.highScore = gameState.score;
-        localStorage.setItem('breakoutBlocksHighScore', gameState.highScore);
-    }
-
-    // Update game over screen
-    finalScoreDisplay.textContent = gameState.score;
-    highScoreDisplay.textContent = gameState.highScore;
-
-    // Show game over overlay
-    gameOverOverlay.classList.remove('hidden');
-}
-
-// Update lives display
-function updateLivesDisplay() {
-    const lifeElements = document.querySelectorAll('.life');
-    lifeElements.forEach((life, index) => {
-        life.classList.toggle('lost', index >= gameState.lives);
-    });
-}
-
-// Draw game elements
-function draw() {
-    // Draw bricks
+    // Draw game elements
     drawBricks();
-
-    // Draw paddle
     drawPaddle();
-
-    // Draw ball
     drawBall();
 }
 
-// Draw all bricks
 function drawBricks() {
-    for (let c = 0; c < BRICK_COLUMN_COUNT; c++) {
-        for (let r = 0; r < BRICK_ROW_COUNT; r++) {
-            if (bricks[c][r].status === 1) {
-                const brick = bricks[c][r];
+    for (let c = 0; c < CONFIG.BRICKS.COLUMN_COUNT; c++) {
+        for (let r = 0; r < CONFIG.BRICKS.ROW_COUNT; r++) {
+            if (gameState.bricks[c][r].status === 1) {
+                const brick = gameState.bricks[c][r];
                 drawBrick(brick);
             }
         }
     }
 }
 
-// Draw a single brick
 function drawBrick(brick) {
     ctx.beginPath();
-    ctx.rect(brick.x, brick.y, BRICK_WIDTH, BRICK_HEIGHT);
+    ctx.rect(brick.x, brick.y, CONFIG.BRICKS.WIDTH, CONFIG.BRICKS.HEIGHT);
     ctx.fillStyle = brick.color;
     ctx.fill();
     ctx.closePath();
@@ -410,48 +503,51 @@ function drawBrick(brick) {
     ctx.shadowBlur = 0;
 }
 
-// Draw the paddle
 function drawPaddle() {
     ctx.beginPath();
-    ctx.rect(paddleX, canvas.height - PADDLE_HEIGHT, PADDLE_WIDTH, PADDLE_HEIGHT);
-    ctx.fillStyle = '#FFFFFF';
+    ctx.rect(gameState.paddle.x, canvas.height - CONFIG.PHYSICS.PADDLE_HEIGHT,
+        CONFIG.PHYSICS.PADDLE_WIDTH, CONFIG.PHYSICS.PADDLE_HEIGHT);
+    ctx.fillStyle = CONFIG.VISUAL.MAIN_COLOR;
     ctx.fill();
     ctx.closePath();
 
     // Add glow effect
     ctx.shadowBlur = 10;
-    ctx.shadowColor = '#FFFFFF';
-    ctx.strokeStyle = '#FFFFFF';
+    ctx.shadowColor = CONFIG.VISUAL.MAIN_COLOR;
+    ctx.strokeStyle = CONFIG.VISUAL.MAIN_COLOR;
     ctx.stroke();
     ctx.shadowBlur = 0;
 }
 
-// Draw the ball
 function drawBall() {
     ctx.beginPath();
-    ctx.arc(ballX, ballY, BALL_RADIUS, 0, Math.PI * 2);
-    ctx.fillStyle = '#FFFFFF';
+    ctx.arc(gameState.ball.x, gameState.ball.y, CONFIG.PHYSICS.BALL_RADIUS, 0, Math.PI * 2);
+    ctx.fillStyle = CONFIG.VISUAL.MAIN_COLOR;
     ctx.fill();
     ctx.closePath();
 
     // Add glow effect
     ctx.shadowBlur = 10;
-    ctx.shadowColor = '#FFFFFF';
-    ctx.strokeStyle = '#FFFFFF';
+    ctx.shadowColor = CONFIG.VISUAL.MAIN_COLOR;
+    ctx.strokeStyle = CONFIG.VISUAL.MAIN_COLOR;
     ctx.stroke();
     ctx.shadowBlur = 0;
 }
 
-// Show error overlay
+// ==========================================
+// Error handling
+// ==========================================
+function handleError(message, error) {
+    console.error(message, error);
+    gameState.state = CONFIG.GAME_STATE.ERROR;
+    showErrorOverlay();
+}
+
 function showErrorOverlay() {
     errorOverlay.classList.remove('hidden');
 }
 
-// Handle window errors
-window.addEventListener('error', (event) => {
-    showErrorOverlay();
-    console.error('Global error:', event.error);
-});
-
-// Initialize the game when DOM is loaded
+// ==========================================
+// Initialization
+// ==========================================
 document.addEventListener('DOMContentLoaded', initGame);
