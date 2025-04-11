@@ -3,10 +3,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Game collection data
     const games = [
         {
-            id: 'snake',
-            title: 'Snake',
-            description: 'Navigate a snake to collect food without hitting walls or yourself.',
-            path: 'games/snake/index.html',
+            id: 'void-serpent',
+            title: 'Void Serpent',
+            description: 'Navigate a serpent through the void to consume light fragments without colliding with boundaries or yourself.',
+            path: 'games/void-serpent/index.html',
             inputType: 'keyboard',
             fallbackImage: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="160" viewBox="0 0 300 160"><rect width="300" height="160" fill="%23111111"/><circle cx="150" cy="80" r="30" fill="%23FFFFFF"/><rect x="190" y="70" width="20" height="20" fill="%23FFFFFF"/></svg>'
         },

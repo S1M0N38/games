@@ -8,7 +8,7 @@ A collection of minimalist browser-based games implemented using only HTML, CSS,
 - [Breakout Blocks](./games/breakout-blocks/) - Control a paddle to bounce a ball and break bricks in this classic arcade game.
 - [Pendulum Pulse](./games/pendulum-pulse/) - A minimalist timing game where you click when the pendulum crosses the center line.
 - [Reaction Dots](./games/reaction-dots/) - Test your reflexes by clicking on dots when they change color.
-- [Snake](./games/snake/) - Navigate a snake to collect food without hitting walls or yourself.
+- [Void Serpent](./games/void-serpent/) - Navigate a serpent through the void to consume light fragments without colliding with boundaries or yourself.
 - [Space Dodger](./games/space-dodger/) - Pilot a spaceship through an asteroid field, dodge obstacles and collect power-ups.
 
 ## Features
