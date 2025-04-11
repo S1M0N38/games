@@ -1,34 +1,39 @@
 /* Main Styles for Browser Games Collection */
 :root {
-    /* Light theme (default) */
-    --primary-color: #4361ee;
-    --primary-hover: #3a56d4;
-    --background-color: #f8f9fa;
-    --card-background: #ffffff;
-    --text-color: #212529;
-    --secondary-text: #6c757d;
-    --card-border: #dee2e6;
-    --card-shadow: rgba(0, 0, 0, 0.05);
-    --header-bg: #f1f3f5;
-    --footer-bg: #e9ecef;
-    --footer-text: #495057;
-}
+    /* Black and white minimalist design */
+    --background-color: #000000;
 
-/* Dark theme */
-@media (prefers-color-scheme: dark) {
-    :root {
-        --primary-color: #4361ee;
-        --primary-hover: #5a74ed;
-        --background-color: #121212;
-        --card-background: #1e1e1e;
-        --text-color: #e9ecef;
-        --secondary-text: #adb5bd;
-        --card-border: #343a40;
-        --card-shadow: rgba(0, 0, 0, 0.2);
-        --header-bg: #181818;
-        --footer-bg: #181818;
-        --footer-text: #adb5bd;
+    .play-button,
+    .reset-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        border: none;
+        transition: all 0.3s ease-in-out;
+        cursor: pointer;
+        font-size: 1.2rem;
     }
+
+    ckground: #111111;
+    --card-hover-background: #222222;
+    --text-color: #FFFFFF;
+    --secondary-text: #AAAAAA;
+    --card-border: #333333;
+    --card-shadow: rgba(0, 0, 0, 0.5);
+    --header-bg: #000000;
+    --footer-bg: #000000;
+    --footer-text: #777777;
+    --accent-color: #444444;
+    --error-color: #FF0000;
+    --play-button-bg: #FFFFFF;
+    --play-button-text: #000000;
+    --play-button-hover-bg: #EEEEEE;
+    --reset-button-bg: #333333;
+    --reset-button-text: #FFFFFF;
+    --reset-button-hover-bg: #444444;
 }
 
 * {
@@ -115,6 +120,10 @@ header h1 {
 
 .game-info {
     padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    height: calc(100% - 160px);
+    /* Subtract the game image height */
 }
 
 .game-info h2 {
@@ -125,24 +134,52 @@ header h1 {
 
 .game-info p {
     color: var(--secondary-text);
-    margin-bottom: 1.25rem;
-    min-height: 3em;
+    margin-bottom: auto;
     font-size: 0.95rem;
+    flex-grow: 1;
+}
+
+.button-container {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.play-button,
+.reset-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: none;
+    transition: all 0.3s ease-in-out;
+    cursor: pointer;
 }
 
 .play-button {
-    display: inline-block;
-    padding: 0.6rem 1.2rem;
-    background-color: var(--primary-color);
-    color: white;
+    background-color: var(--play-button-bg);
+    color: var(--play-button-text);
     text-decoration: none;
-    border-radius: 4px;
-    font-weight: 500;
-    transition: background-color 0.2s ease;
 }
 
 .play-button:hover {
-    background-color: var(--primary-hover);
+    background-color: var(--play-button-hover-bg);
+    transform: scale(1.1);
+}
+
+.reset-button {
+    background-color: var(--reset-button-bg);
+    color: var(--reset-button-text);
+    font-size: 1.4rem;
+    /* Larger font size specifically for the reset icon */
+}
+
+.reset-button:hover {
+    background-color: var(--reset-button-hover-bg);
+    transform: scale(1.1);
 }
 
 /* Footer Styles */
@@ -155,12 +192,13 @@ footer {
 }
 
 footer a {
-    color: var(--primary-color);
+    color: var(--text-color);
     text-decoration: none;
+    transition: opacity 0.3s ease-in-out;
 }
 
 footer a:hover {
-    text-decoration: underline;
+    opacity: 0.8;
 }
 
 /* Responsive Styles */
@@ -197,5 +235,38 @@ footer a:hover {
 }
 
 .fade-in {
-    animation: fadeIn 0.8s ease forwards;
+    animation: fadeIn 0.8s ease-in-out forwards;
+}
+
+/* Game card hover animation */
+.game-card {
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+/* Reset All Games Button */
+.reset-all-button {
+    display: block;
+    margin: 2rem auto;
+    padding: 0.8rem 1.6rem;
+    background-color: var(--reset-button-bg);
+    color: var(--reset-button-text);
+    border: none;
+    font-weight: 500;
+    transition: all 0.3s ease-in-out;
+    cursor: pointer;
+}
+
+.reset-all-button:hover {
+    background-color: var(--reset-button-hover-bg);
+}
+
+/* Game State Indicators */
+.game-played-indicator {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: var(--accent-color);
 }
