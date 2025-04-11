@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
             description: 'Navigate a serpent through the void to consume light fragments without colliding with boundaries or yourself.',
             path: 'games/void-serpent/index.html',
             inputType: 'keyboard',
-            fallbackImage: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="160" viewBox="0 0 300 160"><rect width="300" height="160" fill="%23111111"/><circle cx="150" cy="80" r="30" fill="%23FFFFFF"/><rect x="190" y="70" width="20" height="20" fill="%23FFFFFF"/></svg>'
+            fallbackImage: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="160" viewBox="0 0 300 160"><rect width="300" height="160" fill="%23111111"/><path d="M140,80 L155,80 L170,80 L185,80 L200,80 L200,95 L185,95 L170,95 L155,95 L140,95 L125,95 L110,95 L110,80 L125,80 L140,80" fill="%23FFFFFF"/><rect x="170" y="50" width="15" height="15" fill="%23FFFFFF" opacity="0.8"/><rect x="200" y="120" width="15" height="15" fill="%23FFFFFF" opacity="0.8"/><circle cx="230" cy="70" r="10" fill="%23FFFFFF" opacity="0.8"/></svg>'
         },
         {
             id: 'space-dodger',
@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
             description: 'Pilot a spaceship through an asteroid field, dodge obstacles and collect power-ups.',
             path: 'games/space-dodger/index.html',
             inputType: 'keyboard',
-            fallbackImage: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="160" viewBox="0 0 300 160"><rect width="300" height="160" fill="%23111111"/><polygon points="150,60 140,100 160,100" fill="%23FFFFFF"/><circle cx="120" cy="90" r="10" fill="%23FFFFFF"/><circle cx="180" cy="70" r="15" fill="%23FFFFFF"/></svg>'
+            fallbackImage: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="160" viewBox="0 0 300 160"><rect width="300" height="160" fill="%23111111"/><g transform="translate(150, 100)"><polygon points="0,-25 -15,10 0,5 15,10" fill="%23FFFFFF"/></g><polygon points="75,40 85,60 65,60" fill="%23FFFFFF" opacity="0.8"/><polygon points="230,70 220,90 240,90" fill="%23FFFFFF" opacity="0.6"/><circle cx="115" cy="120" r="12" fill="%23FFFFFF" opacity="0.7"/><polygon points="70,85 65,100 80,110 95,100 90,85" fill="%23FFFFFF" opacity="0.5"/><circle cx="200" cy="30" r="15" fill="%23FFFFFF" opacity="0.9"/><polygon points="210,130 205,150 225,155 245,145 235,130" fill="%23FFFFFF" opacity="0.4"/><polygon points="155,55 145,70 155,85 175,75 165,55" fill="%23FFFFFF" opacity="0.7"/></svg>'
         },
         {
             id: 'reaction-dots',
@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
             description: 'Test your reflexes by clicking on dots when they change color. Quick reactions lead to higher scores!',
             path: 'games/reaction-dots/index.html',
             inputType: 'mouse',
-            fallbackImage: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="160" viewBox="0 0 300 160"><rect width="300" height="160" fill="%23111111"/><circle cx="100" cy="80" r="20" fill="%23FFFFFF"/><circle cx="170" cy="60" r="15" fill="%23999999"/><circle cx="210" cy="100" r="25" fill="%23FFFFFF"/></svg>'
+            fallbackImage: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="160" viewBox="0 0 300 160"><rect width="300" height="160" fill="%23111111"/><circle cx="90" cy="50" r="12" fill="%23666666"/><circle cx="140" cy="50" r="12" fill="%23666666"/><circle cx="190" cy="50" r="12" fill="%23666666"/><circle cx="240" cy="50" r="12" fill="%23666666"/><circle cx="90" cy="90" r="12" fill="%23666666"/><circle cx="140" cy="90" r="12" fill="%23FFFFFF"/><circle cx="190" cy="90" r="12" fill="%23666666"/><circle cx="240" cy="90" r="12" fill="%23666666"/><circle cx="90" cy="130" r="12" fill="%23666666"/><circle cx="140" cy="130" r="12" fill="%23666666"/><circle cx="190" cy="130" r="12" fill="%23666666"/><circle cx="240" cy="130" r="12" fill="%23666666"/><circle cx="140" cy="90" r="20" fill="none" stroke="%23FFFFFF" stroke-width="2" opacity="0.3"/></svg>'
         },
         {
             id: 'breakout-blocks',
@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
             description: 'Control a paddle to bounce a ball and break bricks in this classic arcade game.',
             path: 'games/breakout-blocks/index.html',
             inputType: 'mouse',
-            fallbackImage: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="160" viewBox="0 0 300 160"><rect width="300" height="160" fill="%23111111"/><rect x="40" y="40" width="40" height="15" fill="%23FFFFFF"/><rect x="85" y="40" width="40" height="15" fill="%23FFFFFF"/><rect x="130" y="40" width="40" height="15" fill="%23FFFFFF"/><rect x="175" y="40" width="40" height="15" fill="%23FFFFFF"/><rect x="220" y="40" width="40" height="15" fill="%23FFFFFF"/><circle cx="150" cy="80" r="8" fill="%23FFFFFF"/><rect x="125" y="130" width="50" height="10" fill="%23FFFFFF"/></svg>'
+            fallbackImage: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="160" viewBox="0 0 300 160"><rect width="300" height="160" fill="%23111111"/><rect x="60" y="30" width="50" height="15" fill="%23FFFFFF"/><rect x="120" y="30" width="50" height="15" fill="%23FFFFFF"/><rect x="180" y="30" width="50" height="15" fill="%23FFFFFF"/><rect x="60" y="50" width="50" height="15" fill="%23CCCCCC"/><rect x="120" y="50" width="50" height="15" fill="%23CCCCCC"/><rect x="180" y="50" width="50" height="15" fill="%23CCCCCC"/><rect x="60" y="70" width="50" height="15" fill="%23999999"/><rect x="120" y="70" width="50" height="15" fill="%23999999"/><rect x="180" y="70" width="50" height="15" fill="%23999999"/><circle cx="135" cy="100" r="8" fill="%23FFFFFF"/><rect x="125" y="140" width="50" height="10" fill="%23FFFFFF"/></svg>'
         },
         {
             id: 'balance-beam',
@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
             description: 'Test your precision by keeping a ball balanced on a tilting beam for as long as possible.',
             path: 'games/balance-beam/index.html',
             inputType: 'keyboard',
-            fallbackImage: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="160" viewBox="0 0 300 160"><rect width="300" height="160" fill="%23111111"/><rect x="50" y="100" width="200" height="5" fill="%23FFFFFF" transform="rotate(-5, 150, 100)"/><circle cx="140" cy="92" r="10" fill="%23FFFFFF"/></svg>'
+            fallbackImage: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="160" viewBox="0 0 300 160"><rect width="300" height="160" fill="%23111111"/><rect x="50" y="100" width="200" height="4" fill="%23FFFFFF" transform="rotate(-8, 150, 100)"/><circle cx="125" cy="90" r="12" fill="%23FFFFFF"/><line x1="150" y1="30" x2="150" y2="160" stroke="%23333333" stroke-width="1" stroke-dasharray="5,5"/><line x1="50" y1="100" x2="50" y2="130" stroke="%23555555" stroke-width="2"/><line x1="250" y1="100" x2="250" y2="130" stroke="%23555555" stroke-width="2"/></svg>'
         },
         {
             id: 'pendulum-pulse',
@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
             description: 'A minimalist timing game - click when the pendulum crosses the center line for perfect rhythm.',
             path: 'games/pendulum-pulse/index.html',
             inputType: 'mouse',
-            fallbackImage: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="160" viewBox="0 0 300 160"><rect width="300" height="160" fill="%23111111"/><line x1="150" y1="30" x2="150" y2="160" stroke="%23666666" stroke-width="1"/><line x1="100" y1="30" x2="150" y2="80" stroke="%23FFFFFF" stroke-width="2"/><circle cx="100" cy="30" r="3" fill="%23FFFFFF"/><circle cx="150" cy="80" r="10" fill="%23FFFFFF"/></svg>'
+            fallbackImage: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="160" viewBox="0 0 300 160"><rect width="300" height="160" fill="%23111111"/><line x1="150" y1="0" x2="150" y2="160" stroke="%23444444" stroke-width="1"/><line x1="150" y1="50" x2="120" y2="90" stroke="%23FFFFFF" stroke-width="2"/><line x1="120" y1="90" x2="170" y2="120" stroke="%23FFFFFF" stroke-width="2"/><circle cx="150" cy="50" r="4" fill="%23FFFFFF"/><circle cx="120" cy="90" r="6" fill="%23FFFFFF"/><circle cx="170" cy="120" r="10" fill="%23FFFFFF"/><circle cx="150" cy="80" r="30" fill="none" stroke="%23333333" stroke-width="1" opacity="0.5"/></svg>'
         }
         // More games will be added here as developed
     ];    // Render all games to the DOM
@@ -98,6 +98,22 @@ function createGameCard(game) {
     // Check if game has been played before
     const hasPlayed = localStorage.getItem(`game_played_${game.id}`) === 'true';
 
+    // Get high score if it exists - check all possible key formats
+    let highScore = null;
+    // Convert ID formats (e.g., "void-serpent" to "voidSerpent" for camelCase keys)
+    const camelCaseId = game.id.replace(/-([a-z])/g, (g) => g[1].toUpperCase());
+
+    // Check all common localStorage key patterns
+    const storedScore = localStorage.getItem(`highscore_${game.id}`) ||
+        localStorage.getItem(`${game.id}-high-score`) ||
+        localStorage.getItem(`${game.id}HighScore`) ||
+        localStorage.getItem(`${camelCaseId}HighScore`) ||
+        localStorage.getItem(`${game.id.replace(/-/g, "_")}_high_score`);
+
+    if (storedScore && !isNaN(parseInt(storedScore))) {
+        highScore = parseInt(storedScore);
+    }
+
     // Create image element
     const img = document.createElement('img');
     img.alt = `${game.title} preview`;
@@ -119,8 +135,14 @@ function createGameCard(game) {
     // Insert image
     card.querySelector('.game-image').appendChild(img);
 
-    // Add played indicator if applicable
-    if (hasPlayed) {
+    // Add high score indicator if applicable
+    if (hasPlayed && highScore !== null) {
+        const indicator = document.createElement('div');
+        indicator.className = 'high-score-indicator';
+        indicator.textContent = highScore;
+        card.querySelector('.game-image').appendChild(indicator);
+    } else if (hasPlayed) {
+        // Fallback to simple indicator if played but no high score
         const indicator = document.createElement('div');
         indicator.className = 'game-played-indicator';
         card.querySelector('.game-image').appendChild(indicator);
@@ -130,9 +152,11 @@ function createGameCard(game) {
     card.querySelector('.reset-button').addEventListener('click', (e) => {
         e.preventDefault();
         resetGameData(game.id);
-        // Remove played indicator
-        const indicator = card.querySelector('.game-played-indicator');
-        if (indicator) indicator.remove();
+        // Remove any indicator
+        const highScoreIndicator = card.querySelector('.high-score-indicator');
+        const playedIndicator = card.querySelector('.game-played-indicator');
+        if (highScoreIndicator) highScoreIndicator.remove();
+        if (playedIndicator) playedIndicator.remove();
     });
 
     // Add event listener to play button to mark game as played
@@ -180,14 +204,21 @@ function resetGameData(gameId) {
     // Clear game played status
     localStorage.removeItem(`game_played_${gameId}`);
 
-    // Clear high scores if they exist
+    // Clear high scores in all possible formats
+    const camelCaseId = gameId.replace(/-([a-z])/g, (g) => g[1].toUpperCase());
+
+    // Clear all possible high score formats
     localStorage.removeItem(`highscore_${gameId}`);
+    localStorage.removeItem(`${gameId}-high-score`);
+    localStorage.removeItem(`${gameId}HighScore`);
+    localStorage.removeItem(`${camelCaseId}HighScore`);
+    localStorage.removeItem(`${gameId.replace(/-/g, "_")}_high_score`);
 
     // Clear any other game-specific data
     const keysToRemove = [];
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key.includes(gameId)) {
+        if (key.includes(gameId) || key.includes(camelCaseId)) {
             keysToRemove.push(key);
         }
     }
