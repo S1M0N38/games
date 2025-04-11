@@ -6,9 +6,9 @@
 **Target Audience:** Desktop users seeking a challenging, precision-based game with simple mechanics
 
 ## Gameplay Description
-Pendulum Pulse focuses on a single core mechanic: precise timing. A pendulum swings back and forth across the screen in a natural arc motion. Players must click at the exact moment when the pendulum crosses the center line. The closer to perfect timing, the more points awarded.
+Pendulum Pulse focuses on a single core mechanic: precise timing. A double pendulum system (two pendulums connected in series) swings across the screen in a complex, chaotic motion. Players must click at the exact moment when the second pendulum (the lower one) crosses the center line. The closer to perfect timing, the more points awarded.
 
-As the game progresses, the pendulum speed gradually increases, creating an escalating challenge. The game provides immediate visual feedback on timing accuracy through subtle animations and effects.
+The double pendulum creates an unpredictable, chaotic motion pattern that increases the challenge compared to a regular pendulum. As the game progresses, the pendulum speed gradually increases, making precision timing even more difficult.
 
 Players have three lives, losing one for each missed click or mistimed attempt. The game ends when all lives are lost, with the final score representing the player's timing precision.
 
@@ -20,28 +20,28 @@ Players have three lives, losing one for each missed click or mistimed attempt. 
   - Lives indicator: Top-left corner (represented by white dots/circles)
   - Help button ("?"): Bottom-right corner
   - Center line: Vertical line across the center of the screen
-- **Help Panel:** Toggles on "?" button click, containing minimal text explaining the goal (click when pendulum crosses center) and commands (ESC to pause, Q to quit)
+- **Help Panel:** Toggles on "?" button click, containing minimal text explaining the goal (click when the second pendulum crosses center) and commands (ESC to pause, Q to quit)
 
 ## Controls
 - **Input Mode:** Mouse-only
 - **Interactions:**
-  - Left-click: Click when pendulum crosses center line
+  - Left-click: Click when second pendulum crosses center line
   - ESC key: Pause/resume gameplay
   - Q key: Exit to landing page
 - **No keyboard controls** for actual gameplay mechanics
 
 ## Technical Approach
-- **Rendering Method:** Canvas-based implementation to smoothly animate the pendulum
+- **Rendering Method:** Canvas-based implementation to smoothly animate the double pendulum
 - **Animation Techniques:**
-  - `requestAnimationFrame` for pendulum physics animation
-  - Natural pendulum motion using mathematical formulas
+  - `requestAnimationFrame` for complex pendulum physics animation
+  - Natural double pendulum motion using mathematical formulas
   - Pulse and particle effects for timing feedback
   - All transitions with ease-in-out timing
 - **State Management:** Functional approach with state object tracking:
   - Game state (playing, paused, game over)
   - Score
   - Lives remaining
-  - Pendulum angle and velocity
+  - Pendulum angles and velocities
   - Speed multiplier as difficulty increases
 - **Data Persistence:** Local storage for high score only
 
@@ -51,7 +51,7 @@ Players have three lives, losing one for each missed click or mistimed attempt. 
   - Good timing: Medium pulse effect
   - Miss: Weak pulse effect and life reduction
 - **Pendulum Animation:**
-  - Natural swinging motion with subtle damping
+  - Natural, chaotic swinging motion following real physics
   - Smooth, continuous movement using physics simulation
 - **Life Loss:** Visual feedback through life indicator reduction
 - **Game Over:** Simple fade to reveal final score

@@ -2,27 +2,31 @@
  * Pendulum Pulse - A minimalist black and white timing game
  * 
  * Core mechanics:
- * - A pendulum swings across the screen in a natural arc motion
- * - Player must click/tap when the pendulum crosses the center line
+ * - A double pendulum swings across the screen in a chaotic motion
+ * - Player must click when the second pendulum crosses the center line
  * - Timing precision determines score and visual feedback
  */
 
 // Game constants
 const CONFIG = {
     // Physics and motion
-    PENDULUM_LENGTH_RATIO: 0.4, // Ratio of screen height
-    GRAVITY: 0.001,
-    DAMPING: 0.999,
-    INITIAL_ANGLE: Math.PI / 8,
+    PENDULUM1_LENGTH_RATIO: 0.25, // Ratio of screen height for first pendulum
+    PENDULUM2_LENGTH_RATIO: 0.25, // Ratio of screen height for second pendulum
+    PENDULUM1_MASS: 10,  // Mass of first pendulum bob
+    PENDULUM2_MASS: 5,   // Mass of second pendulum bob
+    GRAVITY: 0.03,     // Significantly increased from 0.01 for more dramatic acceleration
+    DAMPING: 0.9995,   // Slightly increased from 0.999 to maintain energy longer
+    INITIAL_ANGLE1: Math.PI / 2.5,  // Increased from PI/3 for more initial energy
+    INITIAL_ANGLE2: -Math.PI / 1.8,  // Changed to negative angle for more chaotic initial movement
 
     // Difficulty progression
     BASE_SPEED: 1.0,
     SPEED_INCREMENT: 0.1,
-    MAX_SPEED: 2.5,
+    MAX_SPEED: 2.0,
 
     // Timing and scoring
-    PERFECT_TIMING: 0.05, // in radians
-    GOOD_TIMING: 0.15,    // in radians
+    PERFECT_TIMING: 0.08, // Time window for perfect timing (in radians)
+    GOOD_TIMING: 0.2,     // Time window for good timing (in radians)
     SCORE_PERFECT: 100,
     SCORE_GOOD: 50,
     SCORE_MISS: 0,
@@ -30,7 +34,8 @@ const CONFIG = {
     // Visual settings
     PENDULUM_COLOR: '#FFFFFF',
     PENDULUM_WIDTH: 3,
-    BOB_SIZE: 15,
+    BOB1_SIZE: 10,
+    BOB2_SIZE: 15,
     CENTER_LINE_WIDTH: 2,
 
     // Visual effects
@@ -40,7 +45,11 @@ const CONFIG = {
     PARTICLE_LIFESPAN: 60, // frames
 
     // Game settings
-    INITIAL_LIVES: 3
+    INITIAL_LIVES: 3,
+
+    // Physics simulation steps
+    PHYSICS_STEPS: 3, // Adjusted from 4 to 3 for balance between speed and stability
+    TIME_STEP: 0.7    // Increased from 0.5 for larger angle changes per frame
 };
 
 // Game state
@@ -52,9 +61,12 @@ const gameState = {
     highScore: 0,
 
     // Pendulum physics
-    angle: CONFIG.INITIAL_ANGLE,
-    angleVelocity: 0,
-    pendulumLength: 0,
+    angle1: CONFIG.INITIAL_ANGLE1,    // Angle of first pendulum
+    angle2: CONFIG.INITIAL_ANGLE2,    // Angle of second pendulum
+    angleVelocity1: 0,                // Angular velocity of first pendulum
+    angleVelocity2: 0,                // Angular velocity of second pendulum
+    pendulum1Length: 0,
+    pendulum2Length: 0,
     speedMultiplier: CONFIG.BASE_SPEED,
 
     // Visual effects
@@ -122,8 +134,10 @@ function resizeCanvas() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    // Calculate pendulum length based on canvas size
-    gameState.pendulumLength = Math.min(canvas.width, canvas.height) * CONFIG.PENDULUM_LENGTH_RATIO;
+    // Calculate pendulum lengths based on canvas size
+    const baseLength = Math.min(canvas.width, canvas.height);
+    gameState.pendulum1Length = baseLength * CONFIG.PENDULUM1_LENGTH_RATIO;
+    gameState.pendulum2Length = baseLength * CONFIG.PENDULUM2_LENGTH_RATIO;
 }
 
 // Create lives indicators
@@ -192,8 +206,10 @@ function startGame() {
     gameState.isPaused = false;
     gameState.score = 0;
     gameState.lives = CONFIG.INITIAL_LIVES;
-    gameState.angle = CONFIG.INITIAL_ANGLE;
-    gameState.angleVelocity = 0;
+    gameState.angle1 = CONFIG.INITIAL_ANGLE1;
+    gameState.angle2 = CONFIG.INITIAL_ANGLE2;
+    gameState.angleVelocity1 = 0;
+    gameState.angleVelocity2 = 0;
     gameState.speedMultiplier = CONFIG.BASE_SPEED;
     gameState.pulses = [];
     gameState.particles = [];
@@ -244,11 +260,13 @@ function gameLoop(timestamp) {
 // Update game state
 function update(deltaTime) {
     try {
-        // Scale delta time to keep physics consistent (target 60 FPS)
-        const timeScale = deltaTime / 16.67;
+        // Use multiple sub-steps for more accurate physics
+        const timeStep = CONFIG.TIME_STEP * gameState.speedMultiplier;
 
-        // Update pendulum physics
-        updatePendulum(timeScale);
+        // Apply physics calculations with the new timestep
+        for (let i = 0; i < CONFIG.PHYSICS_STEPS; i++) {
+            updateDoublePendulum(timeStep);
+        }
 
         // Update visual effects
         updatePulses();
@@ -260,19 +278,44 @@ function update(deltaTime) {
     }
 }
 
-// Update pendulum position
-function updatePendulum(timeScale) {
-    // Apply gravity to create acceleration
-    const acceleration = CONFIG.GRAVITY * Math.sin(gameState.angle) * -1;
+// Update double pendulum position using physics
+function updateDoublePendulum(timeStep) {
+    // Calculate factors that appear in both equations
+    const m1 = CONFIG.PENDULUM1_MASS;
+    const m2 = CONFIG.PENDULUM2_MASS;
+    const l1 = gameState.pendulum1Length;
+    const l2 = gameState.pendulum2Length;
+    const theta1 = gameState.angle1;
+    const theta2 = gameState.angle2;
+    const omega1 = gameState.angleVelocity1;
+    const omega2 = gameState.angleVelocity2;
+    const g = CONFIG.GRAVITY;
 
-    // Update velocity with acceleration and apply speed multiplier
-    gameState.angleVelocity += acceleration * gameState.speedMultiplier * timeScale;
+    // Calculate angular acceleration for first pendulum
+    const num1 = -g * (2 * m1 + m2) * Math.sin(theta1);
+    const num2 = -m2 * g * Math.sin(theta1 - 2 * theta2);
+    const num3 = -2 * Math.sin(theta1 - theta2) * m2 * (omega2 * omega2 * l2 + omega1 * omega1 * l1 * Math.cos(theta1 - theta2));
+    const den = l1 * (2 * m1 + m2 - m2 * Math.cos(2 * theta1 - 2 * theta2));
+    const alpha1 = (num1 + num2 + num3) / den;
 
-    // Apply damping to simulate natural motion
-    gameState.angleVelocity *= CONFIG.DAMPING;
+    // Calculate angular acceleration for second pendulum
+    const num4 = 2 * Math.sin(theta1 - theta2);
+    const num5 = omega1 * omega1 * l1 * (m1 + m2) + g * (m1 + m2) * Math.cos(theta1);
+    const num6 = omega2 * omega2 * l2 * m2 * Math.cos(theta1 - theta2);
+    const den2 = l2 * (2 * m1 + m2 - m2 * Math.cos(2 * theta1 - 2 * theta2));
+    const alpha2 = (num4 * (num5 + num6)) / den2;
 
-    // Update angle with velocity
-    gameState.angle += gameState.angleVelocity * gameState.speedMultiplier * timeScale;
+    // Update angular velocities
+    gameState.angleVelocity1 += alpha1 * timeStep;
+    gameState.angleVelocity2 += alpha2 * timeStep;
+
+    // Apply damping
+    gameState.angleVelocity1 *= CONFIG.DAMPING;
+    gameState.angleVelocity2 *= CONFIG.DAMPING;
+
+    // Update angles
+    gameState.angle1 += gameState.angleVelocity1 * timeStep;
+    gameState.angle2 += gameState.angleVelocity2 * timeStep;
 }
 
 // Update pulse animations
@@ -315,8 +358,16 @@ function handleClick() {
     if (!gameState.isPlaying || gameState.isPaused) return;
 
     try {
-        // Calculate how close to the center (zero angle) the pendulum is
-        const distanceFromCenter = Math.abs(gameState.angle);
+        // Calculate positions to determine if second pendulum is crossing center
+        const pivot1X = canvas.width / 2;
+        const pivot1Y = canvas.height / 2;
+        const bob1X = pivot1X + Math.sin(gameState.angle1) * gameState.pendulum1Length;
+        const bob1Y = pivot1Y + Math.cos(gameState.angle1) * gameState.pendulum1Length;
+        const bob2X = bob1X + Math.sin(gameState.angle2) * gameState.pendulum2Length;
+
+        // Calculate how close to the center the second pendulum is
+        // We care about the x-position distance from center
+        const distanceFromCenter = Math.abs(bob2X - canvas.width / 2) / (canvas.width / 2);
         let result, points;
 
         if (distanceFromCenter < CONFIG.PERFECT_TIMING) {
@@ -384,11 +435,13 @@ function createPulse(speed = 1) {
 
 // Create particle explosion
 function createParticles() {
-    // Calculate pendulum bob position for particle origin
-    const pivotX = canvas.width / 2;
-    const pivotY = canvas.height / 2;
-    const bobX = pivotX + Math.sin(gameState.angle) * gameState.pendulumLength;
-    const bobY = pivotY + Math.cos(gameState.angle) * gameState.pendulumLength;
+    // Calculate second pendulum bob position for particle origin
+    const pivot1X = canvas.width / 2;
+    const pivot1Y = canvas.height / 2;
+    const bob1X = pivot1X + Math.sin(gameState.angle1) * gameState.pendulum1Length;
+    const bob1Y = pivot1Y + Math.cos(gameState.angle1) * gameState.pendulum1Length;
+    const bob2X = bob1X + Math.sin(gameState.angle2) * gameState.pendulum2Length;
+    const bob2Y = bob1Y + Math.cos(gameState.angle2) * gameState.pendulum2Length;
 
     for (let i = 0; i < CONFIG.PARTICLE_COUNT; i++) {
         // Calculate random velocity
@@ -396,8 +449,8 @@ function createParticles() {
         const speed = 1 + Math.random() * 3;
 
         gameState.particles.push({
-            x: bobX,
-            y: bobY,
+            x: bob2X,
+            y: bob2Y,
             vx: Math.cos(angle) * speed,
             vy: Math.sin(angle) * speed,
             size: 1 + Math.random() * 3,
@@ -438,8 +491,8 @@ function render() {
         // Draw pulses
         drawPulses();
 
-        // Draw pendulum
-        drawPendulum();
+        // Draw double pendulum
+        drawDoublePendulum();
 
         // Draw particles
         drawParticles();
@@ -461,32 +514,45 @@ function drawCenterLine() {
     ctx.stroke();
 }
 
-// Draw pendulum
-function drawPendulum() {
-    // Calculate pendulum position
-    const pivotX = canvas.width / 2;
-    const pivotY = canvas.height / 2;
-    const bobX = pivotX + Math.sin(gameState.angle) * gameState.pendulumLength;
-    const bobY = pivotY + Math.cos(gameState.angle) * gameState.pendulumLength;
+// Draw double pendulum
+function drawDoublePendulum() {
+    // Calculate pendulum positions
+    const pivot1X = canvas.width / 2;
+    const pivot1Y = canvas.height / 2;
+    const bob1X = pivot1X + Math.sin(gameState.angle1) * gameState.pendulum1Length;
+    const bob1Y = pivot1Y + Math.cos(gameState.angle1) * gameState.pendulum1Length;
+    const bob2X = bob1X + Math.sin(gameState.angle2) * gameState.pendulum2Length;
+    const bob2Y = bob1Y + Math.cos(gameState.angle2) * gameState.pendulum2Length;
 
-    // Draw pendulum string
+    // Draw first pendulum string
     ctx.strokeStyle = CONFIG.PENDULUM_COLOR;
     ctx.lineWidth = CONFIG.PENDULUM_WIDTH;
 
     ctx.beginPath();
-    ctx.moveTo(pivotX, pivotY);
-    ctx.lineTo(bobX, bobY);
+    ctx.moveTo(pivot1X, pivot1Y);
+    ctx.lineTo(bob1X, bob1Y);
     ctx.stroke();
 
-    // Draw pendulum bob
+    // Draw second pendulum string
+    ctx.beginPath();
+    ctx.moveTo(bob1X, bob1Y);
+    ctx.lineTo(bob2X, bob2Y);
+    ctx.stroke();
+
+    // Draw first pendulum bob
     ctx.fillStyle = CONFIG.PENDULUM_COLOR;
     ctx.beginPath();
-    ctx.arc(bobX, bobY, CONFIG.BOB_SIZE, 0, Math.PI * 2);
+    ctx.arc(bob1X, bob1Y, CONFIG.BOB1_SIZE, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Draw second pendulum bob
+    ctx.beginPath();
+    ctx.arc(bob2X, bob2Y, CONFIG.BOB2_SIZE, 0, Math.PI * 2);
     ctx.fill();
 
     // Draw pivot point
     ctx.beginPath();
-    ctx.arc(pivotX, pivotY, CONFIG.PENDULUM_WIDTH * 2, 0, Math.PI * 2);
+    ctx.arc(pivot1X, pivot1Y, CONFIG.PENDULUM_WIDTH * 2, 0, Math.PI * 2);
     ctx.fill();
 }
 
