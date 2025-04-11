@@ -1,44 +1,92 @@
-// Void Serpent - A minimalist snake game
-// Canvas-based implementation with keyboard controls
+/**
+ * Void Serpent - A minimalist snake game
+ * Canvas-based implementation with keyboard controls
+ */
 
+// ==========================================
 // Game constants
-const GRID_SIZE = 20; // Size of each grid cell in pixels
-const INITIAL_SPEED = 10; // Initial frames per movement
-const MAX_SPEED = 5; // Maximum speed (minimum frames per movement)
-const SPEED_INCREMENT = 0.05; // How much speed increases per fragment collected
-const INITIAL_LENGTH = 5; // Starting length of serpent
-const FRAGMENT_TYPES = ['circle', 'square', 'triangle']; // Different fragment shapes
+// ==========================================
+const CONFIG = {
+    // Core gameplay settings
+    GRID_SIZE: 20, // Size of each grid cell in pixels
+    INITIAL_SPEED: 10, // Initial frames per movement
+    MAX_SPEED: 5, // Maximum speed (minimum frames per movement)
+    SPEED_INCREMENT: 0.05, // How much speed increases per fragment collected
+    INITIAL_LENGTH: 5, // Starting length of serpent
+    FRAGMENT_TYPES: ['circle', 'square', 'triangle'], // Different fragment shapes
+    STORAGE_KEY: 'voidSerpentHighScore',
 
+    // Visual settings
+    VISUAL: {
+        MAIN_COLOR: '#FFFFFF',
+        BACKGROUND_COLOR: '#000000',
+        TRANSITION_SPEED: 0.3, // seconds
+    },
+
+    // Game states
+    GAME_STATE: {
+        INTRO: 'intro',
+        PLAYING: 'playing',
+        PAUSED: 'paused',
+        GAME_OVER: 'gameover',
+        ERROR: 'error'
+    }
+};
+
+// ==========================================
 // Game state
+// ==========================================
 const gameState = {
+    // Core game state
+    state: CONFIG.GAME_STATE.INTRO,
     isPlaying: false,
     isPaused: false,
     score: 0,
     highScore: 0,
+
+    // Serpent state
     serpent: [],
     direction: { x: 1, y: 0 },
     nextDirection: { x: 1, y: 0 },
+
+    // Fragment state
     fragment: { x: 0, y: 0, type: 'circle' },
-    framesPerMovement: INITIAL_SPEED,
+
+    // Animation and timing
+    framesPerMovement: CONFIG.INITIAL_SPEED,
     lastMoveTime: 0,
     animationFrameId: null,
+    gameTime: 0,
+
+    // Visual effects
     shakeEffect: false,
     shakeTime: 0,
     pulseEffect: false,
     pulseTime: 0,
     pulseRadius: 0,
     trail: [],
-    gameTime: 0
+
+    // Input tracking (for future expansion)
+    keys: {
+        left: false,
+        right: false,
+        up: false,
+        down: false
+    }
 };
 
+// ==========================================
 // DOM elements
+// ==========================================
 let canvas, ctx;
 let helpButton, helpPanel, closeHelp;
 let pauseOverlay, gameOverOverlay;
 let scoreDisplay, highScoreDisplay;
 let errorOverlay, livesContainer;
 
-// Initialize the game
+// ==========================================
+// Initialization
+// ==========================================
 function initGame() {
     try {
         // Get DOM elements
@@ -63,7 +111,7 @@ function initGame() {
         window.addEventListener('resize', resizeCanvas);
 
         // Load high score from localStorage
-        gameState.highScore = parseInt(localStorage.getItem('voidSerpentHighScore')) || 0;
+        gameState.highScore = parseInt(localStorage.getItem(CONFIG.STORAGE_KEY)) || 0;
         updateScoreDisplay();
 
         // Add event listeners
@@ -73,17 +121,23 @@ function initGame() {
         resetGame();
 
         // Start game loop
-        gameLoop();
+        gameLoop(performance.now());
 
         // Set up error handling
-        window.addEventListener('error', handleError);
+        window.addEventListener('error', event => handleError('Game error:', event.error));
     } catch (error) {
-        showErrorOverlay();
-        console.error('Game initialization error:', error);
+        handleError('Game initialization error:', error);
     }
 }
 
-// Add event listeners
+// ==========================================
+// Setup functions
+// ==========================================
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+
 function addEventListeners() {
     // Keyboard controls
     window.addEventListener('keydown', handleKeydown);
@@ -96,32 +150,47 @@ function addEventListeners() {
     document.getElementById('restart-button').addEventListener('click', startGame);
 }
 
-// Resize canvas to fill window
-function resizeCanvas() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+// ==========================================
+// UI functions
+// ==========================================
+function toggleHelpPanel() {
+    helpPanel.classList.toggle('hidden');
 }
 
-// Reset game to initial state
+function togglePause() {
+    gameState.isPaused = !gameState.isPaused;
+    gameState.state = gameState.isPaused ? CONFIG.GAME_STATE.PAUSED : CONFIG.GAME_STATE.PLAYING;
+    pauseOverlay.classList.toggle('hidden', !gameState.isPaused);
+}
+
+function updateScoreDisplay() {
+    scoreDisplay.textContent = gameState.score;
+    highScoreDisplay.textContent = gameState.highScore;
+}
+
+// ==========================================
+// Game state functions
+// ==========================================
 function resetGame() {
     // Clear serpent array
     gameState.serpent = [];
 
     // Create initial serpent in the middle of the screen
-    const centerX = Math.floor(canvas.width / (2 * GRID_SIZE));
-    const centerY = Math.floor(canvas.height / (2 * GRID_SIZE));
+    const centerX = Math.floor(canvas.width / (2 * CONFIG.GRID_SIZE));
+    const centerY = Math.floor(canvas.height / (2 * CONFIG.GRID_SIZE));
 
-    for (let i = 0; i < INITIAL_LENGTH; i++) {
+    for (let i = 0; i < CONFIG.INITIAL_LENGTH; i++) {
         gameState.serpent.unshift({ x: centerX - i, y: centerY });
     }
 
     // Reset game variables
     gameState.direction = { x: 1, y: 0 };
     gameState.nextDirection = { x: 1, y: 0 };
-    gameState.framesPerMovement = INITIAL_SPEED;
+    gameState.framesPerMovement = CONFIG.INITIAL_SPEED;
     gameState.score = 0;
     gameState.gameTime = 0;
     gameState.trail = [];
+    gameState.state = CONFIG.GAME_STATE.INTRO;
     gameState.isPlaying = false;
     gameState.isPaused = false;
 
@@ -132,9 +201,9 @@ function resetGame() {
     updateScoreDisplay();
 }
 
-// Start game
 function startGame() {
     resetGame();
+    gameState.state = CONFIG.GAME_STATE.PLAYING;
     gameState.isPlaying = true;
 
     // Hide overlays
@@ -142,59 +211,32 @@ function startGame() {
     gameOverOverlay.classList.add('hidden');
 }
 
-// Toggle help panel
-function toggleHelpPanel() {
-    helpPanel.classList.toggle('hidden');
+function gameOver() {
+    gameState.state = CONFIG.GAME_STATE.GAME_OVER;
+    gameState.isPlaying = false;
+
+    // Update high score if needed
+    if (gameState.score > gameState.highScore) {
+        gameState.highScore = gameState.score;
+        localStorage.setItem(CONFIG.STORAGE_KEY, gameState.highScore);
+        updateScoreDisplay();
+    }
+
+    // Show game over overlay
+    document.getElementById('final-score').textContent = gameState.score;
+    document.getElementById('high-score').textContent = gameState.highScore;
+    gameOverOverlay.classList.remove('hidden');
 }
 
-// Toggle pause state
-function togglePause() {
-    gameState.isPaused = !gameState.isPaused;
-    pauseOverlay.classList.toggle('hidden', !gameState.isPaused);
-}
-
-// Create a new light fragment
-function createFragment() {
-    // Calculate grid dimensions
-    const gridWidth = Math.floor(canvas.width / GRID_SIZE);
-    const gridHeight = Math.floor(canvas.height / GRID_SIZE);
-
-    // Generate random position ensuring it's not on the serpent
-    let newPos;
-    do {
-        newPos = {
-            x: Math.floor(Math.random() * (gridWidth - 2)) + 1,
-            y: Math.floor(Math.random() * (gridHeight - 2)) + 1
-        };
-    } while (isPositionOnSerpent(newPos));
-
-    // Select random fragment type
-    const randomType = FRAGMENT_TYPES[Math.floor(Math.random() * FRAGMENT_TYPES.length)];
-
-    // Set new fragment
-    gameState.fragment = {
-        x: newPos.x,
-        y: newPos.y,
-        type: randomType
-    };
-
-    // Trigger pulse effect
-    gameState.pulseEffect = true;
-    gameState.pulseTime = 0;
-    gameState.pulseRadius = 0;
-}
-
-// Check if a position overlaps with the serpent
-function isPositionOnSerpent(pos) {
-    return gameState.serpent.some(segment => segment.x === pos.x && segment.y === pos.y);
-}
-
-// Handle keyboard input
+// ==========================================
+// Input handlers
+// ==========================================
 function handleKeydown(e) {
     // Title screen - start game with any directional key
     if (!gameState.isPlaying) {
         if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
             gameState.isPlaying = true;
+            gameState.state = CONFIG.GAME_STATE.PLAYING;
         }
     }
 
@@ -233,20 +275,58 @@ function handleKeydown(e) {
         case 'R':
             // Restart game (hidden feature)
             if (!gameState.isPlaying) {
-                resetGame();
-                gameState.isPlaying = true;
+                startGame();
             }
             break;
     }
 }
 
-// Update game state
+// ==========================================
+// Game mechanics
+// ==========================================
+function createFragment() {
+    // Calculate grid dimensions
+    const gridWidth = Math.floor(canvas.width / CONFIG.GRID_SIZE);
+    const gridHeight = Math.floor(canvas.height / CONFIG.GRID_SIZE);
+
+    // Generate random position ensuring it's not on the serpent
+    let newPos;
+    do {
+        newPos = {
+            x: Math.floor(Math.random() * (gridWidth - 2)) + 1,
+            y: Math.floor(Math.random() * (gridHeight - 2)) + 1
+        };
+    } while (isPositionOnSerpent(newPos));
+
+    // Select random fragment type
+    const randomType = CONFIG.FRAGMENT_TYPES[Math.floor(Math.random() * CONFIG.FRAGMENT_TYPES.length)];
+
+    // Set new fragment
+    gameState.fragment = {
+        x: newPos.x,
+        y: newPos.y,
+        type: randomType
+    };
+
+    // Trigger pulse effect
+    gameState.pulseEffect = true;
+    gameState.pulseTime = 0;
+    gameState.pulseRadius = 0;
+}
+
+function isPositionOnSerpent(pos) {
+    return gameState.serpent.some(segment => segment.x === pos.x && segment.y === pos.y);
+}
+
+// ==========================================
+// Update and render
+// ==========================================
 function update(timestamp) {
     // Increment game time
     gameState.gameTime += 1;
 
     // Only update game logic if playing and not paused
-    if (!gameState.isPlaying || gameState.isPaused) return;
+    if (gameState.state !== CONFIG.GAME_STATE.PLAYING || gameState.isPaused) return;
 
     // Update movement based on frames
     if (timestamp - gameState.lastMoveTime > (1000 / 60) * gameState.framesPerMovement) {
@@ -274,8 +354,8 @@ function update(timestamp) {
         gameState.trail = gameState.trail.filter(segment => segment.age < 10);
 
         // Check for collision with walls
-        const gridWidth = Math.floor(canvas.width / GRID_SIZE);
-        const gridHeight = Math.floor(canvas.height / GRID_SIZE);
+        const gridWidth = Math.floor(canvas.width / CONFIG.GRID_SIZE);
+        const gridHeight = Math.floor(canvas.height / CONFIG.GRID_SIZE);
 
         if (head.x < 0 || head.y < 0 || head.x >= gridWidth || head.y >= gridHeight) {
             handleCollision();
@@ -283,7 +363,7 @@ function update(timestamp) {
         }
 
         // Check for collision with self (except when just starting)
-        if (gameState.serpent.length > INITIAL_LENGTH) {
+        if (gameState.serpent.length > CONFIG.INITIAL_LENGTH) {
             for (let i = 0; i < gameState.serpent.length; i++) {
                 if (gameState.serpent[i].x === head.x && gameState.serpent[i].y === head.y) {
                     handleCollision();
@@ -302,7 +382,7 @@ function update(timestamp) {
             createFragment();
 
             // Increase speed
-            gameState.framesPerMovement = Math.max(MAX_SPEED, gameState.framesPerMovement - SPEED_INCREMENT);
+            gameState.framesPerMovement = Math.max(CONFIG.MAX_SPEED, gameState.framesPerMovement - CONFIG.SPEED_INCREMENT);
         } else {
             // Remove tail segment if no fragment was collected
             gameState.serpent.pop();
@@ -333,25 +413,11 @@ function update(timestamp) {
     }
 }
 
-// Handle collision events
 function handleCollision() {
-    gameState.isPlaying = false;
     gameState.shakeEffect = true;
-
-    // Update high score if needed
-    if (gameState.score > gameState.highScore) {
-        gameState.highScore = gameState.score;
-        localStorage.setItem('voidSerpentHighScore', gameState.highScore);
-        updateScoreDisplay();
-    }
-
-    // Show game over overlay
-    document.getElementById('final-score').textContent = gameState.score;
-    document.getElementById('high-score').textContent = gameState.highScore;
-    gameOverOverlay.classList.remove('hidden');
+    gameOver();
 }
 
-// Draw everything on the canvas
 function draw() {
     // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -365,40 +431,59 @@ function draw() {
         ctx.translate(shakeX, shakeY);
     }
 
+    // Draw based on game state
+    switch (gameState.state) {
+        case CONFIG.GAME_STATE.INTRO:
+        case CONFIG.GAME_STATE.PLAYING:
+        case CONFIG.GAME_STATE.PAUSED:
+            renderGame();
+            break;
+        case CONFIG.GAME_STATE.GAME_OVER:
+            renderGame(); // Still show final state
+            break;
+    }
+
+    // Reset transformation if shake was applied
+    if (gameState.shakeEffect) {
+        ctx.restore();
+    }
+}
+
+function renderGame() {
     // Draw trails
     ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
     gameState.trail.forEach(segment => {
         const alpha = 0.3 - (segment.age / 10) * 0.3;
         ctx.globalAlpha = alpha;
         ctx.fillRect(
-            segment.x * GRID_SIZE,
-            segment.y * GRID_SIZE,
-            GRID_SIZE,
-            GRID_SIZE
+            segment.x * CONFIG.GRID_SIZE,
+            segment.y * CONFIG.GRID_SIZE,
+            CONFIG.GRID_SIZE,
+            CONFIG.GRID_SIZE
         );
     });
     ctx.globalAlpha = 1;
 
     // Draw serpent
-    ctx.fillStyle = '#FFFFFF';
+    ctx.fillStyle = CONFIG.VISUAL.MAIN_COLOR;
     gameState.serpent.forEach((segment, index) => {
         // Apply gradient to serpent segments - head is brightest
         const brightness = 255 - (index * 5);
         ctx.fillStyle = `rgb(${brightness}, ${brightness}, ${brightness})`;
 
         ctx.fillRect(
-            segment.x * GRID_SIZE,
-            segment.y * GRID_SIZE,
-            GRID_SIZE,
-            GRID_SIZE
+            segment.x * CONFIG.GRID_SIZE,
+            segment.y * CONFIG.GRID_SIZE,
+            CONFIG.GRID_SIZE,
+            CONFIG.GRID_SIZE
         );
     });
 
     // Draw fragment based on its type
-    ctx.fillStyle = '#FFFFFF';
-    const fragmentX = gameState.fragment.x * GRID_SIZE + GRID_SIZE / 2;
-    const fragmentY = gameState.fragment.y * GRID_SIZE + GRID_SIZE / 2;
-    const fragmentSize = GRID_SIZE * 0.7;
+    ctx.fillStyle = CONFIG.VISUAL.MAIN_COLOR;
+    const fragmentX = gameState.fragment.x * CONFIG.GRID_SIZE + CONFIG.GRID_SIZE / 2;
+    const fragmentY = gameState.fragment.y * CONFIG.GRID_SIZE + CONFIG.GRID_SIZE / 2;
+    const fragmentSize = CONFIG.GRID_SIZE * 0.7;
 
     // Draw pulse effect if active
     if (gameState.pulseEffect) {
@@ -409,67 +494,65 @@ function draw() {
     }
 
     // Draw fragment based on type
-    ctx.fillStyle = '#FFFFFF';
+    ctx.fillStyle = CONFIG.VISUAL.MAIN_COLOR;
+    renderFragment(fragmentX, fragmentY, fragmentSize);
+}
+
+function renderFragment(x, y, size) {
     switch (gameState.fragment.type) {
         case 'circle':
             ctx.beginPath();
-            ctx.arc(fragmentX, fragmentY, fragmentSize / 2, 0, Math.PI * 2);
+            ctx.arc(x, y, size / 2, 0, Math.PI * 2);
             ctx.fill();
             break;
         case 'square':
             ctx.fillRect(
-                gameState.fragment.x * GRID_SIZE + (GRID_SIZE - fragmentSize) / 2,
-                gameState.fragment.y * GRID_SIZE + (GRID_SIZE - fragmentSize) / 2,
-                fragmentSize,
-                fragmentSize
+                gameState.fragment.x * CONFIG.GRID_SIZE + (CONFIG.GRID_SIZE - size) / 2,
+                gameState.fragment.y * CONFIG.GRID_SIZE + (CONFIG.GRID_SIZE - size) / 2,
+                size,
+                size
             );
             break;
         case 'triangle':
             ctx.beginPath();
-            ctx.moveTo(fragmentX, gameState.fragment.y * GRID_SIZE + (GRID_SIZE - fragmentSize) / 2);
-            ctx.lineTo(gameState.fragment.x * GRID_SIZE + (GRID_SIZE - fragmentSize) / 2,
-                gameState.fragment.y * GRID_SIZE + GRID_SIZE - (GRID_SIZE - fragmentSize) / 2);
-            ctx.lineTo(gameState.fragment.x * GRID_SIZE + GRID_SIZE - (GRID_SIZE - fragmentSize) / 2,
-                gameState.fragment.y * GRID_SIZE + GRID_SIZE - (GRID_SIZE - fragmentSize) / 2);
+            ctx.moveTo(x, gameState.fragment.y * CONFIG.GRID_SIZE + (CONFIG.GRID_SIZE - size) / 2);
+            ctx.lineTo(gameState.fragment.x * CONFIG.GRID_SIZE + (CONFIG.GRID_SIZE - size) / 2,
+                gameState.fragment.y * CONFIG.GRID_SIZE + CONFIG.GRID_SIZE - (CONFIG.GRID_SIZE - size) / 2);
+            ctx.lineTo(gameState.fragment.x * CONFIG.GRID_SIZE + CONFIG.GRID_SIZE - (CONFIG.GRID_SIZE - size) / 2,
+                gameState.fragment.y * CONFIG.GRID_SIZE + CONFIG.GRID_SIZE - (CONFIG.GRID_SIZE - size) / 2);
             ctx.closePath();
             ctx.fill();
             break;
     }
-
-    // Reset transformation if shake was applied
-    if (gameState.shakeEffect) {
-        ctx.restore();
-    }
 }
 
-// Empty function - left for compatibility
-function drawTitleScreen() {
-    // Animation removed per requirement
+// ==========================================
+// Error handling
+// ==========================================
+function handleError(message, error) {
+    console.error(message, error);
+    gameState.state = CONFIG.GAME_STATE.ERROR;
+    showErrorOverlay();
 }
 
-// Update score displays
-function updateScoreDisplay() {
-    scoreDisplay.textContent = gameState.score;
-    highScoreDisplay.textContent = gameState.highScore;
-}
-
-// Show error overlay
 function showErrorOverlay() {
     errorOverlay.classList.remove('hidden');
 }
 
-// Handle game errors
-function handleError(e) {
-    console.error('Game error:', e);
-    showErrorOverlay();
-}
-
-// Main game loop
+// ==========================================
+// Game loop
+// ==========================================
 function gameLoop(timestamp) {
-    update(timestamp);
-    draw();
-    gameState.animationFrameId = requestAnimationFrame(gameLoop);
+    try {
+        update(timestamp);
+        draw();
+        gameState.animationFrameId = requestAnimationFrame(gameLoop);
+    } catch (error) {
+        handleError('Game loop error:', error);
+    }
 }
 
-// Start the game when the page loads
+// ==========================================
+// Initialization
+// ==========================================
 window.addEventListener('DOMContentLoaded', initGame);

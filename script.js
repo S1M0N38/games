@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
             description: 'Pilot a spaceship through an asteroid field, dodge obstacles and collect power-ups.',
             path: 'games/space-dodger/index.html',
             inputType: 'keyboard',
-            fallbackImage: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="160" viewBox="0 0 300 160"><rect width="300" height="160" fill="%23111111"/><g transform="translate(150, 100)"><polygon points="0,-25 -15,10 0,5 15,10" fill="%23FFFFFF"/></g><polygon points="75,40 85,60 65,60" fill="%23FFFFFF" opacity="0.8"/><polygon points="230,70 220,90 240,90" fill="%23FFFFFF" opacity="0.6"/><circle cx="115" cy="120" r="12" fill="%23FFFFFF" opacity="0.7"/><polygon points="70,85 65,100 80,110 95,100 90,85" fill="%23FFFFFF" opacity="0.5"/><circle cx="200" cy="30" r="15" fill="%23FFFFFF" opacity="0.9"/><polygon points="210,130 205,150 225,155 245,145 235,130" fill="%23FFFFFF" opacity="0.4"/><polygon points="155,55 145,70 155,85 175,75 165,55" fill="%23FFFFFF" opacity="0.7"/></svg>'
+            fallbackImage: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="160" viewBox="0 0 300 160"><rect width="300" height="160" fill="%23111111"/><g transform="translate(150, 100)"><polygon points="0,-25 -15,10 0,5 15,10" fill="%23FFFFFF"/></g><!-- Square --><rect x="50" y="40" width="25" height="25" fill="%23FFFFFF" opacity="0.8"/><!-- Pentagon --><polygon points="248,65 236,82 213,82 205,65 220,49" fill="%23FFFFFF" opacity="0.7"/><!-- Hexagon --><polygon points="80,130 95,130 103,145 95,160 80,160 72,145" fill="%23FFFFFF" opacity="0.75"/><!-- Octagon --><polygon points="230,120 242,125 247,137 242,149 230,154 218,149 213,137 218,125" fill="%23FFFFFF" opacity="0.65"/><!-- Circle --><circle cx="50" cy="90" r="15" fill="%23FFFFFF" opacity="0.7"/></svg>'
         },
         {
             id: 'reaction-dots',
@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
             description: 'Test your precision by keeping a ball balanced on a tilting beam for as long as possible.',
             path: 'games/balance-beam/index.html',
             inputType: 'keyboard',
-            fallbackImage: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="160" viewBox="0 0 300 160"><rect width="300" height="160" fill="%23111111"/><rect x="50" y="100" width="200" height="4" fill="%23FFFFFF" transform="rotate(-8, 150, 100)"/><circle cx="125" cy="90" r="12" fill="%23FFFFFF"/><line x1="150" y1="30" x2="150" y2="160" stroke="%23333333" stroke-width="1" stroke-dasharray="5,5"/><line x1="50" y1="100" x2="50" y2="130" stroke="%23555555" stroke-width="2"/><line x1="250" y1="100" x2="250" y2="130" stroke="%23555555" stroke-width="2"/></svg>'
+            fallbackImage: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="160" viewBox="0 0 300 160"><rect width="300" height="160" fill="%23111111"/><rect x="50" y="100" width="200" height="4" fill="%23FFFFFF" transform="rotate(-8, 150, 100)"/><circle cx="125" cy="90" r="12" fill="%23FFFFFF"/></svg>'
         },
         {
             id: 'pendulum-pulse',
@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
             description: 'A minimalist timing game - click when the pendulum crosses the center line for perfect rhythm.',
             path: 'games/pendulum-pulse/index.html',
             inputType: 'mouse',
-            fallbackImage: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="160" viewBox="0 0 300 160"><rect width="300" height="160" fill="%23111111"/><line x1="150" y1="0" x2="150" y2="160" stroke="%23444444" stroke-width="1"/><line x1="150" y1="50" x2="120" y2="90" stroke="%23FFFFFF" stroke-width="2"/><line x1="120" y1="90" x2="170" y2="120" stroke="%23FFFFFF" stroke-width="2"/><circle cx="150" cy="50" r="4" fill="%23FFFFFF"/><circle cx="120" cy="90" r="6" fill="%23FFFFFF"/><circle cx="170" cy="120" r="10" fill="%23FFFFFF"/><circle cx="150" cy="80" r="30" fill="none" stroke="%23333333" stroke-width="1" opacity="0.5"/></svg>'
+            fallbackImage: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="160" viewBox="0 0 300 160"><rect width="300" height="160" fill="%23111111"/><line x1="150" y1="50" x2="120" y2="90" stroke="%23FFFFFF" stroke-width="2"/><line x1="120" y1="90" x2="170" y2="120" stroke="%23FFFFFF" stroke-width="2"/><circle cx="150" cy="50" r="4" fill="%23FFFFFF"/><circle cx="120" cy="90" r="6" fill="%23FFFFFF"/><circle cx="170" cy="120" r="10" fill="%23FFFFFF"/></svg>'
         }
         // More games will be added here as developed
     ];    // Render all games to the DOM
