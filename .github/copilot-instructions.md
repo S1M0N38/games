@@ -28,7 +28,8 @@ These guidelines outline the process for creating simple, engaging browser-based
 - **Core Mechanic**:
 
   - Implement only one core gameplay mechanic and execute it exceptionally well.
-  - Both level-based games and endless games are acceptable, but prioritize simplicity and engagement.
+  - **Only endless games are acceptable** - no level-based games. Focus on games that naturally increase in difficulty over time (like Snake).
+  - Prioritize simplicity, engagement, and progressive difficulty curves that challenge the player without explicit level structures.
 
 - **Codebase and Feature Set**:
   - Keep the total code small and maintainable. Aim for fewer than 500 lines per file; JavaScript files must not exceed 2000 lines.
@@ -96,13 +97,14 @@ These guidelines outline the process for creating simple, engaging browser-based
 1. **Game Concept Design**:
 
    - Choose a concept that is technically feasible with browser-only technologies.
-   - Focus on a single, well-defined core mechanic to create an engaging gameplay loop.
+   - Focus on a single, well-defined core mechanic to create an engaging endless gameplay loop.
+   - Design a progression system that gradually increases difficulty based on time, score, or other player metrics.
    - Decide in advance which input mode (mouse OR keyboard) will be used.
 
 2. **Game Design Document (GDD)**:
    - Include in the README.md:
      - Title, genre, and target audience.
-     - Detailed gameplay description focusing on the one core mechanic.
+     - Detailed gameplay description focusing on the one core mechanic and how difficulty progresses over time.
      - Visual style specifications (black/white/grayscale with red only for errors).
      - Controls (mouse OR keyboard only).
      - Technical approach (Canvas vs. DOM, animation techniques, state management).
@@ -231,13 +233,15 @@ chore(ci): update deployment configuration
 
 1. **Idea Generation (1 day)**:
 
-   - Brainstorm 2–3 concepts.
-   - Select the idea that best satisfies simplicity, clarity, a singular input method (either keyboard or mouse), and strong animation potential.
+   - Brainstorm 2–3 concepts for endless gameplay experiences.
+   - Select the idea that best satisfies simplicity, clarity, a singular input method (either keyboard or mouse), strong animation potential, and an elegant difficulty progression.
+   - Consider classic endless games for inspiration: Snake, Tetris, Asteroids, Flappy Bird, etc.
 
 2. **Game Design Document (GDD) (1 day)**:
 
    - Write the GDD in the README.md.
-   - Focus on a single core mechanic, its infinite (or extremely long) loop, and strict visual style.
+   - Focus on a single core mechanic, its infinite loop, difficulty progression curve, and strict visual style.
+   - Define how the game will become progressively more challenging (increased speed, more obstacles, reduced reaction time, etc.).
 
 3. **Implementation (2–3 days)**:
 
@@ -312,4 +316,4 @@ Each game entry on the landing page should have:
 
 **Final Notes**
 
-This comprehensive document defines a highly disciplined, minimalist approach to browser-based game development. Every element—from the singular focus on one gameplay mechanic, to the wordless, icon-driven communication and animations—must align to create a unified, immersive desktop experience. The guidelines ensure that from the individual game code to the landing hub interface, every component is coherent, clean, and purpose-driven.
+This comprehensive document defines a highly disciplined, minimalist approach to browser-based game development. Every element—from the singular focus on one gameplay mechanic within an endless structure, to the wordless, icon-driven communication and animations—must align to create a unified, immersive desktop experience. The guidelines ensure that from the individual game code to the landing hub interface, every component is coherent, clean, and purpose-driven.
