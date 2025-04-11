@@ -9,39 +9,46 @@
 </head>
 
 <body>
-    <div class="game-container">
-        <!-- Game area for dots -->
-        <div class="game-area" id="gameArea">
-            <!-- Dots will be generated here by JavaScript -->
+    <div id="game-container">
+        <!-- Lives indicator (top-left) -->
+        <div id="lives-container"></div>
+
+        <!-- Score display (top-right) -->
+        <div id="score-container">
+            <span id="score">0</span>
         </div>
 
-        <!-- UI Overlay for scores and instructions -->
-        <div class="ui-overlay">
-            <div class="stats">
-                <div class="lives-display" id="livesDisplay">
-                    <!-- Lives will be generated here by JavaScript -->
-                </div>
-                <div class="score">Score: <span id="score">0</span></div>
-            </div>
+        <!-- Game grid (center) -->
+        <div id="dots-grid"></div>
 
-            <div class="instructions">
-                <p>Click on dots when they turn <span class="target-color">white</span>!</p>
-            </div>
+        <!-- Help button (bottom-right) -->
+        <div id="help-button">?</div>
 
-            <div class="start-menu" id="startMenu">
-                <h1>Reaction Dots</h1>
-                <p>Click on dots when they turn white</p>
-                <button id="startButton">Start</button>
+        <!-- Help panel (hidden by default) -->
+        <div id="help-panel" class="hidden">
+            <div id="help-content">
+                <p>Click white illuminated dots quickly before they disappear.</p>
+                <p>ESC: Pause/Resume game</p>
+                <p>Q: Return to games hub</p>
+                <div id="close-help">×</div>
             </div>
+        </div>
 
-            <div class="game-over hidden" id="gameOver">
-                <h2>Game Over</h2>
-                <p>Your score: <span id="finalScore">0</span></p>
-                <button id="restartButton">Play Again</button>
-            </div>
+        <!-- Pause overlay (hidden by default) -->
+        <div id="pause-overlay" class="hidden"></div>
+
+        <!-- Game over overlay (hidden by default) -->
+        <div id="game-over" class="hidden">
+            <div id="final-score"></div>
+            <div id="high-score"></div>
+            <div id="restart-button"></div>
+        </div>
+
+        <!-- Error overlay (hidden by default) -->
+        <div id="error-overlay" class="hidden">
+            <div id="error-icon"></div>
         </div>
     </div>
-
     <script src="game.js"></script>
 </body>
 

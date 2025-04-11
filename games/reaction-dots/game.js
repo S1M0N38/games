@@ -1,247 +1,347 @@
-/**
- * Reaction Dots - A simple reaction game
- * Test your reflexes by clicking dots when they change color
- * Minimal black and white aesthetic
- */
-
-// Game configuration
-const config = {
-    dotCount: 25,           // Increased from 12 to 25 dots
-    initialLives: 3,        // Starting number of lives
-    baseInterval: 1800,     // Slightly reduced base time between dot activations (ms)
-    minInterval: 700,       // Slightly reduced minimum time between dot activations (ms)
-    activeTime: 950,        // Slightly reduced time a dot stays active (ms)
-    minActiveTime: 550,     // Slightly reduced minimum time a dot stays active (ms)
-    difficultyStep: 4,      // Reduced difficulty step to account for more dots
-    wrongPenalty: 400       // Slightly reduced time penalty for wrong clicks (ms)
-};
+// Game constants
+const GRID_SIZE = 5; // 5x5 grid
+const DOT_COUNT = GRID_SIZE * GRID_SIZE;
+const INITIAL_LIVES = 3;
+const MIN_ILLUMINATION_TIME = 350; // ms (increased from 200ms for more balanced difficulty)
+const MAX_ILLUMINATION_TIME = 1000; // ms (increased from 800ms)
+const ILLUMINATION_TIME_DECREASE = 50; // ms per level (decreased from 100ms)
+const DIFFICULTY_INCREASE_INTERVAL = 3; // score points (increased from 2)
+const MAX_ACTIVE_DOTS = 3; // Maximum number of simultaneously active dots (reduced from 4)
+const DOT_SPAWN_RATE_MIN = 500; // Minimum time between new dots (ms) (increased from 300)
+const DOT_SPAWN_RATE_MAX = 1200; // Maximum time between new dots (ms) (increased from 800)
 
 // Game state
-let state = {
+const gameState = {
+    isPlaying: false,
+    isPaused: false,
     score: 0,
-    lives: config.initialLives,
-    gameActive: false,
-    dotsActive: false,
-    lastDotIndex: -1,
-    difficultyLevel: 0,
-    timeoutId: null
+    lives: INITIAL_LIVES,
+    activeDots: [],
+    illuminationTime: MAX_ILLUMINATION_TIME,
+    highScore: 0,
+    timers: []
 };
 
-// DOM Elements
-let gameArea, scoreDisplay, livesDisplay, gameOverScreen, finalScoreDisplay, startMenu;
-let dots = [];
+// DOM elements
+const dotsGrid = document.getElementById('dots-grid');
+const scoreDisplay = document.getElementById('score');
+const livesContainer = document.getElementById('lives-container');
+const helpButton = document.getElementById('help-button');
+const helpPanel = document.getElementById('help-panel');
+const closeHelp = document.getElementById('close-help');
+const pauseOverlay = document.getElementById('pause-overlay');
+const gameOverOverlay = document.getElementById('game-over');
+const finalScoreDisplay = document.getElementById('final-score');
+const highScoreDisplay = document.getElementById('high-score');
+const restartButton = document.getElementById('restart-button');
+const errorOverlay = document.getElementById('error-overlay');
 
-// Initialize the game
+// Initialize game
 function initGame() {
-    // Get DOM elements
-    gameArea = document.getElementById('gameArea');
-    scoreDisplay = document.getElementById('score');
-    livesDisplay = document.getElementById('livesDisplay');
-    gameOverScreen = document.getElementById('gameOver');
-    finalScoreDisplay = document.getElementById('finalScore');
-    startMenu = document.getElementById('startMenu');
+    try {
+        // Load high score from localStorage
+        gameState.highScore = parseInt(localStorage.getItem('reactionDotsHighScore')) || 0;
 
-    // Set up event listeners
-    document.getElementById('startButton').addEventListener('click', startGame);
-    document.getElementById('restartButton').addEventListener('click', restartGame);
+        // Create dots grid
+        createDotsGrid();
 
-    // Add keyboard controls (space to restart)
-    document.addEventListener('keydown', function (event) {
-        if (event.code === 'Space') {
-            if (!state.gameActive) {
-                if (gameOverScreen.classList.contains('hidden')) {
-                    startGame();
-                } else {
-                    restartGame();
-                }
-            }
-        }
-    });
+        // Create lives indicators
+        createLivesIndicators();
 
-    // Create dots
-    createDots();
+        // Add event listeners
+        addEventListeners();
 
-    // Initialize lives display
-    updateLivesDisplay();
+        // Start the game
+        startGame();
+
+    } catch (error) {
+        showErrorOverlay();
+        console.error('Game initialization error:', error);
+    }
 }
 
-// Create the dots in the game area
-function createDots() {
-    gameArea.innerHTML = '';
-    dots = [];
-
-    for (let i = 0; i < config.dotCount; i++) {
+// Create dots grid
+function createDotsGrid() {
+    dotsGrid.innerHTML = '';
+    for (let i = 0; i < DOT_COUNT; i++) {
         const dot = document.createElement('div');
         dot.className = 'dot';
         dot.dataset.index = i;
-
-        // Add click event listener
-        dot.addEventListener('click', function () {
-            handleDotClick(i);
-        });
-
-        gameArea.appendChild(dot);
-        dots.push(dot);
+        dot.addEventListener('click', handleDotClick);
+        dotsGrid.appendChild(dot);
     }
 }
 
-// Update the lives display
-function updateLivesDisplay() {
-    livesDisplay.innerHTML = '';
-
-    for (let i = 0; i < config.initialLives; i++) {
-        const lifeElement = document.createElement('div');
-        lifeElement.className = i < state.lives ? 'life' : 'life lost';
-        livesDisplay.appendChild(lifeElement);
+// Create lives indicators
+function createLivesIndicators() {
+    livesContainer.innerHTML = '';
+    for (let i = 0; i < INITIAL_LIVES; i++) {
+        const life = document.createElement('div');
+        life.className = 'life';
+        livesContainer.appendChild(life);
     }
 }
 
-// Start the game
+// Add event listeners
+function addEventListeners() {
+    // Help button toggle
+    helpButton.addEventListener('click', toggleHelpPanel);
+    closeHelp.addEventListener('click', toggleHelpPanel);
+
+    // Restart button
+    restartButton.addEventListener('click', startGame);
+
+    // Keyboard controls
+    document.addEventListener('keydown', handleKeyPress);
+}
+
+// Toggle help panel
+function toggleHelpPanel() {
+    helpPanel.classList.toggle('hidden');
+}
+
+// Handle key press
+function handleKeyPress(event) {
+    switch (event.key) {
+        case 'Escape':
+            togglePause();
+            break;
+        case 'q':
+        case 'Q':
+            navigateToLanding();
+            break;
+    }
+}
+
+// Navigate to landing page
+function navigateToLanding() {
+    window.location.href = '../../index.html';
+}
+
+// Toggle pause state
+function togglePause() {
+    gameState.isPaused = !gameState.isPaused;
+    pauseOverlay.classList.toggle('hidden', !gameState.isPaused);
+
+    if (gameState.isPaused) {
+        gameState.timers.forEach(timer => clearTimeout(timer));
+    } else if (gameState.isPlaying) {
+        illuminateRandomDot();
+    }
+}
+
+// Start game
 function startGame() {
     // Reset game state
-    state.score = 0;
-    state.lives = config.initialLives;
-    state.gameActive = true;
-    state.dotsActive = false;
-    state.lastDotIndex = -1;
-    state.difficultyLevel = 0;
+    gameState.isPlaying = true;
+    gameState.isPaused = false;
+    gameState.score = 0;
+    gameState.lives = INITIAL_LIVES;
+    gameState.activeDots = [];
+    gameState.illuminationTime = MAX_ILLUMINATION_TIME;
+    gameState.timers = [];
 
-    // Update display
-    scoreDisplay.textContent = state.score;
+    // Update UI
+    scoreDisplay.textContent = gameState.score;
     updateLivesDisplay();
 
-    // Hide the start menu
-    startMenu.classList.add('hidden');
-    gameOverScreen.classList.add('hidden');
+    // Hide overlays
+    pauseOverlay.classList.add('hidden');
+    gameOverOverlay.classList.add('hidden');
 
-    // Start game loop
-    startGameLoop();
+    // Reset dots
+    resetDots();
+
+    // Start illuminating dots
+    illuminateRandomDot();
 }
 
-// Handle dot click events
-function handleDotClick(index) {
-    if (!state.gameActive) return;
+// Reset all dots to inactive state
+function resetDots() {
+    document.querySelectorAll('.dot').forEach(dot => {
+        dot.classList.remove('active', 'success', 'failure');
+    });
+}
 
-    const dot = dots[index];
+// Illuminate random dot
+function illuminateRandomDot() {
+    if (!gameState.isPlaying || gameState.isPaused) return;
 
-    if (dot.classList.contains('target')) {
-        // Correct click!
-        state.score++;
-        scoreDisplay.textContent = state.score;
+    try {
+        // Clear any previous timers
+        gameState.timers.forEach(timer => clearTimeout(timer));
+        gameState.timers = [];
 
-        // Update difficulty based on score
-        state.difficultyLevel = Math.floor(state.score / config.difficultyStep);
+        // Get all inactive dots
+        const inactiveDots = Array.from(document.querySelectorAll('.dot'))
+            .filter(dot => !dot.classList.contains('active'));
 
-        // Visual feedback
-        dot.classList.remove('target');
-        dot.classList.add('correct');
-        setTimeout(() => {
-            dot.classList.remove('correct');
-        }, 300);
-
-        // Clear the current active dot timeout
-        if (state.timeoutId) {
-            clearTimeout(state.timeoutId);
+        // If no inactive dots, wait and try again
+        if (inactiveDots.length === 0 || gameState.activeDots.length >= MAX_ACTIVE_DOTS) {
+            const timer = setTimeout(illuminateRandomDot, 500);
+            gameState.timers.push(timer);
+            return;
         }
 
-        // Continue game loop immediately
-        state.dotsActive = false;
-        startGameLoop();
+        // Select a random inactive dot
+        const randomIndex = Math.floor(Math.random() * inactiveDots.length);
+        const selectedDot = inactiveDots[randomIndex];
+
+        // Add to active dots
+        gameState.activeDots.push(selectedDot.dataset.index);
+
+        // Activate dot
+        selectedDot.classList.add('active');
+
+        // Calculate a more dynamic illumination time that gets shorter with higher scores
+        // This makes the dots disappear faster as the game progresses
+        const currentIlluminationTime = Math.max(
+            MIN_ILLUMINATION_TIME,
+            gameState.illuminationTime - (Math.floor(gameState.score / 8) * 30) // Changed from 5 to 8 and 50 to 30
+        );
+
+        // Set timeout to deactivate dot and reduce life if not clicked
+        const deactivationTimer = setTimeout(() => {
+            if (gameState.isPlaying && !gameState.isPaused) {
+                // If dot is still active, mark as missed
+                if (selectedDot.classList.contains('active')) {
+                    selectedDot.classList.remove('active');
+                    selectedDot.classList.add('failure');
+                    reduceLife();
+
+                    // Remove from active dots
+                    const dotIndex = gameState.activeDots.indexOf(selectedDot.dataset.index);
+                    if (dotIndex > -1) {
+                        gameState.activeDots.splice(dotIndex, 1);
+                    }
+
+                    // Reset animation after it completes
+                    setTimeout(() => {
+                        selectedDot.classList.remove('failure');
+                    }, 400);
+                }
+            }
+        }, currentIlluminationTime); // Use the dynamically calculated time
+
+        gameState.timers.push(deactivationTimer);
+
+        // Schedule next dot illumination with dynamic timing based on score
+        // As score increases, dots appear more frequently
+        const spawnDelay = Math.max(
+            DOT_SPAWN_RATE_MIN,
+            DOT_SPAWN_RATE_MAX - (gameState.score * 10) // Decreased from 15 to 10
+        );
+        const nextDotTimer = setTimeout(illuminateRandomDot, spawnDelay);
+        gameState.timers.push(nextDotTimer);
+
+    } catch (error) {
+        showErrorOverlay();
+        console.error('Error illuminating dots:', error);
+    }
+}
+
+// Handle dot click
+function handleDotClick(event) {
+    if (!gameState.isPlaying || gameState.isPaused) return;
+
+    const dot = event.target;
+
+    // Check if dot is active (illuminated)
+    if (dot.classList.contains('active')) {
+        // Success - clicked an active dot
+        dot.classList.remove('active');
+        dot.classList.add('success');
+
+        // Remove from active dots
+        const dotIndex = gameState.activeDots.indexOf(dot.dataset.index);
+        if (dotIndex > -1) {
+            gameState.activeDots.splice(dotIndex, 1);
+        }
+
+        // Update score
+        gameState.score++;
+        scoreDisplay.textContent = gameState.score;
+
+        // Increase difficulty every few points - more aggressive formula
+        if (gameState.score % DIFFICULTY_INCREASE_INTERVAL === 0) {
+            // More balanced difficulty increase
+            gameState.illuminationTime = Math.max(
+                MIN_ILLUMINATION_TIME,
+                gameState.illuminationTime - ILLUMINATION_TIME_DECREASE - Math.floor(gameState.score / 10) * 8
+            );
+
+            // Reduced chance to spawn a new dot immediately
+            if (gameState.activeDots.length < MAX_ACTIVE_DOTS && Math.random() > 0.6) { // Changed from 0.3 to 0.6
+                illuminateRandomDot();
+            }
+        }
+
+        // Reset animation after it completes
+        setTimeout(() => {
+            dot.classList.remove('success');
+        }, 400);
     } else {
-        // Wrong click!
-        state.lives--;
-        updateLivesDisplay();
+        // Failure - clicked an inactive dot
+        dot.classList.add('failure');
+        reduceLife();
 
-        // Visual feedback
-        dot.classList.add('wrong');
+        // Reset animation after it completes
         setTimeout(() => {
-            dot.classList.remove('wrong');
-        }, 300);
-
-        // Apply time penalty
-        setTimeout(() => {
-            // Check if game is over
-            if (state.lives <= 0) {
-                endGame();
-            }
-        }, config.wrongPenalty);
+            dot.classList.remove('failure');
+        }, 400);
     }
 }
 
-// Start the game loop
-function startGameLoop() {
-    if (!state.gameActive || state.dotsActive) return;
+// Reduce life and check for game over
+function reduceLife() {
+    gameState.lives--;
+    updateLivesDisplay();
 
-    // Calculate intervals based on difficulty
-    const intervalReduction = Math.min(config.baseInterval - config.minInterval,
-        state.difficultyLevel * 100);
-    const currentInterval = config.baseInterval - intervalReduction;
-
-    const activeReduction = Math.min(config.activeTime - config.minActiveTime,
-        state.difficultyLevel * 30);
-    const currentActiveTime = config.activeTime - activeReduction;
-
-    // Set a timeout to activate a random dot
-    setTimeout(() => {
-        activateRandomDot(currentActiveTime);
-    }, currentInterval);
-}
-
-// Activate a random dot
-function activateRandomDot(activeTime) {
-    if (!state.gameActive) return;
-
-    state.dotsActive = true;
-
-    // Select a random dot (different from the last one)
-    let randomIndex;
-    do {
-        randomIndex = Math.floor(Math.random() * config.dotCount);
-    } while (randomIndex === state.lastDotIndex && config.dotCount > 1);
-
-    state.lastDotIndex = randomIndex;
-
-    // Activate the dot
-    const dot = dots[randomIndex];
-    dot.classList.add('target');
-
-    // Set a timeout to deactivate the dot
-    state.timeoutId = setTimeout(() => {
-        // If dot is still active, player missed it
-        if (dot.classList.contains('target')) {
-            dot.classList.remove('target');
-            state.lives--;
-            updateLivesDisplay();
-
-            // Check if game is over
-            if (state.lives <= 0) {
-                endGame();
-                return;
-            }
-        }
-
-        // Continue the game loop
-        state.dotsActive = false;
-        startGameLoop();
-    }, activeTime);
-}
-
-// End the game
-function endGame() {
-    state.gameActive = false;
-    finalScoreDisplay.textContent = state.score;
-    gameOverScreen.classList.remove('hidden');
-
-    // Clear any active timeouts
-    if (state.timeoutId) {
-        clearTimeout(state.timeoutId);
+    if (gameState.lives <= 0) {
+        gameOver();
     }
 }
 
-// Restart the game
-function restartGame() {
-    startGame();
+// Update lives display
+function updateLivesDisplay() {
+    const lifeElements = document.querySelectorAll('.life');
+    lifeElements.forEach((life, index) => {
+        life.classList.toggle('lost', index >= gameState.lives);
+    });
 }
 
-// Initialize the game when the DOM is fully loaded
+// Game over
+function gameOver() {
+    gameState.isPlaying = false;
+
+    // Clear all timers
+    gameState.timers.forEach(timer => clearTimeout(timer));
+    gameState.timers = [];
+
+    // Check for high score
+    if (gameState.score > gameState.highScore) {
+        gameState.highScore = gameState.score;
+        localStorage.setItem('reactionDotsHighScore', gameState.highScore);
+    }
+
+    // Update game over screen
+    finalScoreDisplay.textContent = gameState.score;
+    highScoreDisplay.textContent = gameState.highScore;
+
+    // Show game over overlay
+    gameOverOverlay.classList.remove('hidden');
+}
+
+// Show error overlay
+function showErrorOverlay() {
+    errorOverlay.classList.remove('hidden');
+}
+
+// Handle window errors
+window.addEventListener('error', (event) => {
+    showErrorOverlay();
+    console.error('Global error:', event.error);
+});
+
+// Initialize the game when DOM is loaded
 document.addEventListener('DOMContentLoaded', initGame);

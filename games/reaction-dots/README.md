@@ -1,51 +1,57 @@
-# Reaction Dots Game Design Document
+# Reaction Dots - Game Design Document
 
-## Game Title
-Reaction Dots
+## Title, Genre, and Target Audience
+**Title:** Reaction Dots  
+**Genre:** Minimal Reflex/Reaction Arcade Game  
+**Target Audience:** Desktop users seeking a challenging, reflex-based game with simple mechanics
 
-## Genre
-Arcade / Reaction
+## Gameplay Description
+Reaction Dots focuses on a single core mechanic: testing players' reaction time. A grid of dots appears on a black background. Dots randomly illuminate (change to white) for a brief moment, and the player must click them during this window to score points. As the score increases, the illumination period becomes shorter and dots appear more frequently, creating an escalating challenge.
 
-## Target Audience
-Casual gamers of all ages who enjoy quick, reflex-based games.
+The game loop is endless, with players striving to achieve the highest possible score before running out of lives. Players lose a life when missing an illuminated dot (failing to click before it disappears) or clicking a non-illuminated one. The game ends when all lives are depleted.
 
-## Game Description
-Reaction Dots is a simple yet challenging game that tests players' reaction time. The game presents a grid of dots that randomly change to a target color. Players must click on dots as quickly as possible when they change to the target color to score points. The game increases in difficulty as players score higher, with dots remaining in the target color for shorter periods of time.
+## Visual Style
+- **Color Palette:** Strictly black (`#000000`) background with white (`#FFFFFF`) and grayscale elements. Red (`#FF0000`) appears only for error feedback.
+- **Graphics Approach:** All visual elements are created through code using simple geometric shapes (primarily circles).
+- **UI Elements:**
+  - Score counter: Top-right corner (numerical display only)
+  - Lives indicator: Top-left corner (represented by white dots/circles)
+  - Help button ("?"): Bottom-right corner
+  - Game grid: Center of screen with evenly spaced dots
+- **Help Panel:** Toggles on "?" button click, containing minimal text explaining the goal (click illuminated dots) and command (ESC to pause, Q to quit)
 
-## Core Gameplay Mechanic
-- Dots appear on screen in a neutral color
-- Dots randomly change to the target color for a brief period
-- Player must click dots when they're in the target color to score points
-- Missing a target dot or clicking a non-target dot reduces lives
-- Game ends when the player runs out of lives
+## Controls
+- **Input Mode:** Mouse-only
+- **Interactions:**
+  - Left-click: Select illuminated dots
+  - ESC key: Pause/resume gameplay
+  - Q key: Exit to landing page
+- **No keyboard controls** for actual gameplay mechanics
 
-## Visual Style and Design
-- Minimalist design with high contrast colors
-- Simple circular dots arranged in a grid
-- Visual feedback for successful and failed clicks
-- Clean UI showing score and lives
+## Technical Approach
+- **Rendering Method:** DOM-based implementation using HTML elements for dots and UI
+- **Animation Techniques:**
+  - CSS transitions with ease-in-out timing for all dot illumination effects
+  - Simple scale and opacity animations for feedback (successful/failed clicks)
+  - requestAnimationFrame for timing-critical animations
+- **State Management:** Functional approach with clear state object tracking:
+  - Game state (playing, paused, game over)
+  - Score
+  - Lives remaining
+  - Active dots
+- **Data Persistence:** Local storage for high score only
 
-## Controls and User Input
-- Mouse click: Click on dots when they turn to the target color
-- Spacebar: Restart the game after game over
+## Visual Feedback Guidelines
+- **Dot Animations:**
+  - Normal state: Dark gray circles
+  - Illuminated (target) state: White circles with subtle glow effect
+  - Successful click: Brief scaling animation with fade
+  - Failed click: Subtle shake animation
+- **Life Loss:** Visual feedback through life indicator reduction
+- **Game Over:** Fade-to-gray animation of the play field
+- **Error Handling:** Red full-screen overlay with warning icon (no text) and trembling border if a critical error occurs
 
-## Win/Loss Conditions
-- **Loss Condition**: Game ends when the player runs out of lives
-- **Win Condition**: No definitive win condition; the goal is to achieve the highest possible score
-
-## Technical Implementation
-- DOM-based implementation using HTML elements for dots
-- CSS transitions for smooth color changes
-- JavaScript for game logic and state management
-- Responsive design that works on different screen sizes
-
-## Known Limitations
-- Desktop-focused gameplay (requires precise clicking)
-- No difficulty settings
-- No persistence for high scores
-
-## Future Enhancements (Post-MVP)
-- Add high score tracking with localStorage
-- Add difficulty levels (easy, medium, hard)
-- Add sound effects for feedback
-- Add touch support for mobile devices
+## Performance Considerations
+- Target 60 FPS with optimized DOM manipulation
+- Efficient event handling with proper cleanup to prevent memory leaks
+- Responsive to window sizing while maintaining gameplay integrity
