@@ -7,85 +7,112 @@
  * - Timing precision determines score and visual feedback
  */
 
+// ==========================================
 // Game constants
+// ==========================================
 const CONFIG = {
-    // Physics and motion
-    PENDULUM1_LENGTH_RATIO: 0.25, // Ratio of screen height for first pendulum
-    PENDULUM2_LENGTH_RATIO: 0.25, // Ratio of screen height for second pendulum
-    PENDULUM1_MASS: 10,  // Mass of first pendulum bob
-    PENDULUM2_MASS: 5,   // Mass of second pendulum bob
-    GRAVITY: 0.03,     // Significantly increased from 0.01 for more dramatic acceleration
-    DAMPING: 0.9995,   // Slightly increased from 0.999 to maintain energy longer
-    INITIAL_ANGLE1: Math.PI / 2.5,  // Increased from PI/3 for more initial energy
-    INITIAL_ANGLE2: -Math.PI / 1.8,  // Changed to negative angle for more chaotic initial movement
-
-    // Difficulty progression
-    BASE_SPEED: 1.0,
-    SPEED_INCREMENT: 0.1,
-    MAX_SPEED: 2.0,
-
-    // Timing and scoring
-    PERFECT_TIMING: 0.08, // Time window for perfect timing (in radians)
-    GOOD_TIMING: 0.2,     // Time window for good timing (in radians)
-    SCORE_PERFECT: 100,
-    SCORE_GOOD: 50,
-    SCORE_MISS: 0,
-
-    // Visual settings
-    PENDULUM_COLOR: '#FFFFFF',
-    PENDULUM_WIDTH: 3,
-    BOB1_SIZE: 10,
-    BOB2_SIZE: 15,
-    CENTER_LINE_WIDTH: 2,
-
-    // Visual effects
-    PULSE_MAX_SIZE: 100,
-    PULSE_SPEED: 0.05,
-    PARTICLE_COUNT: 20,
-    PARTICLE_LIFESPAN: 60, // frames
-
     // Game settings
     INITIAL_LIVES: 3,
+    STORAGE_KEY: 'pendulumPulseHighScore',
 
-    // Physics simulation steps
-    PHYSICS_STEPS: 3, // Adjusted from 4 to 3 for balance between speed and stability
-    TIME_STEP: 0.7    // Increased from 0.5 for larger angle changes per frame
+    // Physics and motion
+    PHYSICS: {
+        PENDULUM1_LENGTH_RATIO: 0.25, // Ratio of screen height for first pendulum
+        PENDULUM2_LENGTH_RATIO: 0.25, // Ratio of screen height for second pendulum
+        PENDULUM1_MASS: 10,  // Mass of first pendulum bob
+        PENDULUM2_MASS: 5,   // Mass of second pendulum bob
+        GRAVITY: 0.03,     // Acceleration due to gravity
+        DAMPING: 1.0,      // Changed to 1.0 for a frictionless system (no energy loss)
+        ENERGY_BOOST: 0.0001, // Tiny energy boost to counteract any numerical error
+        INITIAL_ANGLE1: Math.PI / 2.5,  // Initial angle of first pendulum
+        INITIAL_ANGLE2: -Math.PI / 1.8,  // Initial angle of second pendulum
+        PHYSICS_STEPS: 3, // Simulation steps per frame
+        TIME_STEP: 0.7    // Time step size
+    },
+
+    // Difficulty progression
+    DIFFICULTY: {
+        BASE_SPEED: 1.0,
+        SPEED_INCREMENT: 0.1,
+        MAX_SPEED: 2.0
+    },
+
+    // Timing and scoring
+    SCORING: {
+        PERFECT_TIMING: 0.08, // Time window for perfect timing (in radians)
+        GOOD_TIMING: 0.2,     // Time window for good timing (in radians)
+        SCORE_PERFECT: 100,
+        SCORE_GOOD: 50,
+        SCORE_MISS: 0
+    },
+
+    // Visual settings
+    VISUAL: {
+        PENDULUM_COLOR: '#FFFFFF',
+        PENDULUM_WIDTH: 3,
+        BOB1_SIZE: 10,
+        BOB2_SIZE: 15,
+        CENTER_LINE_WIDTH: 2,
+        PULSE_MAX_SIZE: 100,
+        PULSE_SPEED: 0.05,
+        PARTICLE_COUNT: 20,
+        PARTICLE_LIFESPAN: 60 // frames
+    },
+
+    // Game states
+    GAME_STATE: {
+        INTRO: 'intro',
+        PLAYING: 'playing',
+        PAUSED: 'paused',
+        GAME_OVER: 'gameover',
+        ERROR: 'error'
+    }
 };
 
+// ==========================================
 // Game state
+// ==========================================
 const gameState = {
-    isPlaying: false,
-    isPaused: false,
+    // Core game state
+    state: CONFIG.GAME_STATE.INTRO,
     score: 0,
     lives: CONFIG.INITIAL_LIVES,
     highScore: 0,
+    isPlaying: false,
+    isPaused: false,
 
     // Pendulum physics
-    angle1: CONFIG.INITIAL_ANGLE1,    // Angle of first pendulum
-    angle2: CONFIG.INITIAL_ANGLE2,    // Angle of second pendulum
-    angleVelocity1: 0,                // Angular velocity of first pendulum
-    angleVelocity2: 0,                // Angular velocity of second pendulum
+    angle1: CONFIG.PHYSICS.INITIAL_ANGLE1,
+    angle2: CONFIG.PHYSICS.INITIAL_ANGLE2,
+    angleVelocity1: 0,
+    angleVelocity2: 0,
     pendulum1Length: 0,
     pendulum2Length: 0,
-    speedMultiplier: CONFIG.BASE_SPEED,
+    speedMultiplier: CONFIG.DIFFICULTY.BASE_SPEED,
 
     // Visual effects
     pulses: [],
     particles: [],
 
     // Animation and timing
+    lastTime: 0,
+    delta: 0,
     animationFrameId: null,
-    lastFrameTime: 0
+    timers: []
 };
 
+// ==========================================
 // DOM elements
+// ==========================================
 let canvas, ctx;
 let scoreDisplay, livesContainer;
 let helpButton, helpPanel, closeHelp;
 let pauseOverlay, gameOverOverlay, finalScoreDisplay, highScoreDisplay, restartButton;
 let errorOverlay;
 
-// Initialize game
+// ==========================================
+// Initialization
+// ==========================================
 function initGame() {
     try {
         // Get DOM elements
@@ -107,12 +134,12 @@ function initGame() {
 
         errorOverlay = document.getElementById('error-overlay');
 
-        // Load high score from localStorage
-        gameState.highScore = parseInt(localStorage.getItem('pendulumPulseHighScore')) || 0;
-
         // Set up canvas
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
+
+        // Load high score from localStorage
+        gameState.highScore = parseInt(localStorage.getItem(CONFIG.STORAGE_KEY)) || 0;
 
         // Create lives indicators
         createLivesIndicators();
@@ -120,27 +147,27 @@ function initGame() {
         // Add event listeners
         addEventListeners();
 
-        // Start game
-        startGame();
+        // Start in intro state with short animation that goes to the game
+        startIntro();
 
     } catch (error) {
-        showErrorOverlay();
-        console.error('Game initialization error:', error);
+        handleError('Game initialization error:', error);
     }
 }
 
-// Resize canvas to fill window
+// ==========================================
+// Setup functions
+// ==========================================
 function resizeCanvas() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
     // Calculate pendulum lengths based on canvas size
     const baseLength = Math.min(canvas.width, canvas.height);
-    gameState.pendulum1Length = baseLength * CONFIG.PENDULUM1_LENGTH_RATIO;
-    gameState.pendulum2Length = baseLength * CONFIG.PENDULUM2_LENGTH_RATIO;
+    gameState.pendulum1Length = baseLength * CONFIG.PHYSICS.PENDULUM1_LENGTH_RATIO;
+    gameState.pendulum2Length = baseLength * CONFIG.PHYSICS.PENDULUM2_LENGTH_RATIO;
 }
 
-// Create lives indicators
 function createLivesIndicators() {
     livesContainer.innerHTML = '';
     for (let i = 0; i < CONFIG.INITIAL_LIVES; i++) {
@@ -150,7 +177,6 @@ function createLivesIndicators() {
     }
 }
 
-// Add event listeners
 function addEventListeners() {
     // Game interaction
     canvas.addEventListener('click', handleClick);
@@ -162,14 +188,20 @@ function addEventListeners() {
 
     // Keyboard controls
     document.addEventListener('keydown', handleKeyPress);
+
+    // Error handling
+    window.addEventListener('error', (event) => {
+        handleError('Global error:', event.error);
+    });
 }
 
-// Toggle help panel
+// ==========================================
+// UI functions
+// ==========================================
 function toggleHelpPanel() {
     helpPanel.classList.toggle('hidden');
 }
 
-// Handle key press
 function handleKeyPress(event) {
     switch (event.key) {
         case 'Escape':
@@ -182,35 +214,69 @@ function handleKeyPress(event) {
     }
 }
 
-// Navigate to landing page
 function navigateToLanding() {
     window.location.href = '../../index.html';
 }
 
-// Toggle pause state
 function togglePause() {
+    if (!gameState.isPlaying) return;
+
     gameState.isPaused = !gameState.isPaused;
+    gameState.state = gameState.isPaused ? CONFIG.GAME_STATE.PAUSED : CONFIG.GAME_STATE.PLAYING;
     pauseOverlay.classList.toggle('hidden', !gameState.isPaused);
 
-    if (!gameState.isPaused && gameState.isPlaying) {
-        // Resume game loop if unpausing
-        gameState.lastFrameTime = performance.now();
-        requestAnimationFrame(gameLoop);
+    if (gameState.isPaused) {
+        // Clear any animation frame
+        cancelAnimationFrame(gameState.animationFrameId);
+    } else {
+        // Resume game loop
+        gameState.lastTime = performance.now();
+        gameLoop(gameState.lastTime);
     }
 }
 
-// Start or restart game
+function updateLivesDisplay() {
+    const lifeElements = document.querySelectorAll('.life');
+    lifeElements.forEach((life, index) => {
+        life.classList.toggle('lost', index >= gameState.lives);
+    });
+}
+
+// ==========================================
+// Game state functions
+// ==========================================
+function startIntro() {
+    gameState.state = CONFIG.GAME_STATE.INTRO;
+
+    // Short intro animation - just the pendulum moving for a moment
+    gameState.isPlaying = true;
+    gameState.angle1 = CONFIG.PHYSICS.INITIAL_ANGLE1;
+    gameState.angle2 = CONFIG.PHYSICS.INITIAL_ANGLE2;
+    gameState.angleVelocity1 = 0;
+    gameState.angleVelocity2 = 0;
+
+    // Start game loop for intro animation
+    gameState.lastTime = performance.now();
+    gameLoop(gameState.lastTime);
+
+    // Start the actual game after a short delay
+    setTimeout(() => {
+        startGame();
+    }, 1500);
+}
+
 function startGame() {
     // Reset game state
+    gameState.state = CONFIG.GAME_STATE.PLAYING;
     gameState.isPlaying = true;
     gameState.isPaused = false;
     gameState.score = 0;
     gameState.lives = CONFIG.INITIAL_LIVES;
-    gameState.angle1 = CONFIG.INITIAL_ANGLE1;
-    gameState.angle2 = CONFIG.INITIAL_ANGLE2;
+    gameState.angle1 = CONFIG.PHYSICS.INITIAL_ANGLE1;
+    gameState.angle2 = CONFIG.PHYSICS.INITIAL_ANGLE2;
     gameState.angleVelocity1 = 0;
     gameState.angleVelocity2 = 0;
-    gameState.speedMultiplier = CONFIG.BASE_SPEED;
+    gameState.speedMultiplier = CONFIG.DIFFICULTY.BASE_SPEED;
     gameState.pulses = [];
     gameState.particles = [];
 
@@ -221,75 +287,81 @@ function startGame() {
     // Hide overlays
     pauseOverlay.classList.add('hidden');
     gameOverOverlay.classList.add('hidden');
+}
 
-    // Start game loop if needed
-    if (!gameState.animationFrameId) {
-        gameState.lastFrameTime = performance.now();
-        gameState.animationFrameId = requestAnimationFrame(gameLoop);
+function gameOver() {
+    gameState.state = CONFIG.GAME_STATE.GAME_OVER;
+    gameState.isPlaying = false;
+
+    // Cancel animation frame
+    cancelAnimationFrame(gameState.animationFrameId);
+
+    // Check for high score
+    if (gameState.score > gameState.highScore) {
+        gameState.highScore = gameState.score;
+        localStorage.setItem(CONFIG.STORAGE_KEY, gameState.highScore);
     }
+
+    // Update game over screen
+    finalScoreDisplay.textContent = gameState.score;
+    highScoreDisplay.textContent = gameState.highScore;
+
+    // Show game over overlay
+    gameOverOverlay.classList.remove('hidden');
 }
 
-// Update lives display
-function updateLivesDisplay() {
-    const lifeElements = document.querySelectorAll('.life');
-    lifeElements.forEach((life, index) => {
-        life.classList.toggle('lost', index >= gameState.lives);
-    });
-}
-
-// Main game loop
+// ==========================================
+// Game loop
+// ==========================================
 function gameLoop(timestamp) {
+    if (!gameState.isPlaying || gameState.isPaused) return;
+
     // Calculate delta time for smooth animation
-    const deltaTime = timestamp - gameState.lastFrameTime;
-    gameState.lastFrameTime = timestamp;
+    gameState.delta = timestamp - gameState.lastTime;
+    gameState.lastTime = timestamp;
 
-    // Only update if game is running and not paused
-    if (gameState.isPlaying && !gameState.isPaused) {
-        update(deltaTime);
-    }
-
-    // Always render to ensure UI updates are visible
-    render();
-
-    // Continue loop if game is still running
-    if (gameState.isPlaying) {
-        gameState.animationFrameId = requestAnimationFrame(gameLoop);
-    }
-}
-
-// Update game state
-function update(deltaTime) {
     try {
-        // Use multiple sub-steps for more accurate physics
-        const timeStep = CONFIG.TIME_STEP * gameState.speedMultiplier;
+        // Update game state
+        update(gameState.delta);
 
-        // Apply physics calculations with the new timestep
-        for (let i = 0; i < CONFIG.PHYSICS_STEPS; i++) {
-            updateDoublePendulum(timeStep);
-        }
+        // Render frame
+        render();
 
-        // Update visual effects
-        updatePulses();
-        updateParticles();
-
+        // Continue loop
+        gameState.animationFrameId = requestAnimationFrame(gameLoop);
     } catch (error) {
-        showErrorOverlay();
-        console.error('Update error:', error);
+        handleError('Game loop error:', error);
     }
 }
 
-// Update double pendulum position using physics
+// ==========================================
+// Update and render
+// ==========================================
+function update(deltaTime) {
+    // Use multiple sub-steps for more accurate physics
+    const timeStep = CONFIG.PHYSICS.TIME_STEP * gameState.speedMultiplier;
+
+    // Apply physics calculations with the new timestep
+    for (let i = 0; i < CONFIG.PHYSICS.PHYSICS_STEPS; i++) {
+        updateDoublePendulum(timeStep);
+    }
+
+    // Update visual effects
+    updatePulses();
+    updateParticles();
+}
+
 function updateDoublePendulum(timeStep) {
     // Calculate factors that appear in both equations
-    const m1 = CONFIG.PENDULUM1_MASS;
-    const m2 = CONFIG.PENDULUM2_MASS;
+    const m1 = CONFIG.PHYSICS.PENDULUM1_MASS;
+    const m2 = CONFIG.PHYSICS.PENDULUM2_MASS;
     const l1 = gameState.pendulum1Length;
     const l2 = gameState.pendulum2Length;
     const theta1 = gameState.angle1;
     const theta2 = gameState.angle2;
     const omega1 = gameState.angleVelocity1;
     const omega2 = gameState.angleVelocity2;
-    const g = CONFIG.GRAVITY;
+    const g = CONFIG.PHYSICS.GRAVITY;
 
     // Calculate angular acceleration for first pendulum
     const num1 = -g * (2 * m1 + m2) * Math.sin(theta1);
@@ -309,31 +381,38 @@ function updateDoublePendulum(timeStep) {
     gameState.angleVelocity1 += alpha1 * timeStep;
     gameState.angleVelocity2 += alpha2 * timeStep;
 
-    // Apply damping
-    gameState.angleVelocity1 *= CONFIG.DAMPING;
-    gameState.angleVelocity2 *= CONFIG.DAMPING;
+    // Apply damping and energy boost to maintain perpetual motion
+    gameState.angleVelocity1 *= CONFIG.PHYSICS.DAMPING;
+    gameState.angleVelocity2 *= CONFIG.PHYSICS.DAMPING;
+
+    // Add tiny energy boost to maintain motion if velocities are significant
+    // This prevents the system from ever coming to rest due to numerical errors
+    if (Math.abs(gameState.angleVelocity1) > 0.01) {
+        gameState.angleVelocity1 *= (1 + CONFIG.PHYSICS.ENERGY_BOOST * Math.sign(gameState.angleVelocity1));
+    }
+    if (Math.abs(gameState.angleVelocity2) > 0.01) {
+        gameState.angleVelocity2 *= (1 + CONFIG.PHYSICS.ENERGY_BOOST * Math.sign(gameState.angleVelocity2));
+    }
 
     // Update angles
     gameState.angle1 += gameState.angleVelocity1 * timeStep;
     gameState.angle2 += gameState.angleVelocity2 * timeStep;
 }
 
-// Update pulse animations
 function updatePulses() {
     // Filter out completed pulses and update remaining ones
     gameState.pulses = gameState.pulses.filter(pulse => {
         // Increase pulse size
-        pulse.size += CONFIG.PULSE_SPEED * pulse.speed;
+        pulse.size += CONFIG.VISUAL.PULSE_SPEED * pulse.speed;
 
         // Decrease opacity as size increases
-        pulse.opacity = 1 - (pulse.size / CONFIG.PULSE_MAX_SIZE);
+        pulse.opacity = 1 - (pulse.size / CONFIG.VISUAL.PULSE_MAX_SIZE);
 
         // Keep pulse if it's still visible
         return pulse.opacity > 0;
     });
 }
 
-// Update particle animations
 function updateParticles() {
     // Filter out expired particles and update remaining ones
     gameState.particles = gameState.particles.filter(particle => {
@@ -346,14 +425,16 @@ function updateParticles() {
 
         // Fade out
         particle.life--;
-        particle.opacity = particle.life / CONFIG.PARTICLE_LIFESPAN;
+        particle.opacity = particle.life / CONFIG.VISUAL.PARTICLE_LIFESPAN;
 
         // Keep particle if it's still alive
         return particle.life > 0;
     });
 }
 
-// Handle player click
+// ==========================================
+// Input handlers
+// ==========================================
 function handleClick() {
     if (!gameState.isPlaying || gameState.isPaused) return;
 
@@ -370,10 +451,10 @@ function handleClick() {
         const distanceFromCenter = Math.abs(bob2X - canvas.width / 2) / (canvas.width / 2);
         let result, points;
 
-        if (distanceFromCenter < CONFIG.PERFECT_TIMING) {
+        if (distanceFromCenter < CONFIG.SCORING.PERFECT_TIMING) {
             // Perfect timing
             result = 'perfect';
-            points = CONFIG.SCORE_PERFECT;
+            points = CONFIG.SCORING.SCORE_PERFECT;
 
             // Create visual effects
             createPulse(2);
@@ -381,14 +462,14 @@ function handleClick() {
 
             // Increase difficulty slightly
             gameState.speedMultiplier = Math.min(
-                gameState.speedMultiplier + CONFIG.SPEED_INCREMENT,
-                CONFIG.MAX_SPEED
+                gameState.speedMultiplier + CONFIG.DIFFICULTY.SPEED_INCREMENT,
+                CONFIG.DIFFICULTY.MAX_SPEED
             );
 
-        } else if (distanceFromCenter < CONFIG.GOOD_TIMING) {
+        } else if (distanceFromCenter < CONFIG.SCORING.GOOD_TIMING) {
             // Good timing
             result = 'good';
-            points = CONFIG.SCORE_GOOD;
+            points = CONFIG.SCORING.SCORE_GOOD;
 
             // Create medium pulse effect
             createPulse(1.5);
@@ -396,7 +477,7 @@ function handleClick() {
         } else {
             // Missed timing
             result = 'miss';
-            points = CONFIG.SCORE_MISS;
+            points = CONFIG.SCORING.SCORE_MISS;
 
             // Create weak pulse effect
             createPulse(1);
@@ -417,12 +498,13 @@ function handleClick() {
         scoreDisplay.textContent = gameState.score;
 
     } catch (error) {
-        showErrorOverlay();
-        console.error('Click handling error:', error);
+        handleError('Click handling error:', error);
     }
 }
 
-// Create pulse effect
+// ==========================================
+// Visual effects
+// ==========================================
 function createPulse(speed = 1) {
     gameState.pulses.push({
         x: canvas.width / 2,
@@ -433,7 +515,6 @@ function createPulse(speed = 1) {
     });
 }
 
-// Create particle explosion
 function createParticles() {
     // Calculate second pendulum bob position for particle origin
     const pivot1X = canvas.width / 2;
@@ -443,7 +524,7 @@ function createParticles() {
     const bob2X = bob1X + Math.sin(gameState.angle2) * gameState.pendulum2Length;
     const bob2Y = bob1Y + Math.cos(gameState.angle2) * gameState.pendulum2Length;
 
-    for (let i = 0; i < CONFIG.PARTICLE_COUNT; i++) {
+    for (let i = 0; i < CONFIG.VISUAL.PARTICLE_COUNT; i++) {
         // Calculate random velocity
         const angle = Math.random() * Math.PI * 2;
         const speed = 1 + Math.random() * 3;
@@ -454,59 +535,50 @@ function createParticles() {
             vx: Math.cos(angle) * speed,
             vy: Math.sin(angle) * speed,
             size: 1 + Math.random() * 3,
-            life: CONFIG.PARTICLE_LIFESPAN,
+            life: CONFIG.VISUAL.PARTICLE_LIFESPAN,
             opacity: 1
         });
     }
 }
 
-// Game over handler
-function gameOver() {
-    gameState.isPlaying = false;
-
-    // Check for high score
-    if (gameState.score > gameState.highScore) {
-        gameState.highScore = gameState.score;
-        localStorage.setItem('pendulumPulseHighScore', gameState.highScore);
-    }
-
-    // Update game over screen
-    finalScoreDisplay.textContent = gameState.score;
-    highScoreDisplay.textContent = gameState.highScore;
-
-    // Show game over overlay
-    gameOverOverlay.classList.remove('hidden');
-}
-
-// Render function
+// ==========================================
+// Rendering
+// ==========================================
 function render() {
-    try {
-        // Clear canvas
-        ctx.fillStyle = '#000000';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // Clear canvas
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Draw center line
-        drawCenterLine();
-
-        // Draw pulses
-        drawPulses();
-
-        // Draw double pendulum
-        drawDoublePendulum();
-
-        // Draw particles
-        drawParticles();
-
-    } catch (error) {
-        showErrorOverlay();
-        console.error('Render error:', error);
+    // Draw based on game state
+    switch (gameState.state) {
+        case CONFIG.GAME_STATE.INTRO:
+        case CONFIG.GAME_STATE.PLAYING:
+        case CONFIG.GAME_STATE.PAUSED:
+            renderGame();
+            break;
+        case CONFIG.GAME_STATE.GAME_OVER:
+            renderGame(); // Continue showing the game in background
+            break;
     }
 }
 
-// Draw center line
+function renderGame() {
+    // Draw center line
+    drawCenterLine();
+
+    // Draw pulses
+    drawPulses();
+
+    // Draw double pendulum
+    drawDoublePendulum();
+
+    // Draw particles
+    drawParticles();
+}
+
 function drawCenterLine() {
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
-    ctx.lineWidth = CONFIG.CENTER_LINE_WIDTH;
+    ctx.lineWidth = CONFIG.VISUAL.CENTER_LINE_WIDTH;
 
     ctx.beginPath();
     ctx.moveTo(canvas.width / 2, 0);
@@ -514,7 +586,6 @@ function drawCenterLine() {
     ctx.stroke();
 }
 
-// Draw double pendulum
 function drawDoublePendulum() {
     // Calculate pendulum positions
     const pivot1X = canvas.width / 2;
@@ -525,8 +596,8 @@ function drawDoublePendulum() {
     const bob2Y = bob1Y + Math.cos(gameState.angle2) * gameState.pendulum2Length;
 
     // Draw first pendulum string
-    ctx.strokeStyle = CONFIG.PENDULUM_COLOR;
-    ctx.lineWidth = CONFIG.PENDULUM_WIDTH;
+    ctx.strokeStyle = CONFIG.VISUAL.PENDULUM_COLOR;
+    ctx.lineWidth = CONFIG.VISUAL.PENDULUM_WIDTH;
 
     ctx.beginPath();
     ctx.moveTo(pivot1X, pivot1Y);
@@ -540,23 +611,22 @@ function drawDoublePendulum() {
     ctx.stroke();
 
     // Draw first pendulum bob
-    ctx.fillStyle = CONFIG.PENDULUM_COLOR;
+    ctx.fillStyle = CONFIG.VISUAL.PENDULUM_COLOR;
     ctx.beginPath();
-    ctx.arc(bob1X, bob1Y, CONFIG.BOB1_SIZE, 0, Math.PI * 2);
+    ctx.arc(bob1X, bob1Y, CONFIG.VISUAL.BOB1_SIZE, 0, Math.PI * 2);
     ctx.fill();
 
     // Draw second pendulum bob
     ctx.beginPath();
-    ctx.arc(bob2X, bob2Y, CONFIG.BOB2_SIZE, 0, Math.PI * 2);
+    ctx.arc(bob2X, bob2Y, CONFIG.VISUAL.BOB2_SIZE, 0, Math.PI * 2);
     ctx.fill();
 
     // Draw pivot point
     ctx.beginPath();
-    ctx.arc(pivot1X, pivot1Y, CONFIG.PENDULUM_WIDTH * 2, 0, Math.PI * 2);
+    ctx.arc(pivot1X, pivot1Y, CONFIG.VISUAL.PENDULUM_WIDTH * 2, 0, Math.PI * 2);
     ctx.fill();
 }
 
-// Draw pulse effects
 function drawPulses() {
     gameState.pulses.forEach(pulse => {
         ctx.strokeStyle = `rgba(255, 255, 255, ${pulse.opacity})`;
@@ -568,7 +638,6 @@ function drawPulses() {
     });
 }
 
-// Draw particles
 function drawParticles() {
     gameState.particles.forEach(particle => {
         ctx.fillStyle = `rgba(255, 255, 255, ${particle.opacity})`;
@@ -579,16 +648,20 @@ function drawParticles() {
     });
 }
 
-// Show error overlay
+// ==========================================
+// Error handling
+// ==========================================
+function handleError(message, error) {
+    console.error(message, error);
+    gameState.state = CONFIG.GAME_STATE.ERROR;
+    showErrorOverlay();
+}
+
 function showErrorOverlay() {
     errorOverlay.classList.remove('hidden');
 }
 
-// Handle window errors
-window.addEventListener('error', (event) => {
-    showErrorOverlay();
-    console.error('Global error:', event.error);
-});
-
-// Initialize the game when DOM is loaded
+// ==========================================
+// Initialization
+// ==========================================
 document.addEventListener('DOMContentLoaded', initGame);
