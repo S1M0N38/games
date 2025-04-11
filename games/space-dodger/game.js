@@ -620,46 +620,20 @@
 
     // Render minimalist stopwatch-style score
     function renderScore() {
-        const x = canvas.width / 2;
+        const x = canvas.width - 40; // Position in top right corner
         const y = 40;
 
         ctx.save();
-
-        // Draw background
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
-        ctx.beginPath();
-        ctx.rect(x - 50, y - 15, 100, 30);
-        ctx.fill();
-
-        // Draw stopwatch icon
-        ctx.fillStyle = '#FFFFFF';
-        ctx.beginPath();
-        ctx.arc(x - 35, y, 10, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Draw small knob on top
-        ctx.fillRect(x - 37, y - 14, 4, 4);
 
         // Draw milliseconds as simple number
         const ms = Math.floor(gameTime * 1000);
 
         // Draw the number
-        ctx.textAlign = 'left';
+        ctx.textAlign = 'right';
         ctx.textBaseline = 'middle';
         ctx.fillStyle = '#FFFFFF';
-        ctx.font = '16px monospace';
-        ctx.fillText(ms, x - 15, y);
-
-        // High score indicator (only if close to high score)
-        if (highScore > 0 && ms > highScore * 0.9) {
-            // Simple pulsing circle indicating approaching high score
-            const hsX = x + 45;
-            const pulse = 0.75 + Math.sin(gameTime * 5) * 0.25;
-
-            ctx.beginPath();
-            ctx.arc(hsX, y, 5 * pulse, 0, Math.PI * 2);
-            ctx.fill();
-        }
+        ctx.font = '28px monospace'; // Bigger font
+        ctx.fillText(ms, x, y);
 
         ctx.restore();
     }
