@@ -16,7 +16,7 @@ These guidelines outline the process for creating simple, engaging browser-based
 - **File Structure**:
   - `index.html`: The game container and HTML elements
   - `style.css`: Game styling and animations
-  - `script.js`: Game logic and mechanics
+  - `game.js`: Game logic and mechanics
   - `README.md`: Game documentation (including the full in-line Game Design Document)
 
 ---
@@ -28,31 +28,37 @@ These guidelines outline the process for creating simple, engaging browser-based
 - **Core Mechanic**:
 
   - Implement only one core gameplay mechanic and execute it exceptionally well.
-  - The game’s loop must be infinite or extremely long (e.g., an endless snake-like game), with no hard “game over” screens interrupting the experience.
+  - Both level-based games and endless games are acceptable, but prioritize simplicity and engagement.
 
 - **Codebase and Feature Set**:
   - Keep the total code small and maintainable. Aim for fewer than 500 lines per file; JavaScript files must not exceed 2000 lines.
-  - Avoid adding nonessential features – no scoring systems, levels, customization, settings menus, or tutorial screens unless integrated in a truly minimal way.
+  - Avoid adding nonessential features – no complex scoring systems (simple counters/timers are allowed), no customization, settings menus, or tutorial screens. Keep games simple and intuitive.
 - **Visual and Interaction Design**:
 
   - **Color Palette**:
     - Use strictly black (`#000000`), white (`#FFFFFF`), and grayscale accents.
     - The color red (`#FF0000`) is reserved exclusively for error feedback.
+  - **Graphics Approach**:
+    - Draw simple geometric figures with code instead of using image assets.
+    - Focus on clean, minimal shapes and forms.
   - **Typography**:
-    - No text is allowed anywhere in the game (UI, tutorials, feedback). All communication must be via icons, shapes, and animations. Number indicating scores is the only text allowed.
+    - No text is allowed anywhere in the game (UI, tutorials, feedback). All communication must be via icons, shapes, and animations. Numbers indicating scores, counters, or timers are the only text allowed.
   - **Input**:
     - Only one input mode is permitted per game—either keyboard or mouse, never both.
+    - For keyboard games, use traditional input schemas (arrow keys, WASD, spacebar, etc.).
+    - Escape key should be reserved for pause/resume functionality in all games.
+    - The "q" key or a button in the top right corner should be used for exiting the game back to the landing page.
   - **Animations and Effects**:
     - All animations must use smooth, ease-in-out transitions.
-    - Rich, fluid animations are required to enhance the core mechanic.
-  - **Audio**:
-    - Minimal audio feedback is allowed. Sounds should be light, pleasing, and satisfying—never overwhelming.
+    - Start with simple CSS animations for most needs and add complexity only when explicitly requested.
+    - Use the appropriate technology (CSS or Canvas) based on what makes the most sense for the specific animation needs.
   - **Desktop-Only**:
     - The games are designed exclusively for desktop environments (no touchscreen or mobile optimization).
 
 - **Data Persistence**:
 
   - Minimal data, such as high scores or basic game state (new/played), may be stored using localStorage.
+  - Each game should support data clearing/resetting via a reset button in the main landing page.
 
 - **Error Handling**:
   - In case of a critical game error (e.g., a JavaScript crash), a full-screen red error overlay must appear, employing a standard visual error state (red panel with a trembling border, accompanied by an iconographic warning, and no text).
@@ -64,7 +70,10 @@ These guidelines outline the process for creating simple, engaging browser-based
 - **Background**: Pure black.
 - **Foreground & Elements**:
   - Main elements are rendered in white with subtle variations of grayscale to denote hierarchy and depth.
-  - All shapes must be clean, geometric, and minimal.
+  - All shapes must be clean, geometric, and minimal, drawn directly with code rather than using image assets.
+- **UI Consistency**:
+  - Standard elements should have consistent locations across all games (e.g., score in top right corner, lives in top left corner).
+  - Maintain consistent style and positioning for common game elements to create a unified collection aesthetic.
 - **Motion**:
   - Animations and transitions should be smooth and natural using only ease-in-out timing.
 - **Layout**:
@@ -88,7 +97,7 @@ These guidelines outline the process for creating simple, engaging browser-based
      - Visual style specifications (black/white/grayscale with red only for errors).
      - Controls (mouse OR keyboard only).
      - Technical approach (Canvas vs. DOM, animation techniques, state management).
-     - Audio guidelines for minimal, pleasant sound feedback.
+     - Visual feedback guidelines.
 3. **Implementation Best Practices**:
 
    - Separate concerns: HTML for structure, CSS for presentation, JavaScript for behavior.
@@ -119,7 +128,9 @@ These guidelines outline the process for creating simple, engaging browser-based
   - All animations and transitions must adhere to an ease-in-out standard.
 
 - **JavaScript**:
-  - Adopt a modular and functional coding style.
+  - Adopt a functional programming approach where possible.
+  - Use state machine pattern for game state management when appropriate, with exceptions based on specific game requirements.
+  - Use fixed timestep for timing-sensitive games to ensure consistent physics/behavior.
   - Ensure comprehensive error handling, including the standardized red error overlay.
   - Use localStorage sparingly, only for essential data persistence (e.g., high scores).
 
@@ -138,7 +149,6 @@ These guidelines outline the process for creating simple, engaging browser-based
    - `style.css`: Game-specific styling.
    - `game.js`: Game logic and mechanics.
    - `README.md`: Contains the integrated GDD with all game specifications.
-   - `assets/`: Folder for any game-specific assets like images or sounds.
 
 3. The game must run directly in the browser without any build or server-side processes.
 
@@ -150,11 +160,11 @@ These guidelines outline the process for creating simple, engaging browser-based
   - No transpilation, bundling, or external CDNs.
   - The entire project must work as a pure static site using HTML, CSS, and JavaScript.
 - **Rendering Approach**:
-  - Either Canvas or DOM may be used based on the game’s requirements.
+  - Either Canvas or DOM may be used based on the game's requirements.
 - **Self-Containment**:
   - Each game must be completely independent with no code sharing between them.
-- **Assets Management**:
-  - All assets must be stored within the game’s own folder.
+- **No External Assets**:
+  - Draw all game elements using code rather than using image or audio files.
 - **No Text in the Game**:
   - Communication and instructions must rely solely on icons, shapes, animations, and subtle visual cues.
 
@@ -165,7 +175,6 @@ These guidelines outline the process for creating simple, engaging browser-based
 ```
 ├── games
 │   ├── game1
-│   │   ├── assets
 │   │   ├── game.js
 │   │   ├── index.html
 │   │   ├── README.md (includes integrated GDD)
@@ -180,7 +189,7 @@ These guidelines outline the process for creating simple, engaging browser-based
 ```
 
 - The root landing page serves as the navigation hub, hosting up to 10 game panels.
-- Each game is isolated in its own folder and branch (see Git Workflow).
+- Each game is isolated in its own folder.
 
 ---
 
@@ -188,8 +197,8 @@ These guidelines outline the process for creating simple, engaging browser-based
 
 - **Branch Management**:
 
-  - Create a separate branch for each game (named after the game, e.g., `snake`).
-  - Never commit directly to the `main` branch.
+  - Always commit and push to the `dev` branch.
+  - Never commit directly to the `main` branch unless explicitly asked to do so.
   - Use Git UI tools exclusively; avoid terminal commands.
 
 - **Commit Message Style (Conventional Commits)**:
@@ -225,11 +234,10 @@ chore(ci): update deployment configuration
 
    - Choose the appropriate rendering approach (Canvas preferred) and build the essential HTML/CSS/JS scaffold.
    - Develop the game loop, input handling (single mode), state management, and integrate smooth animations effects.
-   - Integrate minimal, pleasing audio feedback for critical interactions.
 
 4. **Testing & Refinement (1 day)**:
 
-   - Verify the game’s smooth performance and responsiveness.
+   - Verify the game's smooth performance and responsiveness.
    - Test that all visual feedback works correctly, including the red error overlay in case of failure.
    - Confirm that no text appears anywhere in the game; all instructions are conveyed visually.
 
@@ -240,7 +248,7 @@ chore(ci): update deployment configuration
    - Finalize commits following the commit message guidelines.
 
 6. **Submission & Integration (1 day)**:
-   - Commit all game files to the game’s specific branch.
+   - Commit all game files to the dev branch.
    - Update the landing hub (in `script.js`) to include the new game panel.
    - Use a commit message like `feat(main): add [game] to landing page`.
 
@@ -262,12 +270,14 @@ chore(ci): update deployment configuration
 
 3. **Implementation Techniques**:
 
-   - Use CSS animations for UI elements and Canvas animations for in-game elements.
+   - Choose the appropriate animation technology (CSS or Canvas) based on specific requirements.
+   - Prefer CSS animations for most use cases, starting with simple animations.
    - All animations must use `ease-in-out` timing.
-   - Layer multiple animation effects (scale, opacity, translation) to create fluid, natural motion.
+   - Balance animation complexity - avoid overly complex animations while ensuring they're not too basic.
+   - Opacity variations are allowed to create depth and visual hierarchy.
 
 4. **Performance Considerations**:
-   - Maintain a minimum of 60 FPS through careful optimization.
+   - Target 60 FPS as a development goal.
    - Use `requestAnimationFrame` for all time-sensitive animations.
    - Favor transform and opacity changes for DOM animations to leverage hardware acceleration.
 
@@ -275,49 +285,19 @@ chore(ci): update deployment configuration
 
 ### Error Handling
 
-- All games must implement a generic error handling mechanism:
-  - If a critical JavaScript error occurs, a red full-screen overlay must appear.
-  - The error overlay includes a standard icon (e.g., a triangle with an exclamation mark) and a trembling border—all rendered without text.
+- All games must implement a basic error handling mechanism:
+  - If a critical JavaScript error occurs, a simple red full-screen overlay should appear.
+  - The error overlay includes a basic warning icon - avoid complex animations for error states.
 
 ---
 
-### Game Hub Layout (Landing Page) – Interface Design
+### Game Hub Layout (Landing Page)
 
-**Purpose:**  
-Design a visually consistent, minimalist, and intuitive desktop interface to host 10 experimental web-based games. The page functions both as the visual gateway and the navigation hub.
+The landing page should follow the same black and white aesthetic as the games themselves. Create a full-screen interface with appropriate navigation to each game while maintaining visual consistency with the game design principles.
 
-**Design Principles:**
-
-- **Visual Language**:
-  - A high-contrast monochrome palette: pure black for the background, white with grayscale accents for game elements, and red strictly for error alerts.
-  - No textual elements; all information is conveyed via icons, shapes, and animations.
-- **Animation Style**:
-  - Smooth, minimal animations using only ease-in-out transitions.
-- **Layout Overview**:
-  - Full-screen interface with a solid black background.
-  - A grid layout (2 rows x 5 columns) displaying 10 game panels.
-  - Each game panel is a clickable cell that displays a representative abstract icon and a looping micro-animation preview.
-  - On hover, a panel slightly zooms in and starts its preview animation.
-  - On click, a ripple or wave effect transitions the view and loads the game in full-screen mode.
-- **States & Feedback**:
-  - **New Game**: Indicated by a pulsing white glow.
-  - **Played Game**: Denoted by a static soft gray border.
-  - **Error State**: If a game fails to load, the panel flashes a solid red overlay with a trembling border and a standardized error icon.
-- **Interaction Constraints**:
-  - Interaction is based solely on mouse input; no keyboard or touch input is supported.
-- **Technical Considerations**:
-  - The landing page (index.html) uses HTML/CSS/JS without external libraries.
-  - It handles navigation to each game’s dedicated folder.
-  - Game states (new/played) are stored via localStorage.
-
-**File Structure for the Hub:**
-
-```
-/index.html        → Landing page hub
-/style.css         → Styling for the landing page
-/script.js         → Logic for panel animations and navigation
-/games/            → Contains each game as a separate folder (game1, game2, …, game10)
-```
+Each game entry on the landing page should have:
+- A play button to launch the game
+- A reset button to clear localStorage data for that specific game
 
 ---
 
