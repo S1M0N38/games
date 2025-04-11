@@ -1,53 +1,63 @@
-# Pendulum Pulse
+# Pendulum Pulse - Game Design Document
 
-## Game Overview
-Pendulum Pulse is a minimalist reaction game where players interact with a hypnotic swinging pendulum. The objective is to click or tap at the exact moment the pendulum passes through the center line, creating visual and rhythmic satisfaction through precise timing.
+## Title, Genre, and Target Audience
+**Title:** Pendulum Pulse  
+**Genre:** Minimal Timing/Rhythm Arcade Game  
+**Target Audience:** Desktop users seeking a challenging, precision-based game with simple mechanics
 
-## How to Play
-1. Click the "Start" button to begin the game
-2. Watch the pendulum as it swings back and forth
-3. Click/tap precisely when the pendulum crosses the center line
-4. Perfect timing rewards you with points and visual effects
-5. Mistimed clicks cost you a life (you have 3 lives)
-6. As you succeed, the pendulum speeds up for increased challenge
-7. Game ends when you run out of lives
+## Gameplay Description
+Pendulum Pulse focuses on a single core mechanic: precise timing. A pendulum swings back and forth across the screen in a natural arc motion. Players must click at the exact moment when the pendulum crosses the center line. The closer to perfect timing, the more points awarded.
 
-## Core Mechanic
-A pendulum swings across the screen in a smooth, mesmerizing arc. The player must click or tap when the pendulum crosses the center line. Success creates a visual pulse effect and adds to the score. Precision is rewarded with more dramatic visual feedback. Mistimed clicks result in subtle negative feedback.
+As the game progresses, the pendulum speed gradually increases, creating an escalating challenge. The game provides immediate visual feedback on timing accuracy through subtle animations and effects.
+
+Players have three lives, losing one for each missed click or mistimed attempt. The game ends when all lives are lost, with the final score representing the player's timing precision.
+
+## Visual Style
+- **Color Palette:** Strictly black (`#000000`) background with white (`#FFFFFF`) and grayscale elements. Red (`#FF0000`) appears only for error feedback.
+- **Graphics Approach:** All visual elements are created through code using simple geometric shapes (primarily lines, circles, and pulses).
+- **UI Elements:**
+  - Score counter: Top-right corner (numerical display only)
+  - Lives indicator: Top-left corner (represented by white dots/circles)
+  - Help button ("?"): Bottom-right corner
+  - Center line: Vertical line across the center of the screen
+- **Help Panel:** Toggles on "?" button click, containing minimal text explaining the goal (click when pendulum crosses center) and commands (ESC to pause, Q to quit)
 
 ## Controls
-- **Mouse/Touch**: Click or tap anywhere on the screen when the pendulum crosses the center line
-
-## Visual Design
-- **Color Palette**: Strictly black and white with various shades of gray for subtle depth
-- **Aesthetic**: Minimalist, elegant, with smooth animations
-- **Elements**:
-  - Pendulum (white)
-  - Center line (white)
-  - Background (black)
-  - Pulse effects (white expanding circles with fade-out)
+- **Input Mode:** Mouse-only
+- **Interactions:**
+  - Left-click: Click when pendulum crosses center line
+  - ESC key: Pause/resume gameplay
+  - Q key: Exit to landing page
+- **No keyboard controls** for actual gameplay mechanics
 
 ## Technical Approach
-- Canvas-based rendering for smooth animations
-- Physics-based pendulum simulation with realistic motion
-- Particle effects for visual feedback
-- Responsive design that fills the entire screen
-- No external libraries or dependencies
+- **Rendering Method:** Canvas-based implementation to smoothly animate the pendulum
+- **Animation Techniques:**
+  - `requestAnimationFrame` for pendulum physics animation
+  - Natural pendulum motion using mathematical formulas
+  - Pulse and particle effects for timing feedback
+  - All transitions with ease-in-out timing
+- **State Management:** Functional approach with state object tracking:
+  - Game state (playing, paused, game over)
+  - Score
+  - Lives remaining
+  - Pendulum angle and velocity
+  - Speed multiplier as difficulty increases
+- **Data Persistence:** Local storage for high score only
 
-## MVP Features
-- Accurate pendulum physics with natural motion
-- Click/tap detection with timing precision
-- Visual feedback through expanding ripple animations
-- Simple scoring system based on timing accuracy
-- Progressive difficulty with pendulum speed changes
-- Life system with three attempts
+## Visual Feedback Guidelines
+- **Timing Feedback:**
+  - Perfect timing: Strong pulse effect with particle explosion
+  - Good timing: Medium pulse effect
+  - Miss: Weak pulse effect and life reduction
+- **Pendulum Animation:**
+  - Natural swinging motion with subtle damping
+  - Smooth, continuous movement using physics simulation
+- **Life Loss:** Visual feedback through life indicator reduction
+- **Game Over:** Simple fade to reveal final score
+- **Error Handling:** Red full-screen overlay with warning icon (no text) and trembling border if a critical error occurs
 
-## Implementation Details
-- HTML5 Canvas for rendering all game elements
-- Requestanimationframe for smooth 60fps animations
-- Object-oriented approach for game state management
-- Physics calculations for natural pendulum movement
-- Particle system for engaging visual feedback
-
-## Game Feel
-The game focuses on creating a meditative, almost hypnotic experience through the combination of visual rhythm and player interaction. The stark black and white aesthetic emphasizes the pure timing mechanic without distraction.
+## Performance Considerations
+- Target 60 FPS with optimized canvas rendering
+- Efficient physics calculations for consistent motion
+- Proper cleanup of animation frames and event listeners
