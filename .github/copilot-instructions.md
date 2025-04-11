@@ -42,12 +42,16 @@ These guidelines outline the process for creating simple, engaging browser-based
     - Draw simple geometric figures with code instead of using image assets.
     - Focus on clean, minimal shapes and forms.
   - **Typography**:
-    - No text is allowed anywhere in the game (UI, tutorials, feedback). All communication must be via icons, shapes, and animations. Numbers indicating scores, counters, or timers are the only text allowed.
+    - No text is allowed in the game except for:
+      - Numbers indicating scores, counters, or timers
+      - The "?" help button symbol
+      - Text within the help panel (which should only describe game goal and list commands)
+    - All other communication must be via icons, shapes, and animations.
   - **Input**:
     - Only one input mode is permitted per game—either keyboard or mouse, never both.
     - For keyboard games, use traditional input schemas (arrow keys, WASD, spacebar, etc.).
     - Escape key should be reserved for pause/resume functionality in all games.
-    - The "q" key or a button in the top right corner should be used for exiting the game back to the landing page.
+    - The "q" key should be used for exiting the game back to the landing page.
   - **Animations and Effects**:
     - All animations must use smooth, ease-in-out transitions.
     - Start with simple CSS animations for most needs and add complexity only when explicitly requested.
@@ -72,13 +76,18 @@ These guidelines outline the process for creating simple, engaging browser-based
   - Main elements are rendered in white with subtle variations of grayscale to denote hierarchy and depth.
   - All shapes must be clean, geometric, and minimal, drawn directly with code rather than using image assets.
 - **UI Consistency**:
-  - Standard elements should have consistent locations across all games (e.g., score in top right corner, lives in top left corner).
-  - Maintain consistent style and positioning for common game elements to create a unified collection aesthetic.
+  - Standard UI elements must be positioned consistently across all games:
+    - Score (numerical display): Top-right corner
+    - Lives (represented by dots/circles): Top-left corner
+    - Help button ("?" symbol): Bottom-right corner
+  - The help button must toggle a minimal help panel that describes the game's goal and lists available commands
+  - No tutorials, hints, or other UI elements beyond these three standard components
+  - Maintain consistent style and positioning for all common game elements to create a unified collection aesthetic
 - **Motion**:
   - Animations and transitions should be smooth and natural using only ease-in-out timing.
 - **Layout**:
   - Full-screen immersive design that adapts to various desktop resolutions.
-  - Minimal use of UI elements; any overlays (such as a subtle timer or state indicator) must be integrated discreetly.
+  - Minimal use of UI elements; any overlays must be integrated discreetly.
 
 ---
 
