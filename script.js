@@ -49,6 +49,14 @@ document.addEventListener('DOMContentLoaded', () => {
             path: 'games/pendulum-pulse/index.html',
             inputType: 'mouse',
             fallbackImage: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="160" viewBox="0 0 300 160"><rect width="300" height="160" fill="%23111111"/><line x1="150" y1="50" x2="120" y2="90" stroke="%23FFFFFF" stroke-width="2"/><line x1="120" y1="90" x2="170" y2="120" stroke="%23FFFFFF" stroke-width="2"/><circle cx="150" cy="50" r="4" fill="%23FFFFFF"/><circle cx="120" cy="90" r="6" fill="%23FFFFFF"/><circle cx="170" cy="120" r="10" fill="%23FFFFFF"/></svg>'
+        },
+        {
+            id: 'gravity-field',
+            title: 'Gravity Field',
+            description: 'Manipulate gravity to capture celestial objects while avoiding hazards. A physics-based challenge.',
+            path: 'games/gravity-field/index.html',
+            inputType: 'mouse',
+            fallbackImage: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="160" viewBox="0 0 300 160"><rect width="300" height="160" fill="%23111111"/><!-- Collection zone in center --><circle cx="150" cy="80" r="20" fill="none" stroke="%23FFFFFF" stroke-width="2" stroke-dasharray="5,3" opacity="0.7"/><!-- Gravity field rings --><circle cx="110" cy="100" r="40" fill="none" stroke="%23FFFFFF" stroke-width="1" opacity="0.2"/><circle cx="110" cy="100" r="30" fill="none" stroke="%23FFFFFF" stroke-width="1" opacity="0.3"/><circle cx="110" cy="100" r="20" fill="none" stroke="%23FFFFFF" stroke-width="1" opacity="0.4"/><circle cx="110" cy="100" r="10" fill="none" stroke="%23FFFFFF" stroke-width="1" opacity="0.5"/><!-- Target celestial objects --><circle cx="180" cy="60" r="10" fill="%23FFFFFF" opacity="0.9"/><circle cx="200" cy="120" r="7" fill="%23FFFFFF" opacity="0.9"/><circle cx="70" cy="50" r="12" fill="%23FFFFFF" opacity="0.9"/><!-- Hazard objects --><polygon points="220,45 235,70 205,70" fill="%23999999" opacity="0.7"/><rect x="80" y="120" width="20" height="20" fill="%23999999" opacity="0.7"/></svg>'
         }
         // More games will be added here as developed
     ];    // Render all games to the DOM
