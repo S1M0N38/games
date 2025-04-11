@@ -9,23 +9,44 @@
 </head>
 
 <body>
-    <div class="game-container">
-        <div class="status-bar">
-            <div class="score">Score: <span id="score">0</span></div>
-            <div class="time">Time: <span id="time">0</span>s</div>
+    <div id="game-container">
+        <!-- Score display (top-right) -->
+        <div id="stats-container">
+            <div id="score">0</div>
         </div>
-        <canvas id="gameCanvas" width="600" height="400"></canvas>
-        <div class="game-controls">
-            <button id="startButton">Start Game</button>
-            <div class="instructions">
-                <p>← → : Tilt Beam | Mouse: Move to control tilt</p>
+
+        <!-- Game canvas (center) -->
+        <div id="canvas-container">
+            <canvas id="gameCanvas" width="600" height="400"></canvas>
+        </div>
+
+        <!-- Help button (bottom-right) -->
+        <div id="help-button">?</div>
+
+        <!-- Help panel (hidden by default) -->
+        <div id="help-panel" class="hidden">
+            <div id="help-content">
+                <p>Keep the ball balanced on the beam for as long as possible.</p>
+                <p>Left/Right: Tilt beam</p>
+                <p>ESC: Pause/Resume game</p>
+                <p>Q: Return to games hub</p>
+                <div id="close-help">×</div>
             </div>
         </div>
-        <div id="gameOver" class="hidden">
-            <h2>Game Over</h2>
-            <p>Your ball balanced for: <span id="finalTime">0</span> seconds</p>
-            <p>Final Score: <span id="finalScore">0</span></p>
-            <button id="restartButton">Play Again</button>
+
+        <!-- Pause overlay (hidden by default) -->
+        <div id="pause-overlay" class="hidden"></div>
+
+        <!-- Game over overlay (hidden by default) -->
+        <div id="game-over" class="hidden">
+            <div id="final-score"></div>
+            <div id="high-score"></div>
+            <div id="restart-button"></div>
+        </div>
+
+        <!-- Error overlay (hidden by default) -->
+        <div id="error-overlay" class="hidden">
+            <div id="error-icon"></div>
         </div>
     </div>
     <script src="game.js"></script>
