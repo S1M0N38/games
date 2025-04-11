@@ -1,7 +1,4 @@
-/*
- * Balance Beam - Minimalist Styling
- * Using a strict black/white/gray palette
- */
+/* Balance Beam - Minimalist Styling */
 
 /* ==========================================
    VARIABLES
@@ -73,6 +70,7 @@ body {
     position: absolute;
     top: 20px;
     right: 20px;
+    z-index: 10;
 }
 
 #score {
@@ -94,6 +92,7 @@ body {
     cursor: pointer;
     font-size: 20px;
     transition: background-color var(--transition-speed) ease-in-out;
+    z-index: 10;
 }
 
 #help-button:hover {
@@ -117,6 +116,7 @@ body {
         transform var(--transition-speed) ease-in-out;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     line-height: 1.6;
+    z-index: 20;
 }
 
 #help-panel.hidden {
@@ -160,6 +160,7 @@ body {
     justify-content: center;
     align-items: center;
     transition: opacity var(--transition-speed) ease-in-out;
+    z-index: 30;
 }
 
 #pause-overlay.hidden {
@@ -189,6 +190,7 @@ body {
     align-items: center;
     gap: 20px;
     transition: opacity var(--transition-speed) ease-in-out;
+    z-index: 30;
 }
 
 #game-over.hidden {
@@ -243,6 +245,7 @@ body {
     align-items: center;
     animation: error-border 0.5s infinite alternate;
     transition: opacity var(--transition-speed) ease-in-out;
+    z-index: 100;
 }
 
 #error-overlay.hidden {
@@ -277,6 +280,9 @@ body {
     transform: rotate(-45deg);
 }
 
+/* ==========================================
+   ANIMATIONS
+   ========================================== */
 @keyframes error-border {
     from {
         box-shadow: inset 0 0 0 5px var(--white);
@@ -284,5 +290,14 @@ body {
 
     to {
         box-shadow: inset 0 0 0 15px var(--white);
+    }
+}
+
+/* ==========================================
+   MEDIA QUERIES
+   ========================================== */
+@media (max-width: 768px) {
+    #score {
+        font-size: 24px;
     }
 }
