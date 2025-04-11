@@ -1,34 +1,70 @@
-/* Space Dodger CSS */
 :root {
     --black: #000000;
     --white: #FFFFFF;
-    --error-red: #FF0000;
-    --gray-10: rgba(255, 255, 255, 0.1);
-    --gray-30: rgba(255, 255, 255, 0.3);
+    --gray-dark: #333333;
+    --gray-medium: #666666;
+    --gray-light: #999999;
+    --red: #FF0000;
+    --transition-speed: 0.3s;
 }
 
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    user-select: none;
 }
 
 body {
+    background-color: var(--black);
+    color: var(--white);
+    font-family: Arial, sans-serif;
     width: 100vw;
     height: 100vh;
     overflow: hidden;
-    background-color: var(--black);
-    font-family: sans-serif;
-    cursor: none;
-    position: relative;
 }
 
 #game-container {
     width: 100%;
     height: 100%;
     position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
+/* Lives indicator (top-left) */
+#lives-container {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    display: flex;
+    gap: 10px;
+    z-index: 10;
+}
+
+.life {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background-color: var(--white);
+    transition: opacity var(--transition-speed) ease-in-out;
+}
+
+.life.lost {
+    opacity: 0.3;
+}
+
+/* Score display (top-right) */
+#score-container {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 32px;
+    z-index: 10;
+}
+
+/* Game canvas */
 #game-canvas {
     position: absolute;
     top: 0;
@@ -46,7 +82,7 @@ body {
     transform: translateX(-50%);
     width: 30%;
     height: 2px;
-    background-color: var(--gray-10);
+    background-color: rgba(255, 255, 255, 0.1);
     z-index: 10;
 }
 
@@ -54,22 +90,176 @@ body {
     height: 100%;
     width: 0;
     background-color: var(--white);
-    transition: width 0.3s ease-in-out, opacity 0.3s ease-in-out;
+    transition: width var(--transition-speed) ease-in-out, opacity var(--transition-speed) ease-in-out;
 }
 
-/* Error overlay - only visible when an error occurs */
+/* Help button (bottom-right) */
+#help-button {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 2px solid var(--white);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    font-size: 20px;
+    transition: background-color var(--transition-speed) ease-in-out;
+    z-index: 10;
+}
+
+#help-button:hover {
+    background-color: var(--gray-dark);
+}
+
+/* Help panel */
+#help-panel {
+    position: absolute;
+    bottom: 60px;
+    right: 20px;
+    background-color: var(--gray-dark);
+    border: 1px solid var(--white);
+    padding: 20px;
+    border-radius: 5px;
+    max-width: 300px;
+    transition: opacity var(--transition-speed) ease-in-out, transform var(--transition-speed) ease-in-out;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    line-height: 1.6;
+    z-index: 20;
+}
+
+#help-panel.hidden {
+    opacity: 0;
+    transform: translateY(20px);
+    pointer-events: none;
+}
+
+#help-content p {
+    margin-bottom: 10px;
+    color: var(--white);
+}
+
+#help-content p:first-child {
+    margin-bottom: 15px;
+    font-weight: 500;
+}
+
+#help-content p:not(:first-child) {
+    color: var(--gray-light);
+    font-size: 0.95rem;
+}
+
+#close-help {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+    font-size: 20px;
+}
+
+/* Pause overlay */
+#pause-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: opacity var(--transition-speed) ease-in-out;
+    z-index: 30;
+}
+
+#pause-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+#pause-overlay:before {
+    content: "";
+    width: 30px;
+    height: 80px;
+    border-left: 20px solid var(--white);
+    border-right: 20px solid var(--white);
+}
+
+/* Game over overlay */
+#game-over {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    transition: opacity var(--transition-speed) ease-in-out;
+    z-index: 30;
+}
+
+#game-over.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+#final-score,
+#high-score {
+    font-size: 48px;
+}
+
+#restart-button {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 3px solid var(--white);
+    position: relative;
+    cursor: pointer;
+    transition: background-color var(--transition-speed) ease-in-out;
+}
+
+#restart-button:after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    border-top: 3px solid var(--white);
+    border-right: 3px solid var(--white);
+    transform: translate(-70%, -50%) rotate(45deg);
+}
+
+#restart-button:hover {
+    background-color: var(--gray-dark);
+}
+
+/* Error overlay */
 #error-overlay {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: var(--error-red);
-    display: none;
+    background-color: var(--red);
+    display: flex;
     justify-content: center;
     align-items: center;
+    animation: error-border 0.5s infinite alternate;
+    transition: opacity var(--transition-speed) ease-in-out;
     z-index: 100;
-    animation: tremble 0.1s infinite;
+}
+
+#error-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
 }
 
 #error-icon {
@@ -80,44 +270,31 @@ body {
 
 #error-icon:before,
 #error-icon:after {
-    content: '';
+    content: "";
     position: absolute;
+    background-color: var(--white);
 }
 
-/* Warning triangle */
 #error-icon:before {
     width: 100%;
-    height: 100%;
-    border: 5px solid var(--white);
-    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+    height: 10px;
+    top: 45px;
+    transform: rotate(45deg);
 }
 
 #error-icon:after {
-    width: 10px;
-    height: 40px;
-    background-color: var(--white);
-    bottom: 20px;
-    left: calc(50% - 5px);
+    width: 100%;
+    height: 10px;
+    top: 45px;
+    transform: rotate(-45deg);
 }
 
-@keyframes tremble {
-    0% {
-        transform: translate(0, 0) rotate(0);
+@keyframes error-border {
+    from {
+        box-shadow: inset 0 0 0 5px var(--white);
     }
 
-    25% {
-        transform: translate(5px, 5px) rotate(1deg);
-    }
-
-    50% {
-        transform: translate(0, 5px) rotate(0);
-    }
-
-    75% {
-        transform: translate(-5px, 0) rotate(-1deg);
-    }
-
-    100% {
-        transform: translate(0, 0) rotate(0);
+    to {
+        box-shadow: inset 0 0 0 15px var(--white);
     }
 }

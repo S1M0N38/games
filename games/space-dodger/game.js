@@ -10,9 +10,16 @@
     const GAME_STATE = {
         INTRO: 'intro',
         PLAYING: 'playing',
-        RESETTING: 'resetting',
+        PAUSED: 'paused',
+        GAME_OVER: 'gameover',
         ERROR: 'error'
     };
+
+    const INITIAL_LIVES = 3;
+    const PARTICLE_POOL_SIZE = 100;
+    const ASTEROID_POOL_SIZE = 50;
+    const LOCAL_STORAGE_KEY_PLAYED = 'space-dodger-played';
+    const LOCAL_STORAGE_KEY_HIGH_SCORE = 'space-dodger-high-score';
 
     // Game variables
     let canvas, ctx;
@@ -23,8 +30,11 @@
     let mouseY = 0;
     let gameTime = 0;
     let difficultyProgress = 0;
-    let hasPlayed = false;
+    let lives = INITIAL_LIVES;
+    let score = 0;
     let highScore = 0;
+    let hasPlayed = false;
+    let animationFrameId = null;
 
     // Game entities
     let player;
@@ -36,12 +46,12 @@
     const particlePool = [];
 
     // DOM elements
-    let progressBar;
+    let scoreDisplay, progressBar, livesContainer;
+    let helpButton, helpPanel, closeHelp;
+    let pauseOverlay, gameOverOverlay, finalScoreDisplay, highScoreDisplay, restartButton;
+    let errorOverlay;
 
-    // Audio elements
-    let nearMissSound, collisionSound, ambientSound;
-
-    // Initialization
+    // Initialize game
     function init() {
         try {
             // Get canvas and context
@@ -53,25 +63,39 @@
             window.addEventListener('resize', resizeCanvas);
 
             // Get UI elements
+            scoreDisplay = document.getElementById('score');
             progressBar = document.getElementById('progress-bar');
+            livesContainer = document.getElementById('lives-container');
+            helpButton = document.getElementById('help-button');
+            helpPanel = document.getElementById('help-panel');
+            closeHelp = document.getElementById('close-help');
+            pauseOverlay = document.getElementById('pause-overlay');
+            gameOverOverlay = document.getElementById('game-over');
+            finalScoreDisplay = document.getElementById('final-score');
+            highScoreDisplay = document.getElementById('high-score');
+            restartButton = document.getElementById('restart-button');
+            errorOverlay = document.getElementById('error-overlay');
 
-            // Create audio elements
-            createAudioElements();
+            // Create lives indicators
+            createLivesIndicators();
 
-            // Mouse tracking
-            canvas.addEventListener('mousemove', handleMouseMove);
+            // Add event listeners
+            addEventListeners();
+
+            // Initialize pools
+            initializePools();
 
             // Check local storage
             loadGameState();
 
-            // Initialize game objects
-            initializePlayer();
-
             // Start the intro sequence
             startIntro();
 
+            // Show cursor initially
+            document.body.style.cursor = 'default';
+
             // Start the game loop
-            requestAnimationFrame(gameLoop);
+            animationFrameId = requestAnimationFrame(gameLoop);
         } catch (error) {
             handleError(error);
         }
@@ -83,28 +107,99 @@
         canvas.height = window.innerHeight;
     }
 
-    // Create minimal audio feedback
-    function createAudioElements() {
-        try {
-            // Creating audio objects (would be linked to actual files in production)
-            nearMissSound = new Audio();
-            collisionSound = new Audio();
-            ambientSound = new Audio();
+    // Create lives indicators
+    function createLivesIndicators() {
+        livesContainer.innerHTML = '';
+        for (let i = 0; i < INITIAL_LIVES; i++) {
+            const life = document.createElement('div');
+            life.className = 'life';
+            livesContainer.appendChild(life);
+        }
+    }
 
-            // Configure ambient sound
-            ambientSound.volume = 0.1;
-            ambientSound.loop = true;
-        } catch (error) {
-            console.error('Audio initialization error:', error);
-            // Continue without sound
+    // Initialize object pools
+    function initializePools() {
+        // Pre-create objects for better performance
+        for (let i = 0; i < PARTICLE_POOL_SIZE; i++) {
+            particlePool.push({});
+        }
+
+        for (let i = 0; i < ASTEROID_POOL_SIZE; i++) {
+            asteroidPool.push({});
+        }
+    }
+
+    // Add event listeners
+    function addEventListeners() {
+        // Mouse movement tracking
+        canvas.addEventListener('mousemove', handleMouseMove);
+
+        // Help button toggle
+        helpButton.addEventListener('click', toggleHelpPanel);
+        closeHelp.addEventListener('click', toggleHelpPanel);
+
+        // Restart button
+        restartButton.addEventListener('click', startGame);
+
+        // Keyboard controls
+        document.addEventListener('keydown', handleKeyPress);
+    }
+
+    // Track mouse position
+    function handleMouseMove(event) {
+        mouseX = event.clientX;
+        mouseY = event.clientY;
+    }
+
+    // Toggle help panel
+    function toggleHelpPanel() {
+        helpPanel.classList.toggle('hidden');
+
+        // Show cursor when help panel is visible, hide it during gameplay
+        if (!helpPanel.classList.contains('hidden')) {
+            document.body.style.cursor = 'default';
+        } else if (gameState === GAME_STATE.PLAYING) {
+            document.body.style.cursor = 'none';
+        }
+    }
+
+    // Handle key press
+    function handleKeyPress(event) {
+        switch (event.key) {
+            case 'Escape':
+                togglePause();
+                break;
+            case 'q':
+            case 'Q':
+                navigateToLanding();
+                break;
+        }
+    }
+
+    // Navigate to landing page
+    function navigateToLanding() {
+        window.location.href = '../../index.html';
+    }
+
+    // Toggle pause state
+    function togglePause() {
+        if (gameState === GAME_STATE.PLAYING) {
+            gameState = GAME_STATE.PAUSED;
+            pauseOverlay.classList.remove('hidden');
+            document.body.style.cursor = 'default'; // Show cursor when paused
+        } else if (gameState === GAME_STATE.PAUSED) {
+            gameState = GAME_STATE.PLAYING;
+            pauseOverlay.classList.add('hidden');
+            document.body.style.cursor = 'none'; // Hide cursor when resuming gameplay
+            lastTime = 0; // Reset delta time to prevent jumps
         }
     }
 
     // Load saved game state from localStorage
     function loadGameState() {
         try {
-            hasPlayed = localStorage.getItem('space-dodger-played') === 'true';
-            const savedScore = localStorage.getItem('space-dodger-high-score');
+            hasPlayed = localStorage.getItem(LOCAL_STORAGE_KEY_PLAYED) === 'true';
+            const savedScore = localStorage.getItem(LOCAL_STORAGE_KEY_HIGH_SCORE);
             if (savedScore) {
                 highScore = parseInt(savedScore, 10);
             }
@@ -117,21 +212,23 @@
     // Save game state to localStorage
     function saveGameState() {
         try {
-            localStorage.setItem('space-dodger-played', 'true');
-            localStorage.setItem('space-dodger-high-score', highScore.toString());
+            localStorage.setItem(LOCAL_STORAGE_KEY_PLAYED, 'true');
+            localStorage.setItem(LOCAL_STORAGE_KEY_HIGH_SCORE, highScore.toString());
         } catch (error) {
             console.error('LocalStorage error:', error);
         }
     }
 
-    // Track mouse position
-    function handleMouseMove(event) {
-        mouseX = event.clientX;
-        mouseY = event.clientY;
-    }
+    // Start intro animation
+    function startIntro() {
+        gameState = GAME_STATE.INTRO;
+        asteroids = [];
+        particles = [];
 
-    // Create player ship
-    function initializePlayer() {
+        // Show cursor during intro
+        document.body.style.cursor = 'default';
+
+        // Initialize player
         player = {
             x: canvas.width / 2,
             y: canvas.height / 2,
@@ -142,14 +239,6 @@
             rotation: 0,
             active: true
         };
-    }
-
-    // Start intro animation
-    function startIntro() {
-        gameState = GAME_STATE.INTRO;
-        asteroids = [];
-        particles = [];
-        gameTime = 0;
 
         // Create converging particles for intro effect
         for (let i = 0; i < 20; i++) {
@@ -164,106 +253,141 @@
 
         // Transition to playing state after animation
         setTimeout(() => {
-            gameState = GAME_STATE.PLAYING;
-            hasPlayed = true;
-            saveGameState();
-
-            try {
-                ambientSound.play();
-            } catch (e) {
-                // Continue without sound
-            }
+            startGame();
         }, 1500);
     }
 
-    // Reset game after collision
-    function resetGame() {
-        gameState = GAME_STATE.RESETTING;
+    // Start the main game
+    function startGame() {
+        // Hide overlays
+        pauseOverlay.classList.add('hidden');
+        gameOverOverlay.classList.add('hidden');
 
-        // Create explosion particles
-        for (let i = 0; i < 30; i++) {
-            createParticle(
-                player.x,
-                player.y,
-                player.x + (Math.random() - 0.5) * 200,
-                player.y + (Math.random() - 0.5) * 200,
-                3 + Math.random() * 2
-            );
-        }
+        // Reset game parameters
+        gameState = GAME_STATE.PLAYING;
+        gameTime = 0;
+        difficultyProgress = 0;
+        score = 0;
+        lives = INITIAL_LIVES;
+        updateLivesDisplay();
+        updateScoreDisplay();
+        updateProgressBar(0);
 
         // Reset player position
         player.x = canvas.width / 2;
         player.y = canvas.height / 2;
         player.targetX = canvas.width / 2;
         player.targetY = canvas.height / 2;
-        player.active = false;
+        player.active = true;
 
-        // Remove all asteroids
-        asteroids.forEach(a => asteroidPool.push(a));
+        // Clear game objects
         asteroids = [];
+        particles = [];
 
-        // Reset game parameters
-        gameTime = 0;
-        difficultyProgress = 0;
-        updateProgressBar(0);
+        // Mark as played
+        hasPlayed = true;
+        saveGameState();
 
-        // Restart intro sequence after a delay
-        setTimeout(startIntro, 2000);
+        // Hide cursor during active gameplay
+        document.body.style.cursor = 'none';
+    }
+
+    // Update lives display
+    function updateLivesDisplay() {
+        const lifeElements = document.querySelectorAll('.life');
+        lifeElements.forEach((life, index) => {
+            life.classList.toggle('lost', index >= lives);
+        });
+    }
+
+    // Update score display
+    function updateScoreDisplay() {
+        scoreDisplay.textContent = Math.floor(score);
+    }
+
+    // Update progress bar
+    function updateProgressBar(progress) {
+        if (!progressBar) return;
+        progressBar.style.width = `${progress * 100}%`;
     }
 
     // Main game loop
     function gameLoop(timestamp) {
-        // Calculate delta time for smooth animation
-        if (!lastTime) lastTime = timestamp;
-        delta = (timestamp - lastTime) / 1000; // Convert to seconds
-        lastTime = timestamp;
+        try {
+            // Calculate delta time for smooth animation
+            if (!lastTime) lastTime = timestamp;
+            delta = (timestamp - lastTime) / 1000; // Convert to seconds
+            lastTime = timestamp;
 
-        // Clear canvas
-        ctx.fillStyle = '#000000';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+            // Clear canvas
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Update and render based on game state
-        switch (gameState) {
-            case GAME_STATE.INTRO:
-            case GAME_STATE.RESETTING:
-                updateTransition(delta);
-                renderTransition();
-                break;
-            case GAME_STATE.PLAYING:
-                updateGame(delta);
-                renderGame();
-                break;
-            case GAME_STATE.ERROR:
-                showErrorOverlay();
-                break;
+            // Update and render based on game state
+            switch (gameState) {
+                case GAME_STATE.INTRO:
+                    updateIntro(delta);
+                    renderIntro();
+                    break;
+                case GAME_STATE.PLAYING:
+                    updatePlaying(delta);
+                    renderPlaying();
+                    break;
+                case GAME_STATE.PAUSED:
+                    renderPlaying(); // Still render the game while paused
+                    break;
+                case GAME_STATE.GAME_OVER:
+                    updateGameOver(delta);
+                    renderGameOver();
+                    break;
+                case GAME_STATE.ERROR:
+                    // Error overlay is handled by DOM
+                    break;
+            }
+
+            // Continue game loop
+            animationFrameId = requestAnimationFrame(gameLoop);
+        } catch (error) {
+            handleError(error);
         }
-
-        // Continue game loop
-        requestAnimationFrame(gameLoop);
     }
 
-    // Update game state
-    function updateGame(delta) {
-        // Update player with smooth follow
-        updatePlayer(delta);
+    // Update intro state
+    function updateIntro(delta) {
+        updateParticles(delta);
+    }
 
-        // Update game time and difficulty
+    // Render intro state
+    function renderIntro() {
+        renderParticles();
+    }
+
+    // Update playing state
+    function updatePlaying(delta) {
+        // Update game time and score
         gameTime += delta;
-        difficultyProgress = Math.min(1, gameTime / 180); // Max difficulty after 3 minutes
+        score = gameTime * 10; // Score is time * 10
+        updateScoreDisplay();
+
+        // Update difficulty progress (max at 3 minutes)
+        difficultyProgress = Math.min(1, gameTime / 180);
         updateProgressBar(difficultyProgress);
 
         // Update high score
-        if (gameTime * 1000 > highScore) {
-            highScore = Math.floor(gameTime * 1000);
+        if (score > highScore) {
+            highScore = Math.floor(score);
             saveGameState();
         }
+
+        // Update player
+        updatePlayer(delta);
 
         // Spawn asteroids based on difficulty
         if (Math.random() < 0.05 + (difficultyProgress * 0.15)) {
             spawnAsteroid();
         }
 
-        // Update all game entities
+        // Update game objects
         updateAsteroids(delta);
         updateParticles(delta);
 
@@ -271,9 +395,27 @@
         checkCollisions();
     }
 
-    // Update player ship
+    // Render playing state
+    function renderPlaying() {
+        renderAsteroids();
+        renderPlayer();
+        renderParticles();
+    }
+
+    // Update game over state
+    function updateGameOver(delta) {
+        updateParticles(delta);
+    }
+
+    // Render game over state
+    function renderGameOver() {
+        renderAsteroids();
+        renderParticles();
+    }
+
+    // Update player ship position
     function updatePlayer(delta) {
-        if (!player.active) return;
+        if (!player || !player.active) return;
 
         // Smooth movement towards mouse position
         player.targetX = mouseX;
@@ -287,19 +429,17 @@
         const dy = player.targetY - player.y;
         const targetRotation = Math.atan2(dy, dx) + Math.PI / 2;
 
-        // Smooth rotation
-        let rotDiff = targetRotation - player.rotation;
-
         // Normalize angle difference
+        let rotDiff = targetRotation - player.rotation;
         if (rotDiff > Math.PI) rotDiff -= Math.PI * 2;
         if (rotDiff < -Math.PI) rotDiff += Math.PI * 2;
 
         player.rotation += rotDiff * 0.1 * (delta * 60);
 
-        // Create subtle trail particles during movement
+        // Create trail particles during movement
         if (Math.random() < 0.2 && (Math.abs(dx) > 1 || Math.abs(dy) > 1)) {
-            const trailX = player.x - Math.cos(player.rotation - Math.PI / 2) * player.size;
-            const trailY = player.y - Math.sin(player.rotation - Math.PI / 2) * player.size;
+            const trailX = player.x - Math.cos(player.rotation - Math.PI / 2) * player.size * 0.5;
+            const trailY = player.y - Math.sin(player.rotation - Math.PI / 2) * player.size * 0.5;
 
             createParticle(
                 trailX,
@@ -318,31 +458,32 @@
 
         // Position outside viewport
         const side = Math.floor(Math.random() * 4); // 0: top, 1: right, 2: bottom, 3: left
+        const speedMultiplier = 1 + difficultyProgress * 2;
 
         switch (side) {
             case 0: // top
                 asteroid.x = Math.random() * canvas.width;
                 asteroid.y = -50;
-                asteroid.speedY = 1 + Math.random() * 3 * (1 + difficultyProgress);
-                asteroid.speedX = (Math.random() - 0.5) * 2 * (1 + difficultyProgress);
+                asteroid.speedY = (1 + Math.random() * 2) * speedMultiplier;
+                asteroid.speedX = (Math.random() - 0.5) * 2 * speedMultiplier;
                 break;
             case 1: // right
                 asteroid.x = canvas.width + 50;
                 asteroid.y = Math.random() * canvas.height;
-                asteroid.speedX = -(1 + Math.random() * 3 * (1 + difficultyProgress));
-                asteroid.speedY = (Math.random() - 0.5) * 2 * (1 + difficultyProgress);
+                asteroid.speedX = -(1 + Math.random() * 2) * speedMultiplier;
+                asteroid.speedY = (Math.random() - 0.5) * 2 * speedMultiplier;
                 break;
             case 2: // bottom
                 asteroid.x = Math.random() * canvas.width;
                 asteroid.y = canvas.height + 50;
-                asteroid.speedY = -(1 + Math.random() * 3 * (1 + difficultyProgress));
-                asteroid.speedX = (Math.random() - 0.5) * 2 * (1 + difficultyProgress);
+                asteroid.speedY = -(1 + Math.random() * 2) * speedMultiplier;
+                asteroid.speedX = (Math.random() - 0.5) * 2 * speedMultiplier;
                 break;
             case 3: // left
                 asteroid.x = -50;
                 asteroid.y = Math.random() * canvas.height;
-                asteroid.speedX = 1 + Math.random() * 3 * (1 + difficultyProgress);
-                asteroid.speedY = (Math.random() - 0.5) * 2 * (1 + difficultyProgress);
+                asteroid.speedX = (1 + Math.random() * 2) * speedMultiplier;
+                asteroid.speedY = (Math.random() - 0.5) * 2 * speedMultiplier;
                 break;
         }
 
@@ -418,14 +559,14 @@
 
     // Check for collisions between player and asteroids
     function checkCollisions() {
-        if (!player.active || gameState !== GAME_STATE.PLAYING) return;
+        if (!player || !player.active) return;
 
         for (const asteroid of asteroids) {
             const dx = player.x - asteroid.x;
             const dy = player.y - asteroid.y;
             const distance = Math.sqrt(dx * dx + dy * dy);
 
-            // Collision radii adjusted by shape
+            // Collision detection with adjusted radius based on shape
             const playerRadius = player.size * 0.7;
             let asteroidFactor = 0.8;
 
@@ -441,20 +582,14 @@
 
             // Check for collision
             if (distance < playerRadius + asteroid.size * asteroidFactor) {
-                handleCollision();
+                handleCollision(asteroid);
                 return;
             }
 
-            // Near miss detection
+            // Near miss detection and feedback
             const nearMissThreshold = playerRadius + asteroid.size * 1.8;
             if (distance < nearMissThreshold && Math.random() < 0.1) {
-                try {
-                    nearMissSound.play();
-                } catch (e) {
-                    // Continue without sound
-                }
-
-                // Create subtle particle trail for near miss
+                // Create subtle particle trail for near miss visualization
                 for (let i = 0; i < 3; i++) {
                     createParticle(
                         asteroid.x + (Math.random() - 0.5) * asteroid.size,
@@ -468,62 +603,59 @@
         }
     }
 
-    // Handle collision
-    function handleCollision() {
-        try {
-            collisionSound.play();
-        } catch (e) {
-            // Continue without sound
+    // Handle collision with asteroid
+    function handleCollision(asteroid) {
+        // Create explosion particles
+        for (let i = 0; i < 30; i++) {
+            createParticle(
+                player.x,
+                player.y,
+                player.x + (Math.random() - 0.5) * 200,
+                player.y + (Math.random() - 0.5) * 200,
+                1 + Math.random() * 2
+            );
         }
 
-        resetGame();
-    }
+        // Reduce lives and check game over
+        lives--;
+        updateLivesDisplay();
 
-    // Update transitioning state (intro/resetting)
-    function updateTransition(delta) {
-        updateParticles(delta);
-
-        if (gameState === GAME_STATE.INTRO && player) {
-            // Gradually activate player during intro
-            player.active = true;
-        }
-    }
-
-    // Update progress bar
-    function updateProgressBar(progress) {
-        if (!progressBar) return;
-
-        progressBar.style.width = `${progress * 100}%`;
-
-        // Pulse effect when nearing difficulty increase
-        if (progress > 0 && progress % 0.1 < 0.02) {
-            progressBar.style.opacity = 0.5 + Math.sin(gameTime * 5) * 0.5;
+        if (lives <= 0) {
+            gameOver();
         } else {
-            progressBar.style.opacity = 1;
+            // Temporarily disable player to avoid multiple collisions
+            player.active = false;
+
+            // Reset player position after a short delay
+            setTimeout(() => {
+                player.x = canvas.width / 2;
+                player.y = canvas.height / 2;
+                player.active = true;
+            }, 1000);
         }
     }
 
-    // Render the game
-    function renderGame() {
-        // Render game entities
-        renderAsteroids();
-        renderPlayer();
-        renderParticles();
-        renderScore();
-    }
+    // Game over
+    function gameOver() {
+        gameState = GAME_STATE.GAME_OVER;
+        player.active = false;
 
-    // Render transition states
-    function renderTransition() {
-        renderParticles();
+        // Show cursor at game over
+        document.body.style.cursor = 'default';
 
-        if (player && player.active) {
-            renderPlayer();
-        }
+        // Update game over screen with final score
+        finalScoreDisplay.textContent = Math.floor(score);
+        highScoreDisplay.textContent = highScore;
+
+        // Show game over overlay after a short delay
+        setTimeout(() => {
+            gameOverOverlay.classList.remove('hidden');
+        }, 1000);
     }
 
     // Render player ship
     function renderPlayer() {
-        if (!player) return;
+        if (!player || !player.active) return;
 
         ctx.save();
         ctx.translate(player.x, player.y);
@@ -587,16 +719,17 @@
     function drawPolygon(radius, sides) {
         const angleStep = (Math.PI * 2) / sides;
 
-        for (let i = 0; i < sides; i++) {
-            const angle = i * angleStep;
-            const x = Math.cos(angle) * radius;
-            const y = Math.sin(angle) * radius;
+        ctx.moveTo(
+            Math.cos(0) * radius,
+            Math.sin(0) * radius
+        );
 
-            if (i === 0) {
-                ctx.moveTo(x, y);
-            } else {
-                ctx.lineTo(x, y);
-            }
+        for (let i = 1; i <= sides; i++) {
+            const angle = i * angleStep;
+            ctx.lineTo(
+                Math.cos(angle) * radius,
+                Math.sin(angle) * radius
+            );
         }
     }
 
@@ -618,31 +751,11 @@
         ctx.globalAlpha = 1;
     }
 
-    // Render minimalist stopwatch-style score
-    function renderScore() {
-        const x = canvas.width - 40; // Position in top right corner
-        const y = 40;
-
-        ctx.save();
-
-        // Draw milliseconds as simple number
-        const ms = Math.floor(gameTime * 1000);
-
-        // Draw the number
-        ctx.textAlign = 'right';
-        ctx.textBaseline = 'middle';
-        ctx.fillStyle = '#FFFFFF';
-        ctx.font = '28px monospace'; // Bigger font
-        ctx.fillText(ms, x, y);
-
-        ctx.restore();
-    }
-
     // Show error overlay
     function showErrorOverlay() {
-        const errorOverlay = document.getElementById('error-overlay');
         if (errorOverlay) {
-            errorOverlay.style.display = 'flex';
+            errorOverlay.classList.remove('hidden');
+            document.body.style.cursor = 'default'; // Show cursor on error
         }
     }
 
@@ -653,8 +766,8 @@
         showErrorOverlay();
     }
 
-    // Initialize on load
-    window.addEventListener('load', init);
+    // Initialize the game when DOM is loaded
+    document.addEventListener('DOMContentLoaded', init);
 
     // Global error handler
     window.addEventListener('error', function (event) {
