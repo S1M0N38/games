@@ -1,11 +1,10 @@
 /**
  * Particle Pursuit
- * A minimalist mouse-controlled game where players absorb smaller particles
- * while avoiding larger ones.
+ * A minimalist game where you control a particle that absorbs smaller ones and avoids larger ones.
  */
 
 // ==========================================
-// Game constants
+// Game Configuration
 // ==========================================
 const CONFIG = {
     // Game settings
@@ -15,97 +14,104 @@ const CONFIG = {
     // Player settings
     PLAYER: {
         INITIAL_SIZE: 20,
-        MAX_SIZE: 50,
+        MAX_SIZE: 40,
         MIN_SIZE: 10,
-        MOVEMENT_LERP: 0.15,  // Smoothing factor for movement
-        SHRINK_RATE: 0.01,    // How quickly player shrinks over time
-        GROWTH_FACTOR: 0.5,   // How much player grows when absorbing particles
+        SPEED_FACTOR: 0.15,
+        SHRINK_RATE: 0.015,
+        GROWTH_FACTOR: 0.5,  // INCREASED from 0.4 for faster growth
+        INVULNERABILITY_TIME: 800,
     },
 
     // Particle settings
     PARTICLES: {
-        MIN_SIZE: 5,
+        MIN_SIZE: 4,
         MAX_SIZE: 30,
-        MIN_SPEED: 20,
-        MAX_SPEED: 80,
-        COUNT: 30,           // Initial particle count
-        SPAWN_RATE: 2,       // Particles per second
-        SAFE_MARGIN: 0.8,    // Size ratio below which particles are safe to absorb
-        DANGEROUS_MARGIN: 1.1 // Size ratio above which particles are dangerous
+        MIN_SPEED: 50,      // INCREASED from 30 for faster minimum speed
+        MAX_SPEED: 120,     // INCREASED from 90 for faster maximum speed
+        COUNT: 35,
+        SPAWN_RATE: 3,
+        SAFE_MARGIN: 0.75,
+        DANGER_MARGIN: 1.1,
+        SMALL_PARTICLE_BIAS: 0.7,  // NEW: Higher values = more small particles
     },
 
     // Difficulty progression
     DIFFICULTY: {
-        INCREASE_RATE: 0.1,   // How quickly difficulty increases
-        MAX_PARTICLE_COUNT: 60,
-        MAX_SPEED_MULTIPLIER: 2,
         INCREASE_INTERVAL: 10000, // Milliseconds between difficulty increases
+        INCREASE_RATE: 0.1,       // How quickly difficulty increases
+        MAX_LEVEL: 8,             // Maximum difficulty level
+        SPEED_MULTIPLIER: 0.15,  // INCREASED from 0.1 for more aggressive speed increase per level
+        SIZE_MULTIPLIER: 0.05,    // How much larger dangerous particles get
+        COUNT_MULTIPLIER: 0.2,    // How many more particles spawn per level
     },
 
     // Visual settings
     VISUAL: {
-        MAIN_COLOR: '#FFFFFF',
-        SECONDARY_COLOR: '#999999',
-        TRANSITION_SPEED: 0.3, // seconds
-        PARTICLE_COLORS: ['#FFFFFF', '#EEEEEE', '#DDDDDD', '#CCCCCC', '#AAAAAA', '#999999', '#777777', '#555555'],
-        DAMAGE_FLASH_DURATION: 300, // milliseconds
+        BG_COLOR: '#000000',
+        PLAYER_COLOR: '#FFFFFF',
+        PARTICLE_COLORS: [
+            '#FFFFFF', // Smallest/safest
+            '#DDDDDD',
+            '#BBBBBB',
+            '#999999',
+            '#777777',
+            '#555555'  // Largest/most dangerous
+        ],
+        FLASH_DURATION: 500,  // Milliseconds
+        FLASH_COLOR: '#FF0000', // Damage indicator color
     },
 
     // Game states
-    GAME_STATE: {
+    STATE: {
         INTRO: 'intro',
         PLAYING: 'playing',
         PAUSED: 'paused',
-        GAME_OVER: 'gameover',
+        GAME_OVER: 'game_over',
         ERROR: 'error'
     }
 };
 
 // ==========================================
-// Game state
+// Game State
 // ==========================================
-const gameState = {
+const game = {
     // Core game state
-    state: CONFIG.GAME_STATE.INTRO,
+    state: CONFIG.STATE.INTRO,
     score: 0,
     lives: CONFIG.INITIAL_LIVES,
     highScore: 0,
-    isPlaying: false,
-    isPaused: false,
     difficultyLevel: 1,
-    timeSinceStart: 0,
-    lastDifficultyIncrease: 0,
 
-    // Animation and timing
+    // Timing variables
     lastTime: 0,
-    delta: 0,
-    animationFrameId: null,
-    timers: [],
+    deltaTime: 0,
+    timeSinceLastSpawn: 0,
+    timeSinceDifficultyIncrease: 0,
 
-    // Mouse input state
-    mouse: {
-        x: 0,
-        y: 0
-    },
+    // Animation handling
+    animationId: null,
 
-    // Player
+    // Game objects
     player: {
         x: 0,
         y: 0,
         size: CONFIG.PLAYER.INITIAL_SIZE,
-        targetX: 0,
-        targetY: 0,
         isFlashing: false,
-        flashTimeRemaining: 0
+        flashTimeRemaining: 0,
+        isInvulnerable: false,
+        invulnerabilityTimeRemaining: 0,
     },
-
-    // Particles
     particles: [],
-    timeSinceLastSpawn: 0
+
+    // Mouse input
+    mouse: {
+        x: 0,
+        y: 0
+    }
 };
 
 // ==========================================
-// DOM elements
+// DOM Elements
 // ==========================================
 let canvas, ctx;
 let scoreDisplay, livesContainer;
@@ -116,7 +122,7 @@ let errorOverlay;
 // ==========================================
 // Initialization
 // ==========================================
-function initGame() {
+function init() {
     try {
         // Get DOM elements
         canvas = document.getElementById('game-canvas');
@@ -137,39 +143,46 @@ function initGame() {
 
         errorOverlay = document.getElementById('error-overlay');
 
-        // Set canvas dimensions
+        // Set canvas size
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
 
-        // Load high score from localStorage
-        gameState.highScore = parseInt(localStorage.getItem(CONFIG.STORAGE_KEY)) || 0;
+        // Load high score
+        game.highScore = parseInt(localStorage.getItem(CONFIG.STORAGE_KEY)) || 0;
 
-        // Create lives indicators
-        createLivesIndicators();
+        // Create life indicators
+        createLifeIndicators();
 
-        // Add event listeners
-        addEventListeners();
+        // Set up event listeners
+        setupEventListeners();
 
-        // Initialize game-specific elements
-        initializeGameElements();
+        // Center player at start
+        resetPlayerPosition();
 
         // Start in intro state
         startIntro();
-
     } catch (error) {
-        handleError('Game initialization error:', error);
+        console.error('Initialization error:', error);
+        showErrorScreen();
     }
 }
 
 // ==========================================
-// Setup functions
+// Setup Functions
 // ==========================================
 function resizeCanvas() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 }
 
-function createLivesIndicators() {
+function resetPlayerPosition() {
+    game.player.x = canvas.width / 2;
+    game.player.y = canvas.height / 2;
+    game.mouse.x = game.player.x;
+    game.mouse.y = game.player.y;
+}
+
+function createLifeIndicators() {
     livesContainer.innerHTML = '';
     for (let i = 0; i < CONFIG.INITIAL_LIVES; i++) {
         const life = document.createElement('div');
@@ -178,70 +191,514 @@ function createLivesIndicators() {
     }
 }
 
-function addEventListeners() {
-    // UI controls
+function setupEventListeners() {
+    // Mouse input
+    canvas.addEventListener('mousemove', (e) => {
+        game.mouse.x = e.clientX;
+        game.mouse.y = e.clientY;
+    });
+
+    // UI elements
     helpButton.addEventListener('click', toggleHelpPanel);
     closeHelp.addEventListener('click', toggleHelpPanel);
     restartButton.addEventListener('click', startGame);
 
-    // Mouse controls
-    canvas.addEventListener('mousemove', handleMouseMove);
-
-    // Universal keyboard controls
-    document.addEventListener('keydown', (event) => {
-        switch (event.key) {
+    // Keyboard controls
+    document.addEventListener('keydown', (e) => {
+        switch (e.key) {
             case 'Escape':
                 togglePause();
                 break;
             case 'q':
             case 'Q':
-                navigateToLanding();
+                window.location.href = '../../index.html';
                 break;
         }
     });
 
     // Error handling
-    window.addEventListener('error', (event) => {
-        handleError('Global error:', event.error);
+    window.addEventListener('error', (e) => {
+        console.error('Global error:', e.error);
+        showErrorScreen();
     });
 }
 
-function initializeGameElements() {
-    // Set player initial position to center of screen
-    gameState.player.x = canvas.width / 2;
-    gameState.player.y = canvas.height / 2;
-    gameState.player.targetX = gameState.player.x;
-    gameState.player.targetY = gameState.player.y;
+// ==========================================
+// Game States
+// ==========================================
+function startIntro() {
+    game.state = CONFIG.STATE.INTRO;
 
-    // Initialize particles
-    gameState.particles = [];
+    // Reset player for intro animation
+    resetPlayerPosition();
+    game.player.size = CONFIG.PLAYER.INITIAL_SIZE * 1.2;
+
+    // Create initial particles
+    game.particles = [];
     for (let i = 0; i < CONFIG.PARTICLES.COUNT; i++) {
-        spawnParticle();
+        createParticle();
+    }
+
+    // Start animation
+    render();
+
+    // Auto transition to game after a short delay
+    setTimeout(startGame, 2000);
+}
+
+function startGame() {
+    // Reset game state
+    game.state = CONFIG.STATE.PLAYING;
+    game.score = 0;
+    game.lives = CONFIG.INITIAL_LIVES;
+    game.difficultyLevel = 1;
+    game.timeSinceDifficultyIncrease = 0;
+
+    // Reset player
+    resetPlayerPosition();
+    game.player.size = CONFIG.PLAYER.INITIAL_SIZE;
+    game.player.isFlashing = false;
+    game.player.isInvulnerable = false;
+
+    // Reset particles
+    game.particles = [];
+    for (let i = 0; i < CONFIG.PARTICLES.COUNT; i++) {
+        createParticle();
+    }
+
+    // Update UI
+    scoreDisplay.textContent = game.score;
+    updateLivesDisplay();
+
+    // Hide overlays
+    pauseOverlay.classList.add('hidden');
+    gameOverOverlay.classList.add('hidden');
+
+    // Start game loop
+    game.lastTime = performance.now();
+    cancelAnimationFrame(game.animationId);
+    game.animationId = requestAnimationFrame(gameLoop);
+}
+
+function togglePause() {
+    if (game.state !== CONFIG.STATE.PLAYING && game.state !== CONFIG.STATE.PAUSED) {
+        return;
+    }
+
+    if (game.state === CONFIG.STATE.PLAYING) {
+        game.state = CONFIG.STATE.PAUSED;
+        pauseOverlay.classList.remove('hidden');
+        cancelAnimationFrame(game.animationId);
+    } else {
+        game.state = CONFIG.STATE.PLAYING;
+        pauseOverlay.classList.add('hidden');
+        game.lastTime = performance.now();
+        game.animationId = requestAnimationFrame(gameLoop);
+    }
+}
+
+function gameOver() {
+    game.state = CONFIG.STATE.GAME_OVER;
+    cancelAnimationFrame(game.animationId);
+
+    // Check for high score
+    if (game.score > game.highScore) {
+        game.highScore = game.score;
+        localStorage.setItem(CONFIG.STORAGE_KEY, game.highScore);
+    }
+
+    // Update game over display
+    finalScoreDisplay.textContent = game.score;
+    highScoreDisplay.textContent = game.highScore;
+
+    // Show game over screen after a brief delay
+    setTimeout(() => {
+        gameOverOverlay.classList.remove('hidden');
+    }, 1000);
+}
+
+function showErrorScreen() {
+    game.state = CONFIG.STATE.ERROR;
+    errorOverlay.classList.remove('hidden');
+    cancelAnimationFrame(game.animationId);
+}
+
+function toggleHelpPanel() {
+    helpPanel.classList.toggle('hidden');
+}
+
+// ==========================================
+// Game Loop
+// ==========================================
+function gameLoop(timestamp) {
+    try {
+        // Calculate delta time
+        game.deltaTime = (timestamp - game.lastTime) / 1000; // Convert to seconds
+        game.lastTime = timestamp;
+
+        // Cap delta time to avoid large jumps
+        if (game.deltaTime > 0.1) game.deltaTime = 0.1;
+
+        // Update game state
+        update();
+
+        // Render the frame
+        render();
+
+        // Continue the loop
+        game.animationId = requestAnimationFrame(gameLoop);
+    } catch (error) {
+        console.error('Game loop error:', error);
+        showErrorScreen();
     }
 }
 
 // ==========================================
-// Particle functions
+// Update Functions
 // ==========================================
-function spawnParticle() {
-    // Determine particle size based on difficulty
-    const minSize = CONFIG.PARTICLES.MIN_SIZE;
-    const maxSize = CONFIG.PARTICLES.MAX_SIZE * (1 + (gameState.difficultyLevel - 1) * 0.1);
-    const size = minSize + Math.random() * (maxSize - minSize);
+function update() {
+    updatePlayer();
+    updateParticles();
+    spawnParticles();
+    checkCollisions();
+    updateDifficulty();
+}
 
-    // Determine speed - smaller particles move faster
+function updatePlayer() {
+    // Move player towards mouse position with smoothing
+    game.player.x += (game.mouse.x - game.player.x) * CONFIG.PLAYER.SPEED_FACTOR;
+    game.player.y += (game.mouse.y - game.player.y) * CONFIG.PLAYER.SPEED_FACTOR;
+
+    // Gradually shrink player over time
+    game.player.size = Math.max(
+        CONFIG.PLAYER.MIN_SIZE,
+        game.player.size - (CONFIG.PLAYER.SHRINK_RATE * game.difficultyLevel * game.deltaTime * 60)
+    );
+
+    // Update flash effect
+    if (game.player.isFlashing) {
+        game.player.flashTimeRemaining -= game.deltaTime * 1000;
+        if (game.player.flashTimeRemaining <= 0) {
+            game.player.isFlashing = false;
+        }
+    }
+
+    // Update invulnerability
+    if (game.player.isInvulnerable) {
+        game.player.invulnerabilityTimeRemaining -= game.deltaTime * 1000;
+        if (game.player.invulnerabilityTimeRemaining <= 0) {
+            game.player.isInvulnerable = false;
+        }
+    }
+}
+
+function updateParticles() {
+    for (let i = game.particles.length - 1; i >= 0; i--) {
+        const particle = game.particles[i];
+
+        // Move particles
+        particle.x += particle.vx * game.deltaTime;
+        particle.y += particle.vy * game.deltaTime;
+
+        // Check if off-screen and remove
+        const margin = particle.size * 2;
+        if (
+            particle.x < -margin ||
+            particle.x > canvas.width + margin ||
+            particle.y < -margin ||
+            particle.y > canvas.height + margin
+        ) {
+            game.particles.splice(i, 1);
+        }
+    }
+}
+
+function spawnParticles() {
+    // Track time since last spawn
+    game.timeSinceLastSpawn += game.deltaTime;
+
+    // Calculate spawn interval based on difficulty
+    const spawnRate = CONFIG.PARTICLES.SPAWN_RATE *
+        (1 + (game.difficultyLevel - 1) * CONFIG.DIFFICULTY.COUNT_MULTIPLIER);
+    const spawnInterval = 1 / spawnRate;
+
+    // Cap particle count based on difficulty
+    const maxParticles = Math.floor(
+        CONFIG.PARTICLES.COUNT * (1 + (game.difficultyLevel - 1) * CONFIG.DIFFICULTY.COUNT_MULTIPLIER)
+    );
+
+    // Spawn new particles if needed
+    if (game.timeSinceLastSpawn > spawnInterval && game.particles.length < maxParticles) {
+        createParticle();
+        game.timeSinceLastSpawn = 0;
+    }
+}
+
+function checkCollisions() {
+    if (game.player.isInvulnerable) return;
+
+    for (let i = game.particles.length - 1; i >= 0; i--) {
+        const particle = game.particles[i];
+
+        // Calculate distance between player and particle centers
+        const dx = game.player.x - particle.x;
+        const dy = game.player.y - particle.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        // Combined radii with a small buffer for collision detection
+        const combinedRadius = (game.player.size + particle.size) * 0.8;
+
+        // Check for collision
+        if (distance < combinedRadius) {
+            // If particle is small enough to absorb
+            if (particle.size < game.player.size * CONFIG.PARTICLES.SAFE_MARGIN) {
+                absorbParticle(particle, i);
+            }
+            // If particle is too large and dangerous
+            else if (particle.size > game.player.size * CONFIG.PARTICLES.DANGER_MARGIN) {
+                handleDangerousCollision(particle, dx, dy, distance);
+            }
+        }
+    }
+}
+
+function absorbParticle(particle, index) {
+    // Bonus growth for very small particles
+    const growthMultiplier =
+        particle.size < CONFIG.PARTICLES.MIN_SIZE + 3 ? 1.5 : 1.0;
+
+    // Increase player size (with cap)
+    game.player.size = Math.min(
+        CONFIG.PLAYER.MAX_SIZE,
+        game.player.size + particle.size * CONFIG.PLAYER.GROWTH_FACTOR * growthMultiplier
+    );
+
+    // Add score based on particle size
+    const points = Math.max(1, Math.floor(particle.size));
+    game.score += points;
+    scoreDisplay.textContent = game.score;
+
+    // Remove particle and create a new one
+    game.particles.splice(index, 1);
+    createParticle();
+}
+
+function handleDangerousCollision(particle, dx, dy, distance) {
+    // Reduce life
+    loseLife();
+
+    // Apply damage effects
+    game.player.isFlashing = true;
+    game.player.flashTimeRemaining = CONFIG.VISUAL.FLASH_DURATION;
+
+    // Apply temporary invulnerability
+    game.player.isInvulnerable = true;
+    game.player.invulnerabilityTimeRemaining = CONFIG.PLAYER.INVULNERABILITY_TIME;
+
+    // Shrink player from damage
+    game.player.size = Math.max(
+        CONFIG.PLAYER.MIN_SIZE,
+        game.player.size * 0.75
+    );
+
+    // Push particle away (with safe handling of zero distance)
+    if (distance > 0) {
+        const pushStrength = 150;
+        const normX = dx / distance;
+        const normY = dy / distance;
+        particle.vx += normX * pushStrength;
+        particle.vy += normY * pushStrength;
+    } else {
+        // Random direction if centers overlap exactly
+        const angle = Math.random() * Math.PI * 2;
+        const pushStrength = 150;
+        particle.vx += Math.cos(angle) * pushStrength;
+        particle.vy += Math.sin(angle) * pushStrength;
+    }
+}
+
+function loseLife() {
+    game.lives--;
+    updateLivesDisplay();
+
+    if (game.lives <= 0) {
+        gameOver();
+    }
+}
+
+function updateDifficulty() {
+    // Track time for difficulty increase
+    game.timeSinceDifficultyIncrease += game.deltaTime * 1000;
+
+    // Check if it's time to increase difficulty
+    if (game.timeSinceDifficultyIncrease >= CONFIG.DIFFICULTY.INCREASE_INTERVAL) {
+        game.difficultyLevel = Math.min(
+            game.difficultyLevel + CONFIG.DIFFICULTY.INCREASE_RATE,
+            CONFIG.DIFFICULTY.MAX_LEVEL
+        );
+        game.timeSinceDifficultyIncrease = 0;
+    }
+}
+
+function updateLivesDisplay() {
+    const lifeElements = document.querySelectorAll('.life');
+    lifeElements.forEach((life, index) => {
+        life.classList.toggle('lost', index >= game.lives);
+    });
+}
+
+// ==========================================
+// Rendering Functions
+// ==========================================
+function render() {
+    // Clear the canvas
+    ctx.fillStyle = CONFIG.VISUAL.BG_COLOR;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Render based on game state
+    switch (game.state) {
+        case CONFIG.STATE.INTRO:
+            renderIntro();
+            break;
+        case CONFIG.STATE.PLAYING:
+        case CONFIG.STATE.PAUSED:
+            renderGameplay();
+            break;
+        case CONFIG.STATE.GAME_OVER:
+            renderGameOver();
+            break;
+    }
+}
+
+function renderIntro() {
+    // Render particles
+    renderParticles(0.7);
+
+    // Render pulsing player
+    const pulseSize = game.player.size * (1 + 0.2 * Math.sin(performance.now() / 300));
+
+    ctx.fillStyle = CONFIG.VISUAL.PLAYER_COLOR;
+    ctx.beginPath();
+    ctx.arc(game.player.x, game.player.y, pulseSize, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Render glow
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(game.player.x, game.player.y, pulseSize + 5, 0, Math.PI * 2);
+    ctx.stroke();
+}
+
+function renderGameplay() {
+    // Render particles
+    renderParticles(1.0);
+
+    // Render player
+    renderPlayer();
+}
+
+function renderGameOver() {
+    // Render particles with fade
+    renderParticles(0.5);
+
+    // Render player (faded)
+    ctx.globalAlpha = 0.7;
+    renderPlayer();
+    ctx.globalAlpha = 1.0;
+}
+
+function renderParticles(opacity = 1.0) {
+    if (opacity !== 1.0) {
+        ctx.globalAlpha = opacity;
+    }
+
+    game.particles.forEach(particle => {
+        ctx.fillStyle = particle.color;
+        ctx.beginPath();
+        ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+        ctx.fill();
+    });
+
+    if (opacity !== 1.0) {
+        ctx.globalAlpha = 1.0;
+    }
+}
+
+function renderPlayer() {
+    // Determine player color based on state
+    if (game.player.isFlashing) {
+        ctx.fillStyle = CONFIG.VISUAL.FLASH_COLOR;
+    } else if (game.player.isInvulnerable) {
+        // Pulsing white when invulnerable
+        const flash = Math.sin(performance.now() / 100) > 0 ? 1 : 0.7;
+        ctx.fillStyle = `rgba(255, 255, 255, ${flash})`;
+    } else {
+        ctx.fillStyle = CONFIG.VISUAL.PLAYER_COLOR;
+    }
+
+    // Draw player circle
+    ctx.beginPath();
+    ctx.arc(game.player.x, game.player.y, game.player.size, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Add subtle glow effect
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(game.player.x, game.player.y, game.player.size + 3, 0, Math.PI * 2);
+    ctx.stroke();
+}
+
+// ==========================================
+// Particle Creation
+// ==========================================
+function createParticle() {
+    // Size characteristics - adjusted by difficulty
+    const sizeFactor = 1 + (game.difficultyLevel - 1) * CONFIG.DIFFICULTY.SIZE_MULTIPLIER;
+    const minSize = CONFIG.PARTICLES.MIN_SIZE;
+    const maxSize = CONFIG.PARTICLES.MAX_SIZE * sizeFactor;
+
+    // Determine particle size with a bias toward smaller particles
+    let size;
+
+    // Generate more small particles based on bias factor
+    const smallParticleBias = CONFIG.PARTICLES.SMALL_PARTICLE_BIAS;
+
+    if (Math.random() < smallParticleBias) {
+        // Create a small, safe-to-eat particle
+        const smallRangeMax = minSize + (maxSize - minSize) * 0.4;
+        size = minSize + Math.random() * (smallRangeMax - minSize);
+    } else if (Math.random() < 0.7) {
+        // Create a medium-sized particle
+        const midMin = minSize + (maxSize - minSize) * 0.4;
+        const midMax = minSize + (maxSize - minSize) * 0.7;
+        size = midMin + Math.random() * (midMax - midMin);
+    } else {
+        // Create a large, dangerous particle
+        const largeMin = minSize + (maxSize - minSize) * 0.7;
+        size = largeMin + Math.random() * (maxSize - largeMin);
+    }
+
+    // Speed based on size and difficulty (smaller = faster)
+    const speedFactor = 1 + (game.difficultyLevel - 1) * CONFIG.DIFFICULTY.SPEED_MULTIPLIER;
+    const speedRatio = 1 - (size - minSize) / (maxSize - minSize); // 1=smallest, 0=largest
+
+    // Add a base speed boost to all particles
+    const baseSpeedBoost = 1.2;  // 20% faster base speed for all particles
+
     const speed = lerp(
-        CONFIG.PARTICLES.MAX_SPEED,
         CONFIG.PARTICLES.MIN_SPEED,
-        size / maxSize
-    ) * (1 + (gameState.difficultyLevel - 1) * 0.1);
+        CONFIG.PARTICLES.MAX_SPEED * speedFactor,
+        speedRatio
+    ) * baseSpeedBoost;
 
     // Random direction
     const angle = Math.random() * Math.PI * 2;
     const vx = Math.cos(angle) * speed;
     const vy = Math.sin(angle) * speed;
 
-    // Start off-screen
+    // Place particle outside the screen
     let x, y;
     if (Math.random() < 0.5) {
         // Top or bottom
@@ -253,456 +710,30 @@ function spawnParticle() {
         y = Math.random() * canvas.height;
     }
 
-    // Color based on size (smaller = lighter, larger = darker)
-    const colorIndex = Math.floor(lerp(
-        0,
-        CONFIG.VISUAL.PARTICLE_COLORS.length - 1,
-        size / maxSize
-    ));
-    const color = CONFIG.VISUAL.PARTICLE_COLORS[colorIndex];
+    // Color based on size (larger = darker)
+    const colorIndex = Math.floor(
+        lerp(0, CONFIG.VISUAL.PARTICLE_COLORS.length - 1, (size - minSize) / (maxSize - minSize))
+    );
 
-    gameState.particles.push({
+    // Create the particle
+    game.particles.push({
         x,
         y,
         size,
         vx,
         vy,
-        color
+        color: CONFIG.VISUAL.PARTICLE_COLORS[colorIndex]
     });
 }
 
 // ==========================================
-// UI functions
+// Utility Functions
 // ==========================================
-function toggleHelpPanel() {
-    helpPanel.classList.toggle('hidden');
-}
-
-function togglePause() {
-    if (!gameState.isPlaying) return;
-
-    gameState.isPaused = !gameState.isPaused;
-    gameState.state = gameState.isPaused ? CONFIG.GAME_STATE.PAUSED : CONFIG.GAME_STATE.PLAYING;
-    pauseOverlay.classList.toggle('hidden', !gameState.isPaused);
-
-    if (gameState.isPaused) {
-        // Clear any animation frame
-        cancelAnimationFrame(gameState.animationFrameId);
-
-        // Clear any active timers
-        gameState.timers.forEach(timer => clearTimeout(timer));
-        gameState.timers = [];
-    } else {
-        // Resume game loop
-        gameState.lastTime = performance.now();
-        gameLoop(gameState.lastTime);
-    }
-}
-
-function updateLivesDisplay() {
-    const lifeElements = document.querySelectorAll('.life');
-    lifeElements.forEach((life, index) => {
-        life.classList.toggle('lost', index >= gameState.lives);
-    });
-}
-
-function navigateToLanding() {
-    window.location.href = '../../index.html';
+function lerp(a, b, t) {
+    return a + (b - a) * Math.max(0, Math.min(1, t));
 }
 
 // ==========================================
-// Game state functions
+// Start the game
 // ==========================================
-function startIntro() {
-    gameState.state = CONFIG.GAME_STATE.INTRO;
-    gameState.isPlaying = false;
-    gameState.isPaused = false;
-
-    // Start with a pulsing player particle
-    gameState.player.size = CONFIG.PLAYER.INITIAL_SIZE * 1.5;
-
-    // Render intro frame
-    render();
-
-    // Auto-transition to game after a short delay
-    setTimeout(() => {
-        startGame();
-    }, 2000);
-}
-
-function startGame() {
-    // Reset game state
-    gameState.state = CONFIG.GAME_STATE.PLAYING;
-    gameState.isPlaying = true;
-    gameState.isPaused = false;
-    gameState.score = 0;
-    gameState.lives = CONFIG.INITIAL_LIVES;
-    gameState.difficultyLevel = 1;
-    gameState.timeSinceStart = 0;
-    gameState.lastDifficultyIncrease = 0;
-
-    // Reset game-specific state
-    resetGameState();
-
-    // Update UI
-    scoreDisplay.textContent = gameState.score;
-    updateLivesDisplay();
-
-    // Hide overlays
-    pauseOverlay.classList.add('hidden');
-    gameOverOverlay.classList.add('hidden');
-
-    // Start game loop
-    gameState.lastTime = performance.now();
-    gameLoop(gameState.lastTime);
-}
-
-function resetGameState() {
-    // Reset player
-    gameState.player.x = canvas.width / 2;
-    gameState.player.y = canvas.height / 2;
-    gameState.player.targetX = gameState.player.x;
-    gameState.player.targetY = gameState.player.y;
-    gameState.player.size = CONFIG.PLAYER.INITIAL_SIZE;
-    gameState.player.isFlashing = false;
-    gameState.player.flashTimeRemaining = 0;
-
-    // Reset particles
-    gameState.particles = [];
-    for (let i = 0; i < CONFIG.PARTICLES.COUNT; i++) {
-        spawnParticle();
-    }
-
-    gameState.timeSinceLastSpawn = 0;
-}
-
-function gameOver() {
-    gameState.state = CONFIG.GAME_STATE.GAME_OVER;
-    gameState.isPlaying = false;
-
-    // Cancel animation frame and clear timers
-    cancelAnimationFrame(gameState.animationFrameId);
-    gameState.timers.forEach(timer => clearTimeout(timer));
-    gameState.timers = [];
-
-    // Check for high score
-    if (gameState.score > gameState.highScore) {
-        gameState.highScore = gameState.score;
-        localStorage.setItem(CONFIG.STORAGE_KEY, gameState.highScore);
-    }
-
-    // Update game over screen
-    finalScoreDisplay.textContent = gameState.score;
-    highScoreDisplay.textContent = gameState.highScore;
-
-    // Show game over overlay after a short delay
-    setTimeout(() => {
-        gameOverOverlay.classList.remove('hidden');
-    }, 1000);
-}
-
-// ==========================================
-// Input handlers
-// ==========================================
-function handleMouseMove(event) {
-    // Update target position for smooth movement
-    gameState.player.targetX = event.clientX;
-    gameState.player.targetY = event.clientY;
-}
-
-// ==========================================
-// Game loop
-// ==========================================
-function gameLoop(timestamp) {
-    if (!gameState.isPlaying || gameState.isPaused) return;
-
-    // Calculate delta time for smooth animation
-    gameState.delta = timestamp - gameState.lastTime;
-    gameState.lastTime = timestamp;
-
-    try {
-        // Update game state
-        update(gameState.delta / 1000); // Convert to seconds
-
-        // Render frame
-        render();
-
-        // Continue loop
-        gameState.animationFrameId = requestAnimationFrame(gameLoop);
-    } catch (error) {
-        handleError('Game loop error:', error);
-    }
-}
-
-// ==========================================
-// Update and render
-// ==========================================
-function update(deltaTime) {
-    // Track game time
-    gameState.timeSinceStart += deltaTime * 1000;
-
-    // Check if it's time to increase difficulty
-    if (gameState.timeSinceStart - gameState.lastDifficultyIncrease >= CONFIG.DIFFICULTY.INCREASE_INTERVAL) {
-        increaseDifficulty();
-        gameState.lastDifficultyIncrease = gameState.timeSinceStart;
-    }
-
-    // Update player
-    updatePlayer(deltaTime);
-
-    // Update particles
-    updateParticles(deltaTime);
-
-    // Spawn new particles
-    updateParticleSpawning(deltaTime);
-
-    // Check collisions
-    checkCollisions();
-}
-
-function updatePlayer(deltaTime) {
-    // Smooth movement towards target position
-    gameState.player.x = lerp(gameState.player.x, gameState.player.targetX, CONFIG.PLAYER.MOVEMENT_LERP);
-    gameState.player.y = lerp(gameState.player.y, gameState.player.targetY, CONFIG.PLAYER.MOVEMENT_LERP);
-
-    // Gradually shrink the player over time
-    gameState.player.size = Math.max(
-        CONFIG.PLAYER.MIN_SIZE,
-        gameState.player.size - (CONFIG.PLAYER.SHRINK_RATE * gameState.difficultyLevel * deltaTime * 60)
-    );
-
-    // Update damage flash effect
-    if (gameState.player.isFlashing) {
-        gameState.player.flashTimeRemaining -= deltaTime * 1000;
-        if (gameState.player.flashTimeRemaining <= 0) {
-            gameState.player.isFlashing = false;
-        }
-    }
-}
-
-function updateParticles(deltaTime) {
-    for (let i = gameState.particles.length - 1; i >= 0; i--) {
-        const particle = gameState.particles[i];
-
-        // Move particle
-        particle.x += particle.vx * deltaTime;
-        particle.y += particle.vy * deltaTime;
-
-        // Remove particles that are far off-screen
-        if (
-            particle.x < -particle.size * 2 ||
-            particle.x > canvas.width + particle.size * 2 ||
-            particle.y < -particle.size * 2 ||
-            particle.y > canvas.height + particle.size * 2
-        ) {
-            gameState.particles.splice(i, 1);
-            spawnParticle();
-        }
-    }
-}
-
-function updateParticleSpawning(deltaTime) {
-    // Track time since last spawn
-    gameState.timeSinceLastSpawn += deltaTime;
-
-    // Calculate spawn interval based on current difficulty
-    const spawnInterval = 1 / (CONFIG.PARTICLES.SPAWN_RATE * (1 + (gameState.difficultyLevel - 1) * 0.2));
-
-    // Spawn new particles if needed
-    if (gameState.timeSinceLastSpawn >= spawnInterval) {
-        if (gameState.particles.length < CONFIG.PARTICLES.COUNT * (1 + (gameState.difficultyLevel - 1) * 0.1)) {
-            spawnParticle();
-        }
-        gameState.timeSinceLastSpawn = 0;
-    }
-}
-
-function checkCollisions() {
-    for (let i = gameState.particles.length - 1; i >= 0; i--) {
-        const particle = gameState.particles[i];
-        const dx = gameState.player.x - particle.x;
-        const dy = gameState.player.y - particle.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        const combinedRadius = gameState.player.size + particle.size;
-
-        // Check if player and particle are colliding
-        if (distance < combinedRadius * 0.8) {
-            // If particle is small enough to absorb
-            if (particle.size < gameState.player.size * CONFIG.PARTICLES.SAFE_MARGIN) {
-                // Absorb particle
-                gameState.player.size = Math.min(
-                    CONFIG.PLAYER.MAX_SIZE,
-                    gameState.player.size + particle.size * CONFIG.PLAYER.GROWTH_FACTOR
-                );
-
-                // Increase score
-                const pointsGained = Math.ceil(particle.size);
-                gameState.score += pointsGained;
-                scoreDisplay.textContent = gameState.score;
-
-                // Remove the absorbed particle and spawn a new one
-                gameState.particles.splice(i, 1);
-                spawnParticle();
-            }
-            // If particle is too large and dangerous
-            else if (particle.size > gameState.player.size * CONFIG.PARTICLES.DANGEROUS_MARGIN) {
-                // Take damage
-                reduceLife();
-
-                // Flash the player
-                gameState.player.isFlashing = true;
-                gameState.player.flashTimeRemaining = CONFIG.VISUAL.DAMAGE_FLASH_DURATION;
-
-                // Push the particle away
-                const pushForce = 100;
-                const pushX = (dx / distance) * pushForce;
-                const pushY = (dy / distance) * pushForce;
-                particle.vx += pushX;
-                particle.vy += pushY;
-            }
-        }
-    }
-}
-
-function increaseDifficulty() {
-    gameState.difficultyLevel += CONFIG.DIFFICULTY.INCREASE_RATE;
-
-    // Cap at a reasonable maximum level
-    gameState.difficultyLevel = Math.min(gameState.difficultyLevel, 5);
-
-    // Adjust particle count based on difficulty
-    CONFIG.PARTICLES.COUNT = Math.min(
-        CONFIG.DIFFICULTY.MAX_PARTICLE_COUNT,
-        Math.floor(CONFIG.PARTICLES.COUNT * (1 + CONFIG.DIFFICULTY.INCREASE_RATE))
-    );
-}
-
-function reduceLife() {
-    gameState.lives--;
-    updateLivesDisplay();
-
-    // Reduce player size
-    gameState.player.size = Math.max(
-        CONFIG.PLAYER.MIN_SIZE,
-        gameState.player.size * 0.8
-    );
-
-    if (gameState.lives <= 0) {
-        gameOver();
-    }
-}
-
-function render() {
-    // Clear canvas
-    ctx.fillStyle = '#000000';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Render based on current game state
-    switch (gameState.state) {
-        case CONFIG.GAME_STATE.INTRO:
-            renderIntro();
-            break;
-        case CONFIG.GAME_STATE.PLAYING:
-            renderGame();
-            break;
-        case CONFIG.GAME_STATE.PAUSED:
-            renderGame(); // Still render the game while paused
-            break;
-        case CONFIG.GAME_STATE.GAME_OVER:
-            renderGameOver();
-            break;
-    }
-}
-
-function renderIntro() {
-    // Render particles
-    gameState.particles.forEach(particle => {
-        ctx.fillStyle = particle.color;
-        ctx.beginPath();
-        ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
-        ctx.fill();
-    });
-
-    // Render pulsing player
-    const pulseSize = gameState.player.size * (1 + 0.2 * Math.sin(performance.now() / 300));
-    ctx.fillStyle = CONFIG.VISUAL.MAIN_COLOR;
-    ctx.beginPath();
-    ctx.arc(gameState.player.x, gameState.player.y, pulseSize, 0, Math.PI * 2);
-    ctx.fill();
-}
-
-function renderGame() {
-    // Render particles
-    gameState.particles.forEach(particle => {
-        ctx.fillStyle = particle.color;
-        ctx.beginPath();
-        ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
-        ctx.fill();
-    });
-
-    // Render player
-    ctx.fillStyle = gameState.player.isFlashing ?
-        (Math.floor(performance.now() / 100) % 2 === 0 ? '#FF0000' : '#FFFFFF') :
-        '#FFFFFF';
-
-    ctx.beginPath();
-    ctx.arc(gameState.player.x, gameState.player.y, gameState.player.size, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Draw a subtle glow around the player
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.arc(gameState.player.x, gameState.player.y, gameState.player.size + 3, 0, Math.PI * 2);
-    ctx.stroke();
-}
-
-function renderGameOver() {
-    // Fade out the game elements
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Render the particles with reduced opacity
-    ctx.globalAlpha = 0.5;
-    gameState.particles.forEach(particle => {
-        ctx.fillStyle = particle.color;
-        ctx.beginPath();
-        ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
-        ctx.fill();
-    });
-
-    // Render player fading
-    ctx.fillStyle = '#FFFFFF';
-    ctx.globalAlpha = 0.7;
-    ctx.beginPath();
-    ctx.arc(gameState.player.x, gameState.player.y, gameState.player.size, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Reset alpha
-    ctx.globalAlpha = 1;
-}
-
-// ==========================================
-// Helper functions
-// ==========================================
-function lerp(start, end, t) {
-    return start * (1 - t) + end * t;
-}
-
-// ==========================================
-// Error handling
-// ==========================================
-function handleError(message, error) {
-    console.error(message, error);
-    gameState.state = CONFIG.GAME_STATE.ERROR;
-    showErrorOverlay();
-}
-
-function showErrorOverlay() {
-    errorOverlay.classList.remove('hidden');
-}
-
-// ==========================================
-// Initialization
-// ==========================================
-document.addEventListener('DOMContentLoaded', initGame);
+document.addEventListener('DOMContentLoaded', init);

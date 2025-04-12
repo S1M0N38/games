@@ -11,7 +11,8 @@
 
     /* Animation */
     --transition-speed: 0.3s;
-    --glow-size: 10px;
+    --ease-timing: cubic-bezier(0.25, 0.1, 0.25, 1);
+    /* ease-in-out */
 }
 
 /* =========== Base Styles =========== */
@@ -29,8 +30,12 @@ body {
     width: 100vw;
     height: 100vh;
     overflow: hidden;
+    /* Cursor will be controlled via classes instead of being hidden by default */
+}
+
+body.game-playing {
     cursor: none;
-    /* Hide cursor during gameplay */
+    /* Hide cursor only during active gameplay */
 }
 
 #game-container {
@@ -68,7 +73,7 @@ body {
     height: 15px;
     border-radius: 50%;
     background-color: var(--white);
-    transition: opacity var(--transition-speed) ease-in-out;
+    transition: opacity var(--transition-speed) var(--ease-timing);
 }
 
 .life.lost {
@@ -98,7 +103,7 @@ body {
     align-items: center;
     cursor: pointer;
     font-size: 20px;
-    transition: background-color var(--transition-speed) ease-in-out;
+    transition: background-color var(--transition-speed) var(--ease-timing);
     z-index: 10;
 }
 
@@ -117,10 +122,8 @@ body {
     padding: 20px;
     border-radius: 5px;
     max-width: 300px;
-    transition: opacity var(--transition-speed) ease-in-out,
-        transform var(--transition-speed) ease-in-out;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-    line-height: 1.6;
+    transition: opacity var(--transition-speed) var(--ease-timing),
+        transform var(--transition-speed) var(--ease-timing);
     z-index: 20;
 }
 
@@ -164,8 +167,10 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: opacity var(--transition-speed) ease-in-out;
+    transition: opacity var(--transition-speed) var(--ease-timing);
     z-index: 30;
+    cursor: default;
+    /* Ensure visible cursor in pause overlay */
 }
 
 #pause-overlay.hidden {
@@ -194,8 +199,10 @@ body {
     justify-content: center;
     align-items: center;
     gap: 20px;
-    transition: opacity var(--transition-speed) ease-in-out;
+    transition: opacity var(--transition-speed) var(--ease-timing);
     z-index: 30;
+    cursor: default;
+    /* Ensure visible cursor in game over overlay */
 }
 
 #game-over.hidden {
@@ -215,7 +222,7 @@ body {
     border: 3px solid var(--white);
     position: relative;
     cursor: pointer;
-    transition: background-color var(--transition-speed) ease-in-out;
+    transition: background-color var(--transition-speed) var(--ease-timing);
 }
 
 #restart-button:after {
@@ -246,7 +253,6 @@ body {
     justify-content: center;
     align-items: center;
     animation: error-border 0.5s infinite alternate;
-    transition: opacity var(--transition-speed) ease-in-out;
     z-index: 100;
 }
 
@@ -310,54 +316,7 @@ body {
     }
 }
 
-@keyframes fade-in {
-    from {
-        opacity: 0;
-    }
-
-    to {
-        opacity: 1;
-    }
-}
-
-@keyframes fade-out {
-    from {
-        opacity: 1;
-    }
-
-    to {
-        opacity: 0;
-    }
-}
-
-/* Pulse animation for player particle */
-@keyframes pulse-particle {
-    0% {
-        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
-    }
-
-    70% {
-        box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
-    }
-
-    100% {
-        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
-    }
-}
-
-/* Damage feedback animation */
-@keyframes damage-flash {
-    0% {
-        background-color: var(--red);
-    }
-
-    100% {
-        background-color: var(--white);
-    }
-}
-
 /* =========== Media Queries =========== */
-/* Game is desktop-only by design, but ensuring canvas responsiveness */
 @media (max-width: 768px) {
     #score-container {
         font-size: 24px;
