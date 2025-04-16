@@ -5,9 +5,8 @@ A collection of minimalist browser-based games implemented using only HTML, CSS,
 ## Available Games
 
 - [Balance Beam](./games/balance-beam/) - Test your precision by keeping a ball balanced on a tilting beam.
-- [Breakout Blocks](./games/breakout-blocks/) - Control a paddle to bounce a ball and break bricks in this classic arcade game.
 - [Gravity Field](./games/gravity-field/) - Manipulate gravity to capture celestial objects while avoiding hazards.
-- [Pendulum Pulse](./games/pendulum-pulse/) - A minimalist timing game where you click when the pendulum crosses the center line.
+- [Particle Pursuit](./games/particle-pursuit/) - Absorb smaller particles to grow while avoiding larger ones.
 - [Reaction Dots](./games/reaction-dots/) - Test your reflexes by clicking on dots when they change color.
 - [Space Dodger](./games/space-dodger/) - Pilot a spaceship through an asteroid field, dodge obstacles and collect power-ups.
 - [Void Serpent](./games/void-serpent/) - Navigate a serpent through the void to consume light fragments without colliding with boundaries or yourself.

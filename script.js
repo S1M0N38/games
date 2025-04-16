@@ -35,28 +35,12 @@ document.addEventListener('DOMContentLoaded', () => {
             fallbackImage: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="160" viewBox="0 0 300 160"><rect width="300" height="160" fill="%23111111"/><circle cx="90" cy="50" r="12" fill="%23666666"/><circle cx="140" cy="50" r="12" fill="%23666666"/><circle cx="190" cy="50" r="12" fill="%23666666"/><circle cx="240" cy="50" r="12" fill="%23666666"/><circle cx="90" cy="90" r="12" fill="%23666666"/><circle cx="140" cy="90" r="12" fill="%23FFFFFF"/><circle cx="190" cy="90" r="12" fill="%23666666"/><circle cx="240" cy="90" r="12" fill="%23666666"/><circle cx="90" cy="130" r="12" fill="%23666666"/><circle cx="140" cy="130" r="12" fill="%23666666"/><circle cx="190" cy="130" r="12" fill="%23666666"/><circle cx="240" cy="130" r="12" fill="%23666666"/><circle cx="140" cy="90" r="20" fill="none" stroke="%23FFFFFF" stroke-width="2" opacity="0.3"/></svg>'
         },
         {
-            id: 'breakout-blocks',
-            title: 'Breakout Blocks',
-            description: 'Control a paddle to bounce a ball and break bricks in this classic arcade game.',
-            path: 'games/breakout-blocks/index.html',
-            inputType: 'mouse',
-            fallbackImage: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="160" viewBox="0 0 300 160"><rect width="300" height="160" fill="%23111111"/><rect x="60" y="30" width="50" height="15" fill="%23FFFFFF"/><rect x="120" y="30" width="50" height="15" fill="%23FFFFFF"/><rect x="180" y="30" width="50" height="15" fill="%23FFFFFF"/><rect x="60" y="50" width="50" height="15" fill="%23CCCCCC"/><rect x="120" y="50" width="50" height="15" fill="%23CCCCCC"/><rect x="180" y="50" width="50" height="15" fill="%23CCCCCC"/><rect x="60" y="70" width="50" height="15" fill="%23999999"/><rect x="120" y="70" width="50" height="15" fill="%23999999"/><rect x="180" y="70" width="50" height="15" fill="%23999999"/><circle cx="135" cy="100" r="8" fill="%23FFFFFF"/><rect x="125" y="140" width="50" height="10" fill="%23FFFFFF"/></svg>'
-        },
-        {
             id: 'balance-beam',
             title: 'Balance Beam',
             description: 'Test your precision by keeping a ball balanced on a tilting beam for as long as possible.',
             path: 'games/balance-beam/index.html',
             inputType: 'keyboard',
             fallbackImage: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="160" viewBox="0 0 300 160"><rect width="300" height="160" fill="%23111111"/><rect x="50" y="100" width="200" height="4" fill="%23FFFFFF" transform="rotate(-8, 150, 100)"/><circle cx="125" cy="90" r="12" fill="%23FFFFFF"/></svg>'
-        },
-        {
-            id: 'pendulum-pulse',
-            title: 'Pendulum Pulse',
-            description: 'A minimalist timing game - click when the pendulum crosses the center line for perfect rhythm.',
-            path: 'games/pendulum-pulse/index.html',
-            inputType: 'mouse',
-            fallbackImage: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="160" viewBox="0 0 300 160"><rect width="300" height="160" fill="%23111111"/><line x1="150" y1="50" x2="120" y2="90" stroke="%23FFFFFF" stroke-width="2"/><line x1="120" y1="90" x2="170" y2="120" stroke="%23FFFFFF" stroke-width="2"/><circle cx="150" cy="50" r="4" fill="%23FFFFFF"/><circle cx="120" cy="90" r="6" fill="%23FFFFFF"/><circle cx="170" cy="120" r="10" fill="%23FFFFFF"/></svg>'
         },
         {
             id: 'gravity-field',
