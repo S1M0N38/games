@@ -19,3 +19,4 @@ Here are some examples for `game.json` for get the inspiration for the SVG:
 ---
 
 It's **really** important to follow the steps described in the [development process](../development-process-instructions.md).
+Start with the **idea generation**, then write the **game design document** in the `README.md`, and then implement the game.
