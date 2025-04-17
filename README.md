@@ -4,12 +4,13 @@ A collection of minimalist browser-based games implemented using only HTML, CSS,
 
 ## Available Games
 
-- [Balance Beam](./games/balance-beam/) - Test your precision by keeping a ball balanced on a tilting beam.
-- [Gravity Field](./games/gravity-field/) - Manipulate gravity to capture celestial objects while avoiding hazards.
-- [Particle Pursuit](./games/particle-pursuit/) - Absorb smaller particles to grow while avoiding larger ones.
-- [Reaction Dots](./games/reaction-dots/) - Test your reflexes by clicking on dots when they change color.
-- [Space Dodger](./games/space-dodger/) - Pilot a spaceship through an asteroid field, dodge obstacles and collect power-ups.
-- [Void Serpent](./games/void-serpent/) - Navigate a serpent through the void to consume light fragments without colliding with boundaries or yourself.
+- **Balance Beam** - Test your precision by keeping a ball balanced on a tilting beam.
+- **Gravity Field** - Manipulate gravity to capture celestial objects while avoiding hazards.
+- **Orbit Dodge** - Click to change orbit direction and avoid incoming obstacles.
+- **Particle Pursuit** - Absorb smaller particles to grow while avoiding larger ones.
+- **Reaction Dots** - Test your reflexes by clicking on dots when they change color.
+- **Space Dodger** - Pilot a spaceship through an asteroid field, dodge obstacles and collect power-ups.
+- **Void Serpent** - Navigate a serpent through the void to consume light fragments without colliding with boundaries or yourself.
 
 ## Features
 
@@ -31,7 +32,3 @@ Each game is contained in its own directory under the `games/` folder. To add a 
 ## Deployment
 
 This repository is configured with GitHub Actions to automatically deploy to GitHub Pages when changes are pushed to the main branch.
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
