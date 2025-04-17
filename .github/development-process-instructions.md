@@ -130,7 +130,7 @@ An example template for a game folder structure is as follows:
    - Brainstorm 2–3 concepts for endless gameplay experiences.
    - Select the idea that best satisfies simplicity, clarity, a singular input method (either keyboard or mouse), strong animation potential, and an elegant difficulty progression.
    - Consider classic endless games for inspiration: Snake, Tetris, Asteroids, Flappy Bird, etc.
-   - Do not repeat existing games listed in the [manifest.json](../games/manifest.json).
+   
 
 2. **Game Design Document (GDD) (1 day)**:
 
@@ -143,18 +143,7 @@ An example template for a game folder structure is as follows:
    - Choose the appropriate rendering approach (Canvas preferred) and build the essential HTML/CSS/JS scaffold.
    - Develop the game loop, input handling (single mode), state management, and integrate smooth animations effects.
 
-4. **Testing & Refinement (1 day)**:
-
-   - Verify the game's smooth performance and responsiveness.
-   - Test that all visual feedback works correctly, including the red error overlay in case of failure.
-   - Confirm that no text appears anywhere in the game; all instructions are conveyed visually.
-
-5. **Documentation & Delivery (1 day)**:
-
-   - Clean up code and ensure it adheres to style guidelines.
-   - Include the full GDD in the README.md.
-
-6. **Create Metadata File (Final Step)**:
+4. **Create Metadata File (Final Step)**:
    - Create the `game.json` file.
    - Populate it with the game's `id` (unique identifier, e.g., "my-cool-game"), `title` (display name), `description` (short summary), `inputType` (must be exactly "keyboard" or "mouse"), and `storageKey` (unique key for localStorage high score, e.g., "myCoolGameHighScore").
    - Create a `fallbackImage`: This is a thumbnail preview for the game hub. Use an SVG data URI for this. The SVG should be simple, represent the game visually using only black, white, and grayscale, and adhere to the overall minimalist aesthetic.

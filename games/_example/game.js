@@ -212,8 +212,8 @@ function gameOver() {
         localStorage.setItem(CONFIG.STORAGE_KEY, gameState.highScore);
     }
 
-    finalScoreDisplay.textContent = gameState.score;
-    highScoreDisplay.textContent = gameState.highScore;
+    finalScoreDisplay.textContent = `${gameState.score}`; // Display final score. Only the number, no text.
+    highScoreDisplay.textContent = `${gameState.highScore}`; // Display high score. Only the number, no text.
 
     setTimeout(() => { gameOverOverlay.classList.remove('hidden'); }, 1000);
 }
