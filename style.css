@@ -99,6 +99,35 @@ header h1 {
     /* Highlight border on hover */
 }
 
+/* Add styles for game-image container */
+.game-image {
+    width: 100%;
+    height: 180px;
+    /* Fixed height for consistent card appearance */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background-color: var(--card-background);
+}
+
+.game-image img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    /* Maintains aspect ratio */
+    display: block;
+    /* Removes extra space below images */
+}
+
+/* Add specific handling for SVG images */
+.game-image img[src$=".svg"] {
+    width: 100%;
+    height: 100%;
+    padding: 15px;
+    /* Add some padding around SVGs for better appearance */
+}
+
 /* Overlay for dimming effect */
 .game-card-overlay {
     position: absolute;
