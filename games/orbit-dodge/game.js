@@ -14,7 +14,7 @@ const CONFIG = {
     PHYSICS: {
         ORBIT_RADIUS_FACTOR: 0.25, // Factor of min(canvas.width, canvas.height)
         PLAYER_RADIUS: 10,
-        OBSTACLE_SIZE: 30, // Increased from 15 to 30
+        OBSTACLE_SIZE: 60, // Increased from 30 to 60
         PLAYER_ANGULAR_SPEED: Math.PI / 1.5, // Radians per second
         INITIAL_OBSTACLE_SPEED: 100, // Pixels per second
         MAX_OBSTACLE_SPEED: 400,
@@ -352,8 +352,8 @@ function checkCollisions() {
 }
 
 function updateScore(deltaTime) {
-    // Increase score based on time survived
-    gameState.score += Math.floor(deltaTime * 10); // 10 points per second
+    // Increase score based on time survived (in whole seconds)
+    gameState.score = Math.floor(gameState.gameTime);
     scoreDisplay.textContent = gameState.score;
 }
 
