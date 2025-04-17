@@ -215,6 +215,9 @@ These guidelines outline the process for creating simple, engaging browser-based
 - **Commit Message Style (Conventional Commits)**:
   - Use prefixes such as `feat`, `fix`, `style`, `refactor`, `docs`, or `chore`.
   - Scopes include `main`, `ci`, or the individual game name (e.g., `feat(snake): add particles`).
+  - Do not specify a scope when the commit is not related to a specific game or the main landing page (e.g., `docs: add screenshot in readme`).
+  - Keep the commit message title/subject line to 50 characters or less.
+  - If additional content is needed, add it to the body of the commit message rather than extending the title.
 
 Examples:
 
@@ -225,6 +228,7 @@ style(game): refine animation transitions
 docs(main): update landing page with new game
 refactor(game): optimize game loop
 chore(ci): update deployment configuration
+docs: add project screenshots
 ```
 
 ---
