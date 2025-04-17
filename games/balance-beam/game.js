@@ -20,7 +20,7 @@ const CONFIG = {
     // Physics constants
     PHYSICS: {
         BEAM: {
-            LENGTH: 200,
+            LENGTH: 300,
             THICKNESS: 4,
             MAX_ROTATION_ANGLE: Math.PI / 6, // 30 degrees
             ROTATION_SPEED: 0.05,
@@ -35,8 +35,8 @@ const CONFIG = {
         WIND_GUST: {
             MIN_FORCE: 0.005,
             MAX_FORCE: 0.02,
-            MIN_INTERVAL: 1000,
-            MAX_INTERVAL: 5000,
+            MIN_INTERVAL: 800,
+            MAX_INTERVAL: 3500,
             DURATION: 300,
             WARNING_TIME: 1000  // Time before gust hits when arrow appears (ms)
         }
@@ -296,7 +296,7 @@ function gameOver() {
 
     // Update game over screen
     finalScoreDisplay.textContent = gameState.score;
-    highScoreDisplay.textContent = `Best: ${gameState.highScore}`;
+    highScoreDisplay.textContent = gameState.highScore; // Removed "Best: " prefix
 
     // Show game over overlay
     gameOverOverlay.classList.remove('hidden');
@@ -599,7 +599,7 @@ function drawBeam() {
     ctx.save();
     ctx.translate(x, y);
     ctx.rotate(angle);
-    ctx.fillStyle = CONFIG.VISUAL.MAIN_COLOR;
+    ctx.fillStyle = CONFIG.VISUAL.SECONDARY_COLOR; // Changed from MAIN_COLOR
     ctx.fillRect(-length / 2, -thickness / 2, length, thickness);
     ctx.restore();
 }
@@ -612,13 +612,14 @@ function drawBall() {
         const pulseRadius = radius + (5 * pulseAnimation);
         const alpha = pulseAnimation * 0.5;
 
+        // Pulse remains white but with alpha
         ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
         ctx.beginPath();
         ctx.arc(x, y, pulseRadius, 0, Math.PI * 2);
         ctx.fill();
     }
 
-    // Draw the ball
+    // Draw the main ball (remains white)
     ctx.fillStyle = CONFIG.VISUAL.MAIN_COLOR;
     ctx.beginPath();
     ctx.arc(x, y, radius, 0, Math.PI * 2);

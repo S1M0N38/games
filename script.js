@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
             description: 'Test your precision by keeping a ball balanced on a tilting beam for as long as possible.',
             path: 'games/balance-beam/index.html',
             inputType: 'keyboard',
-            fallbackImage: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="160" viewBox="0 0 300 160"><rect width="300" height="160" fill="%23111111"/><rect x="50" y="100" width="200" height="4" fill="%23FFFFFF" transform="rotate(-8, 150, 100)"/><circle cx="125" cy="90" r="12" fill="%23FFFFFF"/></svg>'
+            fallbackImage: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="160" viewBox="0 0 300 160"><rect width="300" height="160" fill="%23111111"/><rect x="50" y="100" width="200" height="4" fill="%23999999" transform="rotate(-8, 150, 100)"/><circle cx="125" cy="90" r="12" fill="%23FFFFFF"/></svg>' // Updated beam color to gray (#999999)
         },
         {
             id: 'gravity-field',
