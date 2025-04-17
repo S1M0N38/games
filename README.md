@@ -2,15 +2,8 @@
 
 A collection of minimalist browser-based games implemented using only HTML, CSS, and JavaScript, following a strict black and white aesthetic.
 
-## Available Games
-
-- **Balance Beam** - Test your precision by keeping a ball balanced on a tilting beam.
-- **Gravity Field** - Manipulate gravity to capture celestial objects while avoiding hazards.
-- **Orbit Dodge** - Click to change orbit direction and avoid incoming obstacles.
-- **Particle Pursuit** - Absorb smaller particles to grow while avoiding larger ones.
-- **Reaction Dots** - Test your reflexes by clicking on dots when they change color.
-- **Space Dodger** - Pilot a spaceship through an asteroid field, dodge obstacles and collect power-ups.
-- **Void Serpent** - Navigate a serpent through the void to consume light fragments without colliding with boundaries or yourself.
+> [!NOTE]
+> Read [CONTRIBUTING.md](CONTRIBUTING.md) for testing your prompting skills and create a new game! 
 
 ## Features
 
