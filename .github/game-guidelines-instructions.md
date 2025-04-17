@@ -34,7 +34,7 @@ These guidelines outline the process for creating simple, engaging browser-based
 
 - **Codebase and Feature Set**:
   - Keep the total code small and maintainable. Aim for fewer than 500 lines per file; JavaScript files must not exceed 2000 lines.
-  - Avoid adding nonessential features – no complex scoring systems (simple counters/timers are allowed), no customization, settings menus, or tutorial screens. Keep games simple and intuitive.
+  - Avoid adding nonessential features – no complex scoring systems (simple counters incrementing by +1 per event or time-based scores are allowed), no customization, settings menus, or tutorial screens. Keep games simple and intuitive.
 - **Visual and Interaction Design**:
 
   - **Color Palette**:
