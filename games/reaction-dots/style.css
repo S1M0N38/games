@@ -107,7 +107,31 @@ body {
 }
 
 .dot.failure {
-    animation: shake 0.4s ease-in-out;
+    /* Change background to red for incorrect clicks */
+    background-color: var(--red);
+    /* Keep the quick-fade or remove/change animation as needed */
+    /* Faster animation */
+    animation: quick-fade 0.2s ease-in-out;
+}
+
+/* Add quick-fade animation if it doesn't exist or needs adjustment */
+@keyframes quick-fade {
+    0% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0.5;
+        /* Or fade out completely if preferred */
+    }
+}
+
+
+/* New class for missed dots */
+.dot.missed {
+    background-color: var(--red);
+    /* Faster animation */
+    animation: shake 0.2s ease-in-out;
 }
 
 @keyframes success-pulse {

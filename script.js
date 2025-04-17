@@ -100,15 +100,23 @@ function createGameCard(game) {
 
     // Get high score if it exists - check all possible key formats
     let highScore = null;
-    // Convert ID formats (e.g., "void-serpent" to "voidSerpent" for camelCase keys)
-    const camelCaseId = game.id.replace(/-([a-z])/g, (g) => g[1].toUpperCase());
+    let storedScore = null;
 
-    // Check all common localStorage key patterns
-    const storedScore = localStorage.getItem(`highscore_${game.id}`) ||
-        localStorage.getItem(`${game.id}-high-score`) ||
-        localStorage.getItem(`${game.id}HighScore`) ||
-        localStorage.getItem(`${camelCaseId}HighScore`) ||
-        localStorage.getItem(`${game.id.replace(/-/g, "_")}_high_score`);
+    // Specific key for reaction-dots
+    if (game.id === 'reaction-dots') {
+        storedScore = localStorage.getItem('reactionDotsHighScore');
+    } else {
+        // Convert ID formats (e.g., "void-serpent" to "voidSerpent" for camelCase keys)
+        const camelCaseId = game.id.replace(/-([a-z])/g, (g) => g[1].toUpperCase());
+
+        // Check all common localStorage key patterns for other games
+        storedScore = localStorage.getItem(`highscore_${game.id}`) ||
+            localStorage.getItem(`${game.id}-high-score`) ||
+            localStorage.getItem(`${game.id}HighScore`) ||
+            localStorage.getItem(`${camelCaseId}HighScore`) ||
+            localStorage.getItem(`${game.id.replace(/-/g, "_")}_high_score`);
+    }
+
 
     if (storedScore && !isNaN(parseInt(storedScore))) {
         highScore = parseInt(storedScore);
@@ -202,22 +210,35 @@ function resetGameData(gameId) {
     // Clear game played status
     localStorage.removeItem(`game_played_${gameId}`);
 
-    // Clear high scores in all possible formats
-    const camelCaseId = gameId.replace(/-([a-z])/g, (g) => g[1].toUpperCase());
+    // Specific key for reaction-dots
+    if (gameId === 'reaction-dots') {
+        localStorage.removeItem('reactionDotsHighScore');
+    } else {
+        // Clear high scores in all possible formats for other games
+        const camelCaseId = gameId.replace(/-([a-z])/g, (g) => g[1].toUpperCase());
 
-    // Clear all possible high score formats
-    localStorage.removeItem(`highscore_${gameId}`);
-    localStorage.removeItem(`${gameId}-high-score`);
-    localStorage.removeItem(`${gameId}HighScore`);
-    localStorage.removeItem(`${camelCaseId}HighScore`);
-    localStorage.removeItem(`${gameId.replace(/-/g, "_")}_high_score`);
+        // Clear all possible high score formats
+        localStorage.removeItem(`highscore_${gameId}`);
+        localStorage.removeItem(`${gameId}-high-score`);
+        localStorage.removeItem(`${gameId}HighScore`);
+        localStorage.removeItem(`${camelCaseId}HighScore`);
+        localStorage.removeItem(`${gameId.replace(/-/g, "_")}_high_score`);
+    }
 
-    // Clear any other game-specific data
+
+    // Clear any other game-specific data (optional, if games store more)
     const keysToRemove = [];
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key.includes(gameId) || key.includes(camelCaseId)) {
-            keysToRemove.push(key);
+        // More robust check if other keys might exist for the game
+        if (key && (key.startsWith(gameId) || key.includes(gameId))) {
+            // Avoid removing the 'game_played_' key again if it matches
+            if (key !== `game_played_${gameId}`) {
+                // Also avoid removing the specific reaction-dots key again if it matches
+                if (gameId !== 'reaction-dots' || key !== 'reactionDotsHighScore') {
+                    keysToRemove.push(key);
+                }
+            }
         }
     }
 
@@ -226,6 +247,10 @@ function resetGameData(gameId) {
 
     // Show feedback
     console.log(`Reset data for ${gameId}`);
+
+    // Optionally, refresh the card display or the page
+    // For simplicity, just log for now. A full refresh might be needed
+    // location.reload(); // Uncomment to force page reload after reset
 }
 
 

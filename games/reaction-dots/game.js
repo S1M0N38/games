@@ -244,6 +244,7 @@ function gameOver() {
     // Check for high score
     if (gameState.score > gameState.highScore) {
         gameState.highScore = gameState.score;
+        // Use the defined storage key from CONFIG
         localStorage.setItem(CONFIG.STORAGE_KEY, gameState.highScore);
     }
 
@@ -299,7 +300,8 @@ function illuminateRandomDot() {
                 // If dot is still active, mark as missed
                 if (selectedDot.classList.contains('active')) {
                     selectedDot.classList.remove('active');
-                    selectedDot.classList.add('failure');
+                    // Use the new .missed class for missed dots
+                    selectedDot.classList.add('missed');
                     reduceLife();
 
                     // Remove from active dots
@@ -308,10 +310,11 @@ function illuminateRandomDot() {
                         gameState.activeDots.splice(dotIndex, 1);
                     }
 
-                    // Reset animation after it completes
+                    // Reset animation after it completes - match faster duration
                     setTimeout(() => {
-                        selectedDot.classList.remove('failure');
-                    }, 400);
+                        // Remove the .missed class
+                        selectedDot.classList.remove('missed');
+                    }, 200); // Match faster animation duration (0.2s)
                 }
             }
         }, currentIlluminationTime);
@@ -372,13 +375,14 @@ function handleDotClick(event) {
         }, 400);
     } else {
         // Failure - clicked an inactive dot
+        // Keep using .failure for clicking wrong dots
         dot.classList.add('failure');
         reduceLife();
 
-        // Reset animation after it completes
+        // Reset animation after it completes - match faster duration
         setTimeout(() => {
             dot.classList.remove('failure');
-        }, 400);
+        }, 200); // Match faster animation duration (0.2s)
     }
 }
 
