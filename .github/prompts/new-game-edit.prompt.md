@@ -1,3 +1,5 @@
+Create new game following the guidelines below. 
+
 **Browser-Based Minimal Game Development Guidelines**
 
 These guidelines outline the process for creating simple, engaging browser-based games using only HTML, CSS, and JavaScript. They provide a clear, disciplined approach that emphasizes minimalism, a strict black-and-white (plus grayscale and red for error feedback) aesthetic, and a singular focus on one core mechanic per game.
@@ -204,32 +206,13 @@ These guidelines outline the process for creating simple, engaging browser-based
 
 ---
 
-### Git Workflow & Commit Standards
+### Game Template
 
-- **Branch Management**:
+An example template for a game folder structure is as follows:
 
-  - Always commit and push to the `dev` branch.
-  - Never commit directly to the `main` branch unless explicitly asked to do so.
-  - Use Git UI tools exclusively; avoid terminal commands.
-
-- **Commit Message Style (Conventional Commits)**:
-  - Use prefixes such as `feat`, `fix`, `style`, `refactor`, `docs`, or `chore`.
-  - Scopes include `main`, `ci`, or the individual game name (e.g., `feat(snake): add particles`).
-  - Do not specify a scope when the commit is not related to a specific game or the main landing page (e.g., `docs: add screenshot in readme`).
-  - Keep the commit message title/subject line to 50 characters or less.
-  - If additional content is needed, add it to the body of the commit message rather than extending the title.
-
-Examples:
-
-```
-feat(game): implement new mechanic
-fix(game): resolve edge-case bug
-style(game): refine animation transitions
-docs(main): update landing page with new game
-refactor(game): optimize game loop
-chore(ci): update deployment configuration
-docs: add project screenshots
-```
+- [game.js](../../games/_example/game.js)
+- [index.html](../../games/_example/index.html)
+- [style.css](../../games/_example/style.css)
 
 ---
 
@@ -240,6 +223,7 @@ docs: add project screenshots
    - Brainstorm 2–3 concepts for endless gameplay experiences.
    - Select the idea that best satisfies simplicity, clarity, a singular input method (either keyboard or mouse), strong animation potential, and an elegant difficulty progression.
    - Consider classic endless games for inspiration: Snake, Tetris, Asteroids, Flappy Bird, etc.
+   - Do not repeat existing games listed in the [README.md](../../README.md) of the repository.
 
 2. **Game Design Document (GDD) (1 day)**:
 
@@ -262,12 +246,6 @@ docs: add project screenshots
 
    - Clean up code and ensure it adheres to style guidelines.
    - Include the full GDD in the README.md.
-   - Finalize commits following the commit message guidelines.
-
-6. **Submission & Integration (1 day)**:
-   - Commit all game files to the dev branch.
-   - Update the landing hub (in `script.js`) to include the new game panel.
-   - Use a commit message like `feat(main): add [game] to landing page`.
 
 ---
 
@@ -303,21 +281,15 @@ docs: add project screenshots
 ### Error Handling
 
 - All games must implement a basic error handling mechanism:
-  - If a critical JavaScript error occurs, a simple red full-screen overlay should appear.
-  - The error overlay includes a basic warning icon - avoid complex animations for error states.
-
----
-
-### Game Hub Layout (Landing Page)
-
-The landing page should follow the same black and white aesthetic as the games themselves. Create a full-screen interface with appropriate navigation to each game while maintaining visual consistency with the game design principles.
-
-Each game entry on the landing page should have:
-- A play button to launch the game
-- A reset button to clear localStorage data for that specific game
+- If a critical JavaScript error occurs, a simple red full-screen overlay should appear.
+- The error overlay includes a basic warning icon - avoid complex animations for error states.
 
 ---
 
 **Final Notes**
 
 This comprehensive document defines a highly disciplined, minimalist approach to browser-based game development. Every element—from the singular focus on one gameplay mechanic within an endless structure, to the wordless, icon-driven communication and animations—must align to create a unified, immersive desktop experience. The guidelines ensure that from the individual game code to the landing hub interface, every component is coherent, clean, and purpose-driven.
+
+---
+
+Create new game following the guidelines above.
