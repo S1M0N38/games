@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
             description: 'Absorb smaller particles to grow while avoiding larger ones in this minimalist mouse-controlled endless game.',
             path: 'games/particle-pursuit/index.html',
             inputType: 'mouse',
-            fallbackImage: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="160" viewBox="0 0 300 160"><rect width="300" height="160" fill="%23111111"/><circle cx="150" cy="80" r="18" fill="%23FFFFFF"/><circle cx="100" cy="50" r="10" fill="%23999999"/><circle cx="200" cy="60" r="8" fill="%23AAAAAA"/><circle cx="180" cy="120" r="14" fill="%23777777"/><circle cx="90" cy="110" r="6" fill="%23BBBBBB"/><circle cx="230" cy="90" r="22" fill="%23666666"/><circle cx="70" cy="75" r="12" fill="%23888888"/></svg>'
+            fallbackImage: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="160" viewBox="0 0 300 160"><rect width="300" height="160" fill="%23111111"/><circle cx="150" cy="80" r="18" fill="%23FFFFFF"/><circle cx="100" cy="50" r="10" fill="%23999999"/><circle cx="200" cy="60" r="8" fill="%23AAAAAA"/><circle cx="180" cy="120" r="14" fill="%7377777"/><circle cx="90" cy="110" r="6" fill="%23BBBBBB"/><circle cx="230" cy="90" r="22" fill="%23666666"/><circle cx="70" cy="75" r="12" fill="%23888888"/></svg>'
         },
         {
             id: 'void-serpent',
@@ -23,8 +23,8 @@ document.addEventListener('DOMContentLoaded', () => {
             title: 'Space Dodger',
             description: 'Pilot a spaceship through an asteroid field, dodge obstacles and collect power-ups.',
             path: 'games/space-dodger/index.html',
-            inputType: 'keyboard',
-            fallbackImage: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="160" viewBox="0 0 300 160"><rect width="300" height="160" fill="%23111111"/><g transform="translate(150, 100)"><polygon points="0,-25 -15,10 0,5 15,10" fill="%23FFFFFF"/></g><!-- Square --><rect x="50" y="40" width="25" height="25" fill="%23FFFFFF" opacity="0.8"/><!-- Pentagon --><polygon points="248,65 236,82 213,82 205,65 220,49" fill="%23FFFFFF" opacity="0.7"/><!-- Hexagon --><polygon points="80,130 95,130 103,145 95,160 80,160 72,145" fill="%23FFFFFF" opacity="0.75"/><!-- Octagon --><polygon points="230,120 242,125 247,137 242,149 230,154 218,149 213,137 218,125" fill="%23FFFFFF" opacity="0.65"/><!-- Circle --><circle cx="50" cy="90" r="15" fill="%23FFFFFF" opacity="0.7"/></svg>'
+            inputType: 'mouse',
+            fallbackImage: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="160" viewBox="0 0 300 160"><rect width="300" height="160" fill="%23000000"/><g transform="translate(150, 100) rotate(0)"><polygon points="0,-15 -10,10 0,5 10,10" fill="%23FFFFFF"/></g><!-- Regular Asteroids (Darker Grays) --><circle cx="70" cy="50" r="12" fill="%23777777"/><!-- Square --><rect x="220" y="40" width="20" height="20" fill="%23888888" transform="rotate(30, 230, 50)"/><!-- Pentagon --><polygon points="80,130 95.2,120.9 90.5,104.1 69.5,104.1 64.8,120.9" fill="%23999999"/><!-- Hexagon --><polygon points="230,115 243,122 243,138 230,145 217,138 217,122" fill="%23AAAAAA"/></svg>'
         },
         {
             id: 'reaction-dots',

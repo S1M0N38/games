@@ -16,11 +16,13 @@
         ASTEROID_POOL_SIZE: 50,
         STORAGE_KEY_PLAYED: 'space-dodger-played',
         STORAGE_KEY_HIGH_SCORE: 'space-dodger-high-score',
+        INVINCIBILITY_DURATION: 1, // seconds
 
         // Visual settings
         VISUAL: {
-            MAIN_COLOR: '#FFFFFF',
+            MAIN_COLOR: '#FFFFFF', // White for player, particles, UI text
             BLACK: '#000000',
+            GRAY_ASTEROID: '#999999', // Gray for asteroids
             TRANSITION_SPEED: 0.3, // seconds
         },
 
@@ -59,7 +61,7 @@
         },
 
         // Game entities
-        player: null,
+        player: null, // Will be initialized in startIntro/startGame
         asteroids: [],
         particles: [],
 
@@ -286,7 +288,9 @@
             targetY: canvas.height / 2,
             speed: 0.15,
             rotation: 0,
-            active: true
+            active: true,
+            invincible: false, // Added
+            invincibilityTimer: 0 // Added
         };
 
         // Create converging particles for intro effect
@@ -321,12 +325,14 @@
         updateScoreDisplay();
         updateProgressBar(0);
 
-        // Reset player position
+        // Reset player position and state
         gameState.player.x = canvas.width / 2;
         gameState.player.y = canvas.height / 2;
         gameState.player.targetX = canvas.width / 2;
         gameState.player.targetY = canvas.height / 2;
         gameState.player.active = true;
+        gameState.player.invincible = true; // Start invincible
+        gameState.player.invincibilityTimer = CONFIG.INVINCIBILITY_DURATION; // Set timer
 
         // Clear game objects
         gameState.asteroids = [];
@@ -445,6 +451,14 @@
     // ==========================================
     function updatePlayer(delta) {
         if (!gameState.player || !gameState.player.active) return;
+
+        // Update invincibility timer
+        if (gameState.player.invincible) {
+            gameState.player.invincibilityTimer -= delta;
+            if (gameState.player.invincibilityTimer <= 0) {
+                gameState.player.invincible = false;
+            }
+        }
 
         // Smooth movement towards mouse position
         gameState.player.targetX = gameState.mouse.x;
@@ -583,7 +597,7 @@
     }
 
     function checkCollisions() {
-        if (!gameState.player || !gameState.player.active) return;
+        if (!gameState.player || !gameState.player.active || gameState.player.invincible) return; // Skip if invincible
 
         for (const asteroid of gameState.asteroids) {
             const dx = gameState.player.x - asteroid.x;
@@ -646,14 +660,16 @@
         if (gameState.lives <= 0) {
             gameOver();
         } else {
-            // Temporarily disable player to avoid multiple collisions
+            // Temporarily disable player and make invincible after respawn
             gameState.player.active = false;
 
-            // Reset player position after a short delay
+            // Reset player position and activate invincibility after a short delay
             setTimeout(() => {
                 gameState.player.x = canvas.width / 2;
                 gameState.player.y = canvas.height / 2;
                 gameState.player.active = true;
+                gameState.player.invincible = true; // Make invincible on respawn
+                gameState.player.invincibilityTimer = CONFIG.INVINCIBILITY_DURATION; // Reset timer
             }, 1000);
         }
     }
@@ -679,6 +695,15 @@
     function renderPlayer() {
         if (!gameState.player || !gameState.player.active) return;
 
+        // Blinking effect during invincibility
+        if (gameState.player.invincible) {
+            // Blink roughly 5 times per second (10 Hz)
+            const blink = Math.floor(gameState.gameTime * 10) % 2 === 0;
+            if (!blink) {
+                return; // Skip rendering this frame for blinking effect
+            }
+        }
+
         ctx.save();
         ctx.translate(gameState.player.x, gameState.player.y);
         ctx.rotate(gameState.player.rotation);
@@ -697,7 +722,7 @@
     }
 
     function renderAsteroids() {
-        ctx.fillStyle = CONFIG.VISUAL.MAIN_COLOR;
+        ctx.fillStyle = CONFIG.VISUAL.GRAY_ASTEROID; // Use gray for asteroids
 
         for (const asteroid of gameState.asteroids) {
             ctx.save();
@@ -737,7 +762,7 @@
     }
 
     function renderParticles() {
-        ctx.fillStyle = CONFIG.VISUAL.MAIN_COLOR;
+        ctx.fillStyle = CONFIG.VISUAL.MAIN_COLOR; // Keep particles white
 
         for (const particle of gameState.particles) {
             const opacity = particle.life;
