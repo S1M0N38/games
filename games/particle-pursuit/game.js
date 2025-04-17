@@ -17,32 +17,35 @@ const CONFIG = {
         MAX_SIZE: 40,
         MIN_SIZE: 10,
         SPEED_FACTOR: 0.15,
-        SHRINK_RATE: 0.015,
-        GROWTH_FACTOR: 0.5,  // INCREASED from 0.4 for faster growth
-        INVULNERABILITY_TIME: 800,
+        SHRINK_RATE: 0.025, // INCREASED from 0.015 for faster shrinking
+        GROWTH_FACTOR: 0.5,
+        INVULNERABILITY_TIME: 700, // DECREASED from 800
     },
 
     // Particle settings
     PARTICLES: {
         MIN_SIZE: 4,
         MAX_SIZE: 30,
-        MIN_SPEED: 50,      // INCREASED from 30 for faster minimum speed
-        MAX_SPEED: 120,     // INCREASED from 90 for faster maximum speed
-        COUNT: 35,
-        SPAWN_RATE: 3,
-        SAFE_MARGIN: 0.75,
-        DANGER_MARGIN: 1.1,
-        SMALL_PARTICLE_BIAS: 0.7,  // NEW: Higher values = more small particles
+        MIN_SPEED: 180,
+        MAX_SPEED: 280,
+        COUNT: 60,
+        SPAWN_RATE: 5,
+        SAFE_MARGIN: 0.85,
+        DANGER_MARGIN: 1.02,
+        TARGET_VISIBLE_MIN: 20,
+        TARGET_VISIBLE_MAX: 30,
+        TARGET_VISIBLE_SAFE_RATIO: 0.2, // Target ratio of safe (smaller) particles among visible ones
+        VISIBLE_RATIO_TOLERANCE: 0.05, // Allowable deviation from the target ratio before forcing spawns
     },
 
     // Difficulty progression
     DIFFICULTY: {
-        INCREASE_INTERVAL: 10000, // Milliseconds between difficulty increases
-        INCREASE_RATE: 0.1,       // How quickly difficulty increases
-        MAX_LEVEL: 8,             // Maximum difficulty level
-        SPEED_MULTIPLIER: 0.15,  // INCREASED from 0.1 for more aggressive speed increase per level
-        SIZE_MULTIPLIER: 0.05,    // How much larger dangerous particles get
-        COUNT_MULTIPLIER: 0.2,    // How many more particles spawn per level
+        INCREASE_INTERVAL: 8000,
+        INCREASE_RATE: 0.15,
+        MAX_LEVEL: 10,
+        SPEED_MULTIPLIER: 0.22,  // INCREASED from 0.2 (faster speed scaling)
+        SIZE_MULTIPLIER: 0.07,
+        COUNT_MULTIPLIER: 0.25,
     },
 
     // Visual settings
@@ -422,15 +425,68 @@ function spawnParticles() {
         (1 + (game.difficultyLevel - 1) * CONFIG.DIFFICULTY.COUNT_MULTIPLIER);
     const spawnInterval = 1 / spawnRate;
 
-    // Cap particle count based on difficulty
-    const maxParticles = Math.floor(
-        CONFIG.PARTICLES.COUNT * (1 + (game.difficultyLevel - 1) * CONFIG.DIFFICULTY.COUNT_MULTIPLIER)
-    );
+    // Check if it's time to potentially spawn
+    if (game.timeSinceLastSpawn > spawnInterval) {
+        let visibleParticles = 0;
+        let visibleSafeCount = 0;
+        let visibleDangerousCount = 0;
 
-    // Spawn new particles if needed
-    if (game.timeSinceLastSpawn > spawnInterval && game.particles.length < maxParticles) {
-        createParticle();
-        game.timeSinceLastSpawn = 0;
+        // Count visible particles and classify them relative to current player size
+        for (const particle of game.particles) {
+            const isVisible =
+                particle.x + particle.size > 0 &&
+                particle.x - particle.size < canvas.width &&
+                particle.y + particle.size > 0 &&
+                particle.y - particle.size < canvas.height;
+
+            if (isVisible) {
+                visibleParticles++;
+                if (particle.size < game.player.size * CONFIG.PARTICLES.SAFE_MARGIN) {
+                    visibleSafeCount++;
+                } else if (particle.size > game.player.size * CONFIG.PARTICLES.DANGER_MARGIN) {
+                    visibleDangerousCount++;
+                }
+                // Particles in the margin don't count towards safe/dangerous ratio balancing
+            }
+        }
+
+        const currentTotalVisibleRatioRelevant = visibleSafeCount + visibleDangerousCount;
+        const currentSafeRatio = currentTotalVisibleRatioRelevant > 0
+            ? visibleSafeCount / currentTotalVisibleRatioRelevant
+            : CONFIG.PARTICLES.TARGET_VISIBLE_SAFE_RATIO; // Assume target ratio if none are visible yet
+
+        // Overall maximum particle cap (safety)
+        const maxTotalParticles = Math.floor(
+            CONFIG.PARTICLES.COUNT * (1 + (game.difficultyLevel - 1) * CONFIG.DIFFICULTY.COUNT_MULTIPLIER)
+        );
+
+        let spawnedThisFrame = 0;
+        // Spawn if below minimum visible count
+        while (
+            visibleParticles < CONFIG.PARTICLES.TARGET_VISIBLE_MIN &&
+            game.particles.length < maxTotalParticles
+        ) {
+            let forceType = null; // Default: let createParticle decide randomly (20/80)
+
+            // Check if ratio needs correction
+            if (currentSafeRatio > CONFIG.PARTICLES.TARGET_VISIBLE_SAFE_RATIO + CONFIG.PARTICLES.VISIBLE_RATIO_TOLERANCE) {
+                // Too many safe particles visible, force spawn dangerous
+                forceType = 'dangerous';
+            } else if (currentSafeRatio < CONFIG.PARTICLES.TARGET_VISIBLE_SAFE_RATIO - CONFIG.PARTICLES.VISIBLE_RATIO_TOLERANCE) {
+                // Too few safe particles visible, force spawn safe
+                forceType = 'safe';
+            }
+
+            createParticle(forceType);
+            visibleParticles++; // Optimistic increment
+            spawnedThisFrame++;
+            if (spawnedThisFrame > CONFIG.PARTICLES.TARGET_VISIBLE_MIN) break; // Safety break
+        }
+
+        // Reset spawn timer only if we attempted to spawn
+        if (spawnedThisFrame > 0) {
+            game.timeSinceLastSpawn = 0;
+        }
     }
 }
 
@@ -445,8 +501,8 @@ function checkCollisions() {
         const dy = game.player.y - particle.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
 
-        // Combined radii with a small buffer for collision detection
-        const combinedRadius = (game.player.size + particle.size) * 0.8;
+        // Combined radii with a slightly larger buffer for collision detection
+        const combinedRadius = (game.player.size + particle.size) * 0.9; // INCREASED from 0.8
 
         // Check for collision
         if (distance < combinedRadius) {
@@ -458,6 +514,17 @@ function checkCollisions() {
             else if (particle.size > game.player.size * CONFIG.PARTICLES.DANGER_MARGIN) {
                 handleDangerousCollision(particle, dx, dy, distance);
             }
+            // Optional: Handle particles exactly in the margin (neither safe nor dangerous)
+            // else {
+            //     // e.g., push them away slightly without damage or absorption
+            //     if (distance > 0) {
+            //         const pushStrength = 50; // Gentle push
+            //         const normX = dx / distance;
+            //         const normY = dy / distance;
+            //         particle.vx -= normX * pushStrength * game.deltaTime; // Apply push over time
+            //         particle.vy -= normY * pushStrength * game.deltaTime;
+            //     }
+            // }
         }
     }
 }
@@ -653,40 +720,82 @@ function renderPlayer() {
 // ==========================================
 // Particle Creation
 // ==========================================
-function createParticle() {
-    // Size characteristics - adjusted by difficulty
-    const sizeFactor = 1 + (game.difficultyLevel - 1) * CONFIG.DIFFICULTY.SIZE_MULTIPLIER;
-    const minSize = CONFIG.PARTICLES.MIN_SIZE;
-    const maxSize = CONFIG.PARTICLES.MAX_SIZE * sizeFactor;
+function createParticle(forceType = null) {
+    const currentPlayerSize = game.player.size;
+    const difficultyLevel = game.difficultyLevel;
 
-    // Determine particle size with a bias toward smaller particles
-    let size;
+    // Base size characteristics adjusted by difficulty
+    const difficultySizeFactor = 1 + (difficultyLevel - 1) * CONFIG.DIFFICULTY.SIZE_MULTIPLIER;
+    const baseMinSize = CONFIG.PARTICLES.MIN_SIZE;
+    // This baseMaxSize acts more like a general cap or reference now
+    const baseMaxSize = CONFIG.PARTICLES.MAX_SIZE * difficultySizeFactor;
+    // Define an absolute maximum to prevent extreme sizes
+    const absoluteMaxSize = CONFIG.PARTICLES.MAX_SIZE * (1 + (CONFIG.DIFFICULTY.MAX_LEVEL - 1) * CONFIG.DIFFICULTY.SIZE_MULTIPLIER) * 1.3;
 
-    // Generate more small particles based on bias factor
-    const smallParticleBias = CONFIG.PARTICLES.SMALL_PARTICLE_BIAS;
 
-    if (Math.random() < smallParticleBias) {
-        // Create a small, safe-to-eat particle
-        const smallRangeMax = minSize + (maxSize - minSize) * 0.4;
-        size = minSize + Math.random() * (smallRangeMax - minSize);
-    } else if (Math.random() < 0.7) {
-        // Create a medium-sized particle
-        const midMin = minSize + (maxSize - minSize) * 0.4;
-        const midMax = minSize + (maxSize - minSize) * 0.7;
-        size = midMin + Math.random() * (midMax - midMin);
+    // Determine particle size range based on ratio or forced type
+    let minSpawnSize, maxSpawnSize;
+    let shouldBeSmaller;
+
+    if (forceType === 'safe') {
+        shouldBeSmaller = true;
+    } else if (forceType === 'dangerous') {
+        shouldBeSmaller = false;
     } else {
-        // Create a large, dangerous particle
-        const largeMin = minSize + (maxSize - minSize) * 0.7;
-        size = largeMin + Math.random() * (maxSize - largeMin);
+        // Default random 20/80 split if type is not forced
+        shouldBeSmaller = Math.random() < CONFIG.PARTICLES.TARGET_VISIBLE_SAFE_RATIO; // Use config ratio
     }
 
-    // Speed based on size and difficulty (smaller = faster)
-    const speedFactor = 1 + (game.difficultyLevel - 1) * CONFIG.DIFFICULTY.SPEED_MULTIPLIER;
-    const speedRatio = 1 - (size - minSize) / (maxSize - minSize); // 1=smallest, 0=largest
 
-    // Add a base speed boost to all particles
-    const baseSpeedBoost = 1.2;  // 20% faster base speed for all particles
+    if (shouldBeSmaller) {
+        // Generate a particle smaller than the player (Safe/Food)
+        minSpawnSize = baseMinSize;
+        // Target max size is safely below player size
+        maxSpawnSize = Math.max(minSpawnSize + 1, currentPlayerSize * CONFIG.PARTICLES.SAFE_MARGIN);
+        // Clamp to the general base max size for difficulty
+        maxSpawnSize = Math.min(maxSpawnSize, baseMaxSize);
 
+    } else {
+        // Generate a particle larger than the player (Dangerous)
+        // Min size ensures it's noticeably larger than the player's danger threshold
+        minSpawnSize = Math.max(baseMinSize + 1, currentPlayerSize * CONFIG.PARTICLES.DANGER_MARGIN);
+        // Target max size scales significantly with player size
+        maxSpawnSize = Math.max(minSpawnSize + 5, currentPlayerSize * 1.5); // e.g., up to 150% of player size
+        // Apply the absolute overall maximum size cap
+        maxSpawnSize = Math.min(maxSpawnSize, absoluteMaxSize);
+    }
+
+    // Ensure minSpawnSize is strictly less than maxSpawnSize and within global bounds
+    minSpawnSize = Math.max(baseMinSize, minSpawnSize); // Clamp min to global min
+    // Ensure maxSpawnSize respects the absolute max and is greater than minSpawnSize
+    maxSpawnSize = Math.min(absoluteMaxSize, maxSpawnSize);
+    maxSpawnSize = Math.max(minSpawnSize + 1, maxSpawnSize); // Ensure max > min
+
+
+    if (minSpawnSize >= maxSpawnSize) {
+        // Fallback if ranges overlap or become invalid (less likely now but good safety)
+        if (shouldBeSmaller) {
+            minSpawnSize = baseMinSize;
+            maxSpawnSize = Math.min(absoluteMaxSize, baseMinSize + 5); // Small range
+        } else {
+            minSpawnSize = Math.max(baseMinSize, absoluteMaxSize - 5); // Large range near absolute max
+            maxSpawnSize = absoluteMaxSize;
+        }
+        if (minSpawnSize >= maxSpawnSize) { // Final absolute fallback
+            minSpawnSize = baseMinSize;
+            maxSpawnSize = Math.min(absoluteMaxSize, minSpawnSize + 1);
+        }
+    }
+
+    // Generate the actual size within the calculated range
+    const size = minSpawnSize + Math.random() * (maxSpawnSize - minSpawnSize);
+
+    // Speed based on size and difficulty (relative to BASE min/max for consistency)
+    const speedFactor = 1 + (difficultyLevel - 1) * CONFIG.DIFFICULTY.SPEED_MULTIPLIER;
+    // Use the original baseMin/Max for speed scaling to avoid erratic speed changes due to dynamic ranges
+    const referenceMaxSizeForSpeed = CONFIG.PARTICLES.MAX_SIZE * difficultySizeFactor;
+    const speedRatio = 1 - (size - baseMinSize) / Math.max(1, referenceMaxSizeForSpeed - baseMinSize);
+    const baseSpeedBoost = 1.2;
     const speed = lerp(
         CONFIG.PARTICLES.MIN_SPEED,
         CONFIG.PARTICLES.MAX_SPEED * speedFactor,
@@ -701,19 +810,20 @@ function createParticle() {
     // Place particle outside the screen
     let x, y;
     if (Math.random() < 0.5) {
-        // Top or bottom
         x = Math.random() * canvas.width;
         y = Math.random() < 0.5 ? -size : canvas.height + size;
     } else {
-        // Left or right
         x = Math.random() < 0.5 ? -size : canvas.width + size;
         y = Math.random() * canvas.height;
     }
 
-    // Color based on size (larger = darker)
+    // Color based on size (relative to BASE min/max for consistency)
+    const referenceMaxSizeForColor = CONFIG.PARTICLES.MAX_SIZE * difficultySizeFactor;
+    const colorRatio = (size - baseMinSize) / Math.max(1, referenceMaxSizeForColor - baseMinSize);
     const colorIndex = Math.floor(
-        lerp(0, CONFIG.VISUAL.PARTICLE_COLORS.length - 1, (size - minSize) / (maxSize - minSize))
+        lerp(0, CONFIG.VISUAL.PARTICLE_COLORS.length - 1, colorRatio)
     );
+    const clampedColorIndex = Math.max(0, Math.min(CONFIG.VISUAL.PARTICLE_COLORS.length - 1, colorIndex));
 
     // Create the particle
     game.particles.push({
@@ -722,7 +832,7 @@ function createParticle() {
         size,
         vx,
         vy,
-        color: CONFIG.VISUAL.PARTICLE_COLORS[colorIndex]
+        color: CONFIG.VISUAL.PARTICLE_COLORS[clampedColorIndex]
     });
 }
 
