@@ -29,19 +29,31 @@ jobs:
       - name: Setup build directory
         run: |
           # Create build directory
-          mkdir -p _site
-          
+          mkdir -p _site/games
+
           # Copy main files
           cp index.html _site/
           cp style.css _site/
           cp script.js _site/
-          
-          # Copy game files to _site directory
-          for game in $(find games -mindepth 1 -maxdepth 1 -type d); do
-            mkdir -p _site/$game
-            cp -r $game/* _site/$game/
+
+          # Copy the manifest file (still needed by the main script.js)
+          if [ -f "games/manifest.json" ]; then
+            cp games/manifest.json _site/games/
+          else
+            echo "Warning: games/manifest.json not found. The game list might not load correctly."
+            # Don't exit, allow deployment but with potential issues
+          fi
+
+          # Copy all game directories found in the games/ folder
+          echo "Copying all game directories..."
+          for game_dir in $(find games -mindepth 1 -maxdepth 1 -type d); do
+            game_id=$(basename "$game_dir")
+            echo "Copying game: $game_id"
+            mkdir -p _site/games/$game_id
+            # Copy contents of the game directory, excluding the manifest itself if it's at the top level
+            find "$game_dir" -mindepth 1 -maxdepth 1 -exec cp -r {} _site/games/$game_id/ \;
           done
-          
+
           # Copy LICENSE file to _site if it exists
           if [ -f "LICENSE" ]; then
             cp LICENSE _site/
