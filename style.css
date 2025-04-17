@@ -3,21 +3,7 @@
     /* Black and white minimalist design */
     --background-color: #000000;
 
-    .play-button,
-    .reset-button {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 44px;
-        height: 44px;
-        border-radius: 50%;
-        border: none;
-        transition: all 0.3s ease-in-out;
-        cursor: pointer;
-        font-size: 1.2rem;
-    }
-
-    ckground: #111111;
+    --card-background: #111111;
     --card-hover-background: #222222;
     --text-color: #FFFFFF;
     --secondary-text: #AAAAAA;
@@ -163,10 +149,16 @@ header h1 {
     background-color: var(--play-button-bg);
     color: var(--play-button-text);
     text-decoration: none;
+    font-size: 1.4rem;
+    border: 2px solid #FFFFFF;
+    /* Adding a white border */
 }
 
 .play-button:hover {
-    background-color: var(--play-button-hover-bg);
+    background-color: var(--play-button-text);
+    /* Invert: use text color as background */
+    color: var(--play-button-bg);
+    /* Invert: use background color as text */
     transform: scale(1.1);
 }
 
@@ -285,9 +277,21 @@ footer a:hover {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
     min-width: 36px;
     text-align: center;
-    transition: transform 0.3s ease-in-out;
+    transition: all 0.3s ease-in-out;
+    cursor: pointer;
+    /* Make it clear this is clickable */
 }
 
 .high-score-indicator:hover {
+    background-color: var(--error-color);
+    /* Change to red on hover */
+    color: var(--text-color);
+    /* White text on red background */
     transform: scale(1.1);
+}
+
+/* Add reset icon on hover */
+.high-score-indicator:hover::after {
+    content: " ↺";
+    margin-left: 3px;
 }

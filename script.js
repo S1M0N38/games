@@ -119,7 +119,7 @@ function createGameCard(game) {
     img.alt = `${game.title} preview`;
     img.src = game.fallbackImage;
 
-    // Build card structure
+    // Build card structure - remove the reset button
     card.innerHTML = `
         <div class="game-image"></div>
         <div class="game-info">
@@ -127,7 +127,6 @@ function createGameCard(game) {
             <p>${game.description}</p>
             <div class="button-container">
                 <a href="${game.path}" class="play-button" title="Play ${game.title}">▶</a>
-                <button class="reset-button" data-game-id="${game.id}" title="Reset ${game.title} data">↺</button>
             </div>
         </div>
     `;
@@ -140,6 +139,16 @@ function createGameCard(game) {
         const indicator = document.createElement('div');
         indicator.className = 'high-score-indicator';
         indicator.textContent = highScore;
+        indicator.title = `Click to reset ${game.title} data`;
+
+        // Make the high score indicator clickable to reset game data
+        indicator.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            resetGameData(game.id);
+            indicator.remove();
+        });
+
         card.querySelector('.game-image').appendChild(indicator);
     } else if (hasPlayed) {
         // Fallback to simple indicator if played but no high score
@@ -147,17 +156,6 @@ function createGameCard(game) {
         indicator.className = 'game-played-indicator';
         card.querySelector('.game-image').appendChild(indicator);
     }
-
-    // Add event listener to reset button
-    card.querySelector('.reset-button').addEventListener('click', (e) => {
-        e.preventDefault();
-        resetGameData(game.id);
-        // Remove any indicator
-        const highScoreIndicator = card.querySelector('.high-score-indicator');
-        const playedIndicator = card.querySelector('.game-played-indicator');
-        if (highScoreIndicator) highScoreIndicator.remove();
-        if (playedIndicator) playedIndicator.remove();
-    });
 
     // Add event listener to play button to mark game as played
     card.querySelector('.play-button').addEventListener('click', () => {
