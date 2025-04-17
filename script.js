@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
             description: 'Pilot a spaceship through an asteroid field, dodge obstacles and collect power-ups.',
             path: 'games/space-dodger/index.html',
             inputType: 'mouse',
-            fallbackImage: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="160" viewBox="0 0 300 160"><rect width="300" height="160" fill="%23000000"/><g transform="translate(150, 100) rotate(0)"><polygon points="0,-15 -10,10 0,5 10,10" fill="%23FFFFFF"/></g><!-- Regular Asteroids (Darker Grays) --><circle cx="70" cy="50" r="12" fill="%23777777"/><!-- Square --><rect x="220" y="40" width="20" height="20" fill="%23888888" transform="rotate(30, 230, 50)"/><!-- Pentagon --><polygon points="80,130 95.2,120.9 90.5,104.1 69.5,104.1 64.8,120.9" fill="%23999999"/><!-- Hexagon --><polygon points="230,115 243,122 243,138 230,145 217,138 217,122" fill="%23AAAAAA"/></svg>'
+            fallbackImage: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="160" viewBox="0 0 300 160"><rect width="300" height="160" fill="%23000000"/><g transform="translate(150, 100) rotate(0)"><polygon points="0,-15 -10,10 0,5 10,10" fill="%23FFFFFF"/></g><!-- Regular Asteroids (Darker Grays) --><circle cx="70" cy="50" r="12" fill="%7377777"/><!-- Square --><rect x="220" y="40" width="20" height="20" fill="%23888888" transform="rotate(30, 230, 50)"/><!-- Pentagon --><polygon points="80,130 95.2,120.9 90.5,104.1 69.5,104.1 64.8,120.9" fill="%23999999"/><!-- Hexagon --><polygon points="230,115 243,122 243,138 230,145 217,138 217,122" fill="%23AAAAAA"/></svg>'
         },
         {
             id: 'reaction-dots',
@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
             description: 'Manipulate gravity to capture celestial objects while avoiding hazards. A physics-based challenge.',
             path: 'games/gravity-field/index.html',
             inputType: 'mouse',
-            fallbackImage: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="160" viewBox="0 0 300 160"><rect width="300" height="160" fill="%23111111"/><!-- Collection zone in center --><circle cx="150" cy="80" r="20" fill="none" stroke="%23FFFFFF" stroke-width="2" stroke-dasharray="5,3" opacity="0.7"/><!-- Gravity field rings --><circle cx="110" cy="100" r="40" fill="none" stroke="%23FFFFFF" stroke-width="1" opacity="0.2"/><circle cx="110" cy="100" r="30" fill="none" stroke="%23FFFFFF" stroke-width="1" opacity="0.3"/><circle cx="110" cy="100" r="20" fill="none" stroke="%23FFFFFF" stroke-width="1" opacity="0.4"/><circle cx="110" cy="100" r="10" fill="none" stroke="%23FFFFFF" stroke-width="1" opacity="0.5"/><!-- Target celestial objects --><circle cx="180" cy="60" r="10" fill="%23FFFFFF" opacity="0.9"/><circle cx="200" cy="120" r="7" fill="%23FFFFFF" opacity="0.9"/><circle cx="70" cy="50" r="12" fill="%23FFFFFF" opacity="0.9"/><!-- Hazard objects --><polygon points="220,45 235,70 205,70" fill="%23999999" opacity="0.7"/><rect x="80" y="120" width="20" height="20" fill="%23999999" opacity="0.7"/></svg>'
+            fallbackImage: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="160" viewBox="0 0 300 160"><rect width="300" height="160" fill="%23000000"/><!-- Collection zone (planet) --><circle cx="150" cy="80" r="30" fill="%23FFFFFF"/><!-- Gravity field effect --><circle cx="90" cy="70" r="25" fill="none" stroke="%23FFFFFF" stroke-width="1.5" opacity="0.4"/><circle cx="90" cy="70" r="18" fill="none" stroke="%23FFFFFF" stroke-width="1.5" opacity="0.6"/><circle cx="90" cy="70" r="10" fill="none" stroke="%23FFFFFF" stroke-width="1.5" opacity="0.8"/><!-- Target objects --><circle cx="200" cy="50" r="8" fill="%23FFFFFF"/><circle cx="220" cy="100" r="10" fill="%23FFFFFF"/><!-- Hazard objects --><polygon points="70,40 60,57 80,57" fill="%23666666"/><polygon points="210,110 200,127 220,127" fill="%23666666"/></svg>'
         }
         // More games will be added here as developed
     ];    // Render all games to the DOM
@@ -105,7 +105,12 @@ function createGameCard(game) {
     // Specific key for reaction-dots
     if (game.id === 'reaction-dots') {
         storedScore = localStorage.getItem('reactionDotsHighScore');
-    } else {
+    }
+    // Specific key for gravity-field
+    else if (game.id === 'gravity-field') {
+        storedScore = localStorage.getItem('gravityFieldHighScore');
+    }
+    else {
         // Convert ID formats (e.g., "void-serpent" to "voidSerpent" for camelCase keys)
         const camelCaseId = game.id.replace(/-([a-z])/g, (g) => g[1].toUpperCase());
 
@@ -116,7 +121,6 @@ function createGameCard(game) {
             localStorage.getItem(`${camelCaseId}HighScore`) ||
             localStorage.getItem(`${game.id.replace(/-/g, "_")}_high_score`);
     }
-
 
     if (storedScore && !isNaN(parseInt(storedScore))) {
         highScore = parseInt(storedScore);
@@ -213,7 +217,12 @@ function resetGameData(gameId) {
     // Specific key for reaction-dots
     if (gameId === 'reaction-dots') {
         localStorage.removeItem('reactionDotsHighScore');
-    } else {
+    }
+    // Specific key for gravity-field
+    else if (gameId === 'gravity-field') {
+        localStorage.removeItem('gravityFieldHighScore');
+    }
+    else {
         // Clear high scores in all possible formats for other games
         const camelCaseId = gameId.replace(/-([a-z])/g, (g) => g[1].toUpperCase());
 
@@ -224,7 +233,6 @@ function resetGameData(gameId) {
         localStorage.removeItem(`${camelCaseId}HighScore`);
         localStorage.removeItem(`${gameId.replace(/-/g, "_")}_high_score`);
     }
-
 
     // Clear any other game-specific data (optional, if games store more)
     const keysToRemove = [];

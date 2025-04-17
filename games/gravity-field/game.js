@@ -1,11 +1,10 @@
 /**
  * Gravity Field - A physics-based space game
- * Control a gravity field to capture objects and avoid hazards
+ * Control a gravity field to attract objects to the center
  */
 
-// ==========================================
 // Game constants
-// ==========================================
+// Update visual settings to make planet larger and more visible
 const CONFIG = {
     // Game settings
     INITIAL_LIVES: 3,
@@ -13,44 +12,40 @@ const CONFIG = {
 
     // Visual settings
     VISUAL: {
-        MAIN_COLOR: '#FFFFFF',
-        SECONDARY_COLOR: '#999999',
-        TARGET_COLOR: '#FFFFFF',
-        HAZARD_COLOR: '#666666',
-        COLLECTION_ZONE_COLOR: 'rgba(255, 255, 255, 0.3)',
+        TARGET_COLOR: '#FFFFFF',        // Pure white for safe objects
+        HAZARD_COLOR: '#666666',        // Medium gray for hazard objects
+        COLLECTION_ZONE_COLOR: '#FFFFFF', // Pure white for visibility
         COLLECTION_ZONE_BORDER: '#FFFFFF',
-        GRAVITY_FIELD_COLOR: 'rgba(255, 255, 255, 0.2)',
-        TRANSITION_SPEED: 0.3, // seconds
-        COLLECTION_ZONE_RADIUS: 50,
-        COLLECTION_PULSE_DURATION: 2, // seconds
-        SCREEN_SHAKE_DURATION: 0.3, // seconds
-        SCREEN_SHAKE_INTENSITY: 5, // pixels
+        COLLECTION_ZONE_RADIUS: 80,     // Increased from 50 to 80 for better visibility
+        COLLECTION_PULSE_AMOUNT: 0.08,  // Subtle pulse amount
+        SCREEN_SHAKE_DURATION: 0.3,     // seconds
+        SCREEN_SHAKE_INTENSITY: 5,      // pixels
     },
 
-    // Physics/gameplay constants
+    // Physics constants
     PHYSICS: {
-        GRAVITY_STRENGTH: 5000, // Base strength of gravity field
-        GRAVITY_FALLOFF: 1.5, // Power for inverse distance gravity falloff
-        MIN_OBJECT_SPEED: 20, // Minimum initial speed
-        MAX_OBJECT_SPEED: 50, // Maximum initial speed
-        MAX_OBJECT_ROTATION: Math.PI / 2, // Maximum rotation speed
-        SPAWN_RATE_INITIAL: 3, // Objects per second
-        SPAWN_RATE_MAX: 8, // Maximum spawn rate
-        DIFFICULTY_INCREASE_RATE: 0.05, // How quickly difficulty increases
-        MIN_OBJECT_SIZE: 8,
-        MAX_OBJECT_SIZE: 20,
-        HAZARD_CHANCE_INITIAL: 0.2, // Initial probability of spawning a hazard
-        HAZARD_CHANCE_MAX: 0.5, // Maximum probability of spawning a hazard
-        OFFSCREEN_BUFFER: 100, // How far objects can go off screen before being removed
+        GRAVITY_STRENGTH: 6000,         // Increased to handle larger objects
+        GRAVITY_FALLOFF: 1.5,           // Power for inverse distance gravity falloff
+        MIN_OBJECT_SPEED: 15,           // Reduced speed slightly for larger objects
+        MAX_OBJECT_SPEED: 40,
+        MAX_OBJECT_ROTATION: Math.PI / 3,
+        SPAWN_RATE_INITIAL: 1.5,        // Reduced from 3 to 1.5 for fewer objects
+        SPAWN_RATE_MAX: 4,              // Reduced from 8 to 4 for fewer objects
+        DIFFICULTY_INCREASE_RATE: 0.04, // Reduced to balance fewer objects
+        MIN_OBJECT_SIZE: 15,            // Increased from 8 to 15 for larger objects
+        MAX_OBJECT_SIZE: 35,            // Increased from 20 to 35 for larger objects
+        HAZARD_CHANCE_INITIAL: 0.2,
+        HAZARD_CHANCE_MAX: 0.5,
+        OFFSCREEN_BUFFER: 100,
     },
 
-    // Object type constants
+    // Object types
     OBJECT_TYPE: {
         TARGET: 'target',
         HAZARD: 'hazard',
     },
 
-    // Various states the game can be in
+    // Game states
     GAME_STATE: {
         INTRO: 'intro',
         PLAYING: 'playing',
@@ -60,9 +55,7 @@ const CONFIG = {
     }
 };
 
-// ==========================================
 // Game state
-// ==========================================
 const gameState = {
     // Core game state
     state: CONFIG.GAME_STATE.INTRO,
@@ -71,7 +64,7 @@ const gameState = {
     highScore: 0,
     isPlaying: false,
     isPaused: false,
-    difficulty: 0, // Increases over time, affects spawn rate and object speed
+    difficulty: 0,
 
     // Animation and timing
     lastTime: 0,
@@ -81,7 +74,7 @@ const gameState = {
     lastSpawnTime: 0,
     gameTime: 0,
 
-    // Screenflow animation state
+    // Screen effects
     screenShake: {
         active: false,
         duration: 0,
@@ -89,15 +82,15 @@ const gameState = {
         intensity: 0
     },
 
-    // Input state
+    // Mouse input state
     mouse: {
         x: 0,
         y: 0,
         isDown: false
     },
 
-    // Game-specific state variables
-    objects: [], // Array of all active celestial objects
+    // Game objects
+    objects: [],
     gravityField: {
         active: false,
         x: 0,
@@ -107,45 +100,37 @@ const gameState = {
         pulseTime: 0
     },
     collectionZone: {
-        x: 0, // Will be set to center of screen
-        y: 0, // Will be set to center of screen
+        x: 0,
+        y: 0,
         radius: CONFIG.VISUAL.COLLECTION_ZONE_RADIUS,
         pulseTime: 0
     },
-    effects: [] // Visual effects like explosions, trails, etc.
+    effects: []
 };
 
-// ==========================================
 // DOM elements
-// ==========================================
 let canvas, ctx;
 let scoreDisplay, livesContainer;
 let helpButton, helpPanel, closeHelp;
 let pauseOverlay, gameOverOverlay, finalScoreDisplay, highScoreDisplay, restartButton;
 let errorOverlay;
 
-// ==========================================
 // Initialization
-// ==========================================
 function initGame() {
     try {
         // Get DOM elements
         canvas = document.getElementById('game-canvas');
         ctx = canvas.getContext('2d');
-
         scoreDisplay = document.getElementById('score');
         livesContainer = document.getElementById('lives-container');
-
         helpButton = document.getElementById('help-button');
         helpPanel = document.getElementById('help-panel');
         closeHelp = document.getElementById('close-help');
-
         pauseOverlay = document.getElementById('pause-overlay');
         gameOverOverlay = document.getElementById('game-over');
         finalScoreDisplay = document.getElementById('final-score');
         highScoreDisplay = document.getElementById('high-score');
         restartButton = document.getElementById('restart-button');
-
         errorOverlay = document.getElementById('error-overlay');
 
         // Set canvas dimensions
@@ -161,10 +146,10 @@ function initGame() {
         // Add event listeners
         addEventListeners();
 
-        // Initialize game-specific elements
+        // Initialize game elements
         initializeGameElements();
 
-        // Start in intro state
+        // Start intro
         startIntro();
 
     } catch (error) {
@@ -172,9 +157,7 @@ function initGame() {
     }
 }
 
-// ==========================================
 // Setup functions
-// ==========================================
 function resizeCanvas() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
@@ -205,9 +188,9 @@ function addEventListeners() {
     canvas.addEventListener('mousemove', handleMouseMove);
     canvas.addEventListener('mousedown', handleMouseDown);
     canvas.addEventListener('mouseup', handleMouseUp);
-    canvas.addEventListener('mouseleave', handleMouseUp); // Also disable gravity when mouse leaves canvas
+    canvas.addEventListener('mouseleave', handleMouseUp);
 
-    // Universal keyboard controls
+    // Keyboard controls for pause and quit
     document.addEventListener('keydown', (event) => {
         switch (event.key) {
             case 'Escape':
@@ -236,9 +219,7 @@ function initializeGameElements() {
     gameState.effects = [];
 }
 
-// ==========================================
 // UI functions
-// ==========================================
 function toggleHelpPanel() {
     helpPanel.classList.toggle('hidden');
 }
@@ -251,14 +232,10 @@ function togglePause() {
     pauseOverlay.classList.toggle('hidden', !gameState.isPaused);
 
     if (gameState.isPaused) {
-        // Clear any animation frame
         cancelAnimationFrame(gameState.animationFrameId);
-
-        // Clear any active timers
         gameState.timers.forEach(timer => clearTimeout(timer));
         gameState.timers = [];
     } else {
-        // Resume game loop
         gameState.lastTime = performance.now();
         gameLoop(gameState.lastTime);
     }
@@ -275,15 +252,13 @@ function navigateToLanding() {
     window.location.href = '../../index.html';
 }
 
-// ==========================================
 // Game state functions
-// ==========================================
 function startIntro() {
     gameState.state = CONFIG.GAME_STATE.INTRO;
     gameState.isPlaying = false;
     gameState.isPaused = false;
 
-    // Create some background objects for the intro animation
+    // Create some background objects for the intro
     for (let i = 0; i < 10; i++) {
         spawnRandomObject();
     }
@@ -291,7 +266,7 @@ function startIntro() {
     // Render the intro state once
     render();
 
-    // Auto-transition to game after short delay
+    // Auto-start game after short delay
     setTimeout(() => {
         startGame();
     }, 2000);
@@ -363,7 +338,7 @@ function gameOver() {
     // Add game over implosion effect
     addImplosionEffect();
 
-    // Show game over overlay after a short delay
+    // Show game over overlay after a delay
     setTimeout(() => {
         gameOverOverlay.classList.remove('hidden');
     }, 1500);
@@ -410,9 +385,7 @@ function addImplosionEffect() {
     requestAnimationFrame(renderImplosion);
 }
 
-// ==========================================
 // Input handlers
-// ==========================================
 function handleMouseMove(event) {
     gameState.mouse.x = event.clientX;
     gameState.mouse.y = event.clientY;
@@ -445,9 +418,7 @@ function handleMouseUp() {
     canvas.classList.remove('active-gravity');
 }
 
-// ==========================================
 // Game loop
-// ==========================================
 function gameLoop(timestamp) {
     if (!gameState.isPlaying || gameState.isPaused) return;
 
@@ -475,9 +446,7 @@ function gameLoop(timestamp) {
     }
 }
 
-// ==========================================
 // Object creation
-// ==========================================
 function spawnRandomObject() {
     // Determine if this is a target or hazard
     const hazardChance = Math.min(
@@ -488,7 +457,7 @@ function spawnRandomObject() {
     const isHazard = Math.random() < hazardChance;
     const type = isHazard ? CONFIG.OBJECT_TYPE.HAZARD : CONFIG.OBJECT_TYPE.TARGET;
 
-    // Randomly position object at the edge of the screen
+    // Position object at the edge of the screen
     const side = Math.floor(Math.random() * 4); // 0: top, 1: right, 2: bottom, 3: left
     let x, y;
 
@@ -511,8 +480,8 @@ function spawnRandomObject() {
             break;
     }
 
-    // Calculate direction toward a random point on screen (for movement)
-    const targetX = canvas.width * (0.2 + Math.random() * 0.6); // Avoid extreme edges
+    // Calculate direction toward a random point on screen
+    const targetX = canvas.width * (0.2 + Math.random() * 0.6);
     const targetY = canvas.height * (0.2 + Math.random() * 0.6);
 
     const dx = targetX - x;
@@ -529,10 +498,10 @@ function spawnRandomObject() {
     const velocityX = (dx / distance) * speed;
     const velocityY = (dy / distance) * speed;
 
-    // Size and mass properties - make hazards larger
+    // Size and mass properties
     let size;
     if (isHazard) {
-        // Hazards are 1.5x larger to be more visible
+        // Hazards are larger to be more visible
         size = (CONFIG.PHYSICS.MIN_OBJECT_SIZE * 1.5) +
             Math.random() * ((CONFIG.PHYSICS.MAX_OBJECT_SIZE * 1.5) - (CONFIG.PHYSICS.MIN_OBJECT_SIZE * 1.5));
     } else {
@@ -540,7 +509,7 @@ function spawnRandomObject() {
             Math.random() * (CONFIG.PHYSICS.MAX_OBJECT_SIZE - CONFIG.PHYSICS.MIN_OBJECT_SIZE);
     }
 
-    // Hazards are more angular, targets are rounder
+    // Hazards are polygons, targets are circles
     const vertices = isHazard ? generateHazardVertices(size) : null;
 
     // Create the object
@@ -568,7 +537,6 @@ function generateHazardVertices(size) {
 
     for (let i = 0; i < numVertices; i++) {
         const angle = (i / numVertices) * Math.PI * 2;
-        // Increase minimum variance from 0.25 to 0.6 for better visibility
         const variance = 0.6 + Math.random() * 0.3; // 0.6 to 0.9
         const vertexSize = size * variance;
 
@@ -581,9 +549,7 @@ function generateHazardVertices(size) {
     return vertices;
 }
 
-// ==========================================
 // Update and render
-// ==========================================
 function update(deltaTime) {
     // Update difficulty based on time
     updateDifficulty(deltaTime);
@@ -718,26 +684,14 @@ function updateEffects(deltaTime) {
 }
 
 function cleanupObjects() {
-    // Remove objects that have left the screen
+    // Remove objects that have left the screen without life penalty
     const buffer = CONFIG.PHYSICS.OFFSCREEN_BUFFER;
 
     gameState.objects = gameState.objects.filter(obj => {
-        const isOffscreen = (
-            obj.x < -buffer ||
+        return !(obj.x < -buffer ||
             obj.x > canvas.width + buffer ||
             obj.y < -buffer ||
-            obj.y > canvas.height + buffer
-        );
-
-        // If a target leaves the screen, lose a life
-        if (isOffscreen && obj.type === CONFIG.OBJECT_TYPE.TARGET) {
-            // Only consider objects that were on screen for a sufficient time
-            if (gameState.gameTime - obj.created > 1) {
-                reduceLife();
-            }
-        }
-
-        return !isOffscreen;
+            obj.y > canvas.height + buffer);
     });
 }
 
@@ -783,9 +737,7 @@ function addHazardEffect() {
     });
 }
 
-// ==========================================
 // Rendering functions
-// ==========================================
 function render() {
     // Prepare canvas context
     ctx.save();
@@ -797,7 +749,7 @@ function render() {
     // Apply screen shake if active
     if (gameState.screenShake.active) {
         const intensity = gameState.screenShake.intensity *
-            (gameState.screenShake.timeRemaining / gameState.screenShake.duration);
+            (gameState.screenShake.timeRemaining / CONFIG.VISUAL.SCREEN_SHAKE_DURATION);
         ctx.translate(
             Math.random() * intensity * 2 - intensity,
             Math.random() * intensity * 2 - intensity
@@ -850,26 +802,24 @@ function renderGame() {
 }
 
 function renderCollectionZone() {
-    // Calculate pulse effect
-    const pulseProgress = gameState.collectionZone.pulseTime / CONFIG.VISUAL.COLLECTION_PULSE_DURATION;
-    const pulseScale = 1 + Math.sin(pulseProgress * Math.PI * 2) * 0.05;
-
-    // Draw collection zone (circle with pulsing effect)
+    // Draw the planet (a simple white circle) at the center of the screen
     ctx.beginPath();
     ctx.arc(
         gameState.collectionZone.x,
         gameState.collectionZone.y,
-        gameState.collectionZone.radius * pulseScale,
+        CONFIG.VISUAL.COLLECTION_ZONE_RADIUS,
         0,
         Math.PI * 2
     );
+
+    // Fill with solid white
+    ctx.fillStyle = CONFIG.VISUAL.COLLECTION_ZONE_COLOR;
+    ctx.fill();
+
+    // Add a white border for better definition
     ctx.strokeStyle = CONFIG.VISUAL.COLLECTION_ZONE_BORDER;
     ctx.lineWidth = 2;
     ctx.stroke();
-
-    // Fill with translucent color
-    ctx.fillStyle = CONFIG.VISUAL.COLLECTION_ZONE_COLOR;
-    ctx.fill();
 }
 
 function renderGravityField() {
@@ -908,13 +858,13 @@ function renderObject(obj) {
     ctx.rotate(obj.rotation);
 
     if (obj.type === CONFIG.OBJECT_TYPE.TARGET) {
-        // Targets are circles
+        // Targets are white circles
         ctx.beginPath();
         ctx.arc(0, 0, obj.size / 2, 0, Math.PI * 2);
-        ctx.fillStyle = CONFIG.VISUAL.TARGET_COLOR;
+        ctx.fillStyle = CONFIG.VISUAL.TARGET_COLOR; // Pure white
         ctx.fill();
     } else {
-        // Hazards are polygons
+        // Hazards are gray polygons
         ctx.beginPath();
         ctx.moveTo(obj.vertices[0].x, obj.vertices[0].y);
 
@@ -923,7 +873,7 @@ function renderObject(obj) {
         }
 
         ctx.closePath();
-        ctx.fillStyle = CONFIG.VISUAL.HAZARD_COLOR;
+        ctx.fillStyle = CONFIG.VISUAL.HAZARD_COLOR; // Gray
         ctx.fill();
     }
 
@@ -959,9 +909,7 @@ function renderEffects() {
     });
 }
 
-// ==========================================
 // Error handling
-// ==========================================
 function handleError(message, error) {
     console.error(message, error);
     gameState.state = CONFIG.GAME_STATE.ERROR;
@@ -972,7 +920,5 @@ function showErrorOverlay() {
     errorOverlay.classList.remove('hidden');
 }
 
-// ==========================================
-// Initialization
-// ==========================================
+// Initialize the game when DOM is loaded
 document.addEventListener('DOMContentLoaded', initGame);

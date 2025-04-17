@@ -11,11 +11,11 @@
 
     /* Animation */
     --transition-speed: 0.3s;
-    --glow-size: 10px;
+    --transition-timing: ease-in-out;
     --pulse-duration: 2s;
 }
 
-/* =========== Base Styles =========== */
+/* Base Styles */
 * {
     margin: 0;
     padding: 0;
@@ -41,7 +41,7 @@ body {
     align-items: center;
 }
 
-/* =========== Game Canvas =========== */
+/* Game Canvas */
 #game-canvas {
     position: absolute;
     top: 0;
@@ -53,10 +53,10 @@ body {
 }
 
 #game-canvas.active-gravity {
-    cursor: none; /* Hide cursor when creating gravity field */
+    cursor: none;
+    /* Hide cursor when creating gravity field */
 }
 
-/* =========== UI Elements =========== */
 /* Lives indicator (top-left) */
 #lives-container {
     position: absolute;
@@ -72,7 +72,7 @@ body {
     height: 15px;
     border-radius: 50%;
     background-color: var(--white);
-    transition: opacity var(--transition-speed) ease-in-out;
+    transition: opacity var(--transition-speed) var(--transition-timing);
 }
 
 .life.lost {
@@ -102,7 +102,7 @@ body {
     align-items: center;
     cursor: pointer;
     font-size: 20px;
-    transition: background-color var(--transition-speed) ease-in-out;
+    transition: background-color var(--transition-speed) var(--transition-timing);
     z-index: 10;
 }
 
@@ -110,7 +110,6 @@ body {
     background-color: var(--gray-dark);
 }
 
-/* =========== Panels and Overlays =========== */
 /* Help panel */
 #help-panel {
     position: absolute;
@@ -121,8 +120,8 @@ body {
     padding: 20px;
     border-radius: 5px;
     max-width: 300px;
-    transition: opacity var(--transition-speed) ease-in-out,
-        transform var(--transition-speed) ease-in-out;
+    transition: opacity var(--transition-speed) var(--transition-timing),
+        transform var(--transition-speed) var(--transition-timing);
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     line-height: 1.6;
     z-index: 20;
@@ -168,7 +167,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: opacity var(--transition-speed) ease-in-out;
+    transition: opacity var(--transition-speed) var(--transition-timing);
     z-index: 30;
 }
 
@@ -198,7 +197,7 @@ body {
     justify-content: center;
     align-items: center;
     gap: 20px;
-    transition: opacity var(--transition-speed) ease-in-out;
+    transition: opacity var(--transition-speed) var(--transition-timing);
     z-index: 30;
 }
 
@@ -219,7 +218,7 @@ body {
     border: 3px solid var(--white);
     position: relative;
     cursor: pointer;
-    transition: background-color var(--transition-speed) ease-in-out;
+    transition: background-color var(--transition-speed) var(--transition-timing);
 }
 
 #restart-button:after {
@@ -249,9 +248,10 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    animation: error-border 0.5s infinite alternate;
-    transition: opacity var(--transition-speed) ease-in-out;
+    animation: error-tremble 0.1s infinite linear;
+    transition: opacity var(--transition-speed) var(--transition-timing);
     z-index: 100;
+    border: 5px solid var(--white);
 }
 
 #error-overlay.hidden {
@@ -286,16 +286,18 @@ body {
     transform: rotate(-45deg);
 }
 
-/* =========== Gravity Field Specific Animations =========== */
+/* Gravity Field Specific Animations */
 @keyframes collection-zone-pulse {
     0% {
         transform: scale(1);
         opacity: 0.5;
     }
+
     50% {
-        transform: scale(1.05);
+        transform: scale(1.15);
         opacity: 0.7;
     }
+
     100% {
         transform: scale(1);
         opacity: 0.5;
@@ -306,23 +308,13 @@ body {
     0% {
         opacity: 0.2;
     }
+
     50% {
         opacity: 0.8;
     }
+
     100% {
         opacity: 0.2;
-    }
-}
-
-@keyframes screen-shake {
-    0%, 100% {
-        transform: translateX(0);
-    }
-    25% {
-        transform: translateX(-5px);
-    }
-    75% {
-        transform: translateX(5px);
     }
 }
 
@@ -331,20 +323,49 @@ body {
         transform: scale(0.8);
         opacity: 0.7;
     }
+
     100% {
         transform: scale(1.5);
         opacity: 0;
     }
 }
 
-/* =========== Standard Animations =========== */
-@keyframes error-border {
-    from {
-        box-shadow: inset 0 0 0 5px var(--white);
+/* Standard Animations */
+@keyframes error-tremble {
+    0% {
+        transform: translate(1px, 1px);
     }
 
-    to {
-        box-shadow: inset 0 0 0 15px var(--white);
+    25% {
+        transform: translate(-1px, -2px);
+    }
+
+    50% {
+        transform: translate(-1px, 0px);
+    }
+
+    75% {
+        transform: translate(1px, 2px);
+    }
+
+    100% {
+        transform: translate(1px, -1px);
+    }
+}
+
+@keyframes screen-shake {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-5px);
+    }
+
+    75% {
+        transform: translateX(5px);
     }
 }
 
@@ -365,28 +386,7 @@ body {
     }
 }
 
-@keyframes fade-in {
-    from {
-        opacity: 0;
-    }
-
-    to {
-        opacity: 1;
-    }
-}
-
-@keyframes fade-out {
-    from {
-        opacity: 1;
-    }
-
-    to {
-        opacity: 0;
-    }
-}
-
-/* =========== Media Queries =========== */
-/* Game is desktop-only by design, but ensuring canvas responsiveness */
+/* Media Queries */
 @media (max-width: 768px) {
     #score-container {
         font-size: 24px;
