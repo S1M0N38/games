@@ -79,15 +79,18 @@ function renderGames(games) {
 }
 
 /**
- * Creates a game card element
+ * Creates a game card element which is a clickable link
  * @param {Object} game - Game data object
- * @returns {HTMLElement} - Game card DOM element
+ * @returns {HTMLElement} - Game card anchor DOM element
  */
 function createGameCard(game) {
-    const card = document.createElement('div');
-    card.className = 'game-card';
-    card.setAttribute('data-game-id', game.id);
-    card.setAttribute('data-input-type', game.inputType);
+    // Create an anchor element that wraps the entire card
+    const cardLink = document.createElement('a');
+    cardLink.href = game.path;
+    cardLink.className = 'game-card'; // Apply card styling to the anchor
+    cardLink.setAttribute('data-game-id', game.id);
+    cardLink.setAttribute('data-input-type', game.inputType);
+    cardLink.title = `Play ${game.title}`; // Add title for accessibility
 
     // Check if game has been played before
     const hasPlayed = localStorage.getItem(`game_played_${game.id}`) === 'true';
@@ -118,24 +121,25 @@ function createGameCard(game) {
     img.alt = `${game.title} preview`;
     img.src = game.fallbackImage;
 
-    // Build card structure - removed description
-    card.innerHTML = `
-        <div class="game-image"></div>
+    // Build card structure within the anchor tag
+    cardLink.innerHTML = `
+        <div class="game-image">
+            <!-- Image will be inserted here -->
+        </div>
         <div class="game-info">
             <h2>${game.title}</h2>
-            <div class="button-container">
-                <a href="${game.path}" class="play-button" title="Play ${game.title}">▶</a>
-            </div>
         </div>
+        <div class="game-card-overlay"></div>
+        <div class="game-card-play-graphic"></div> <!-- Changed class, removed text content -->
     `;
 
-    // Insert image
-    card.querySelector('.game-image').appendChild(img);
+    // Insert image into its container
+    cardLink.querySelector('.game-image').appendChild(img);
 
-    // Add hover effects for play button
-    const playButton = card.querySelector('.play-button');
-    playButton.addEventListener('mouseenter', () => card.classList.add('highlight-card'));
-    playButton.addEventListener('mouseleave', () => card.classList.remove('highlight-card'));
+    // Remove hover effects for the old play button
+    // const playButton = card.querySelector('.play-button'); // Button removed
+    // playButton.addEventListener('mouseenter', () => card.classList.add('highlight-card')); // Logic removed
+    // playButton.addEventListener('mouseleave', () => card.classList.remove('highlight-card')); // Logic removed
 
     // Add high score indicator if applicable
     if (hasPlayed && highScore !== null) {
@@ -146,26 +150,31 @@ function createGameCard(game) {
 
         // Make the high score indicator clickable to reset game data
         indicator.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
+            e.preventDefault(); // Prevent navigation when clicking reset
+            e.stopPropagation(); // Prevent card click event
             resetGameData(game.id, game.storageKey); // Pass storageKey
             indicator.remove();
+            // Optionally remove the 'played' status visually if needed,
+            // though resetGameData handles the localStorage part.
         });
 
-        card.querySelector('.game-image').appendChild(indicator);
-    } else if (hasPlayed) {
-        // Fallback to simple indicator if played but no high score
-        const indicator = document.createElement('div');
-        indicator.className = 'game-played-indicator';
-        card.querySelector('.game-image').appendChild(indicator);
+        // Append indicator to the image container, which is inside the link
+        cardLink.querySelector('.game-image').appendChild(indicator);
     }
+    // Removed the 'game-played-indicator' as the high score or lack thereof implies played status
 
-    // Add event listener to play button to mark game as played
-    card.querySelector('.play-button').addEventListener('click', () => {
+    // Add event listener to the card link itself to mark game as played
+    // This ensures it's marked even if the user opens in a new tab
+    cardLink.addEventListener('click', () => {
+        localStorage.setItem(`game_played_${game.id}`, 'true');
+    });
+    // Also handle context menu (right-click -> open in new tab)
+    cardLink.addEventListener('contextmenu', () => {
         localStorage.setItem(`game_played_${game.id}`, 'true');
     });
 
-    return card;
+
+    return cardLink; // Return the anchor element
 }
 
 /**
