@@ -130,7 +130,7 @@ An example template for a game folder structure is as follows:
    - Brainstorm 2–3 concepts for endless gameplay experiences.
    - Select the idea that best satisfies simplicity, clarity, a singular input method (either keyboard or mouse), strong animation potential, and an elegant difficulty progression.
    - Consider classic endless games for inspiration: Snake, Tetris, Asteroids, Flappy Bird, etc.
-   - Do not repeat existing games listed in the [README.md](../../README.md) of the repository.
+   - Do not repeat existing games listed in the [manifest.json](../games/manifest.json).
 
 2. **Game Design Document (GDD) (1 day)**:
 

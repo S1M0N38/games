@@ -1,14 +1,16 @@
 // Vibe Games - Main JavaScript
 document.addEventListener('DOMContentLoaded', async () => {
     try {
-        // Fetch the list of game IDs from the manifest file
+        // Fetch the game manifest object
         const manifestResponse = await fetch('games/manifest.json');
         if (!manifestResponse.ok) {
             throw new Error(`HTTP error! status: ${manifestResponse.status}`);
         }
-        const gameIds = await manifestResponse.json();
+        const gameManifest = await manifestResponse.json();
+        // Extract game IDs (keys) from the manifest object
+        const gameIds = Object.keys(gameManifest);
 
-        // Fetch game data dynamically based on the IDs from the manifest
+        // Fetch game data dynamically based on the IDs
         const games = await loadGameData(gameIds);
 
         // Render all games to the DOM

@@ -1,9 +1,9 @@
-[
-    "particle-pursuit",
-    "void-serpent",
-    "space-dodger",
-    "reaction-dots",
-    "balance-beam",
-    "gravity-field",
-    "orbit-dodge"
-]
+{
+    "particle-pursuit": "Absorb smaller particles to grow while avoiding larger ones.",
+    "void-serpent": "Navigate a serpent through the void to consume light fragments without colliding with boundaries or yourself.",
+    "space-dodger": "Pilot a spaceship through an asteroid field and dodge obstacles.",
+    "reaction-dots": "Test your reflexes by clicking on dots when they change color.",
+    "balance-beam": "Test your precision by keeping a ball balanced on a tilting beam.",
+    "gravity-field": "Manipulate gravity to capture celestial objects while avoiding hazards.",
+    "orbit-dodge": "Click to change orbit direction and avoid incoming obstacles."
+}
