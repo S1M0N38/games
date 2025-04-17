@@ -1,0 +1,8 @@
+{
+    "id": "echo-pulse",
+    "title": "Echo Pulse",
+    "description": "Press spacebar when expanding pulse rings align with the target ring. A minimalist rhythm game testing your timing precision.",
+    "inputType": "keyboard",
+    "storageKey": "echoPulseHighScore",
+    "fallbackImage": "data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"300\" height=\"160\" viewBox=\"0 0 300 160\"><rect width=\"300\" height=\"160\" fill=\"%23111111\"/><!-- Target Ring --><circle cx=\"150\" cy=\"80\" r=\"50\" stroke=\"%23999999\" stroke-width=\"2\" fill=\"none\"/><!-- Pulse Rings at different stages --><circle cx=\"150\" cy=\"80\" r=\"20\" stroke=\"%23FFFFFF\" stroke-width=\"1.5\" fill=\"none\" opacity=\"0.9\"/><!-- Inner pulse --><circle cx=\"150\" cy=\"80\" r=\"35\" stroke=\"%23FFFFFF\" stroke-width=\"1.5\" fill=\"none\" opacity=\"0.7\"/><!-- Approaching pulse --><circle cx=\"150\" cy=\"80\" r=\"50\" stroke=\"%23FFFFFF\" stroke-width=\"2\" fill=\"none\" opacity=\"1\"/><!-- Perfect hit pulse --><circle cx=\"150\" cy=\"80\" r=\"65\" stroke=\"%23FFFFFF\" stroke-width=\"1.5\" fill=\"none\" opacity=\"0.6\"/><!-- Outer pulse --><circle cx=\"150\" cy=\"80\" r=\"80\" stroke=\"%23FFFFFF\" stroke-width=\"1.5\" fill=\"none\" opacity=\"0.3\"/><!-- Central Emitter --><circle cx=\"150\" cy=\"80\" r=\"8\" fill=\"%23FFFFFF\"/></svg>"
+}
