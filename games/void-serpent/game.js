@@ -12,6 +12,7 @@ const CONFIG = {
     INITIAL_SPEED: 10, // Initial frames per movement
     MAX_SPEED: 5, // Maximum speed (minimum frames per movement)
     SPEED_INCREMENT: 0.05, // How much speed increases per fragment collected
+    BOOST_SPEED_MULTIPLIER: 2.5, // Speed multiplier when space is pressed (Adjusted from 2)
     INITIAL_LENGTH: 5, // Starting length of serpent
     FRAGMENT_TYPES: ['circle', 'square', 'triangle'], // Different fragment shapes
     STORAGE_KEY: 'voidSerpentHighScore',
@@ -66,12 +67,13 @@ const gameState = {
     pulseRadius: 0,
     trail: [],
 
-    // Input tracking (for future expansion)
+    // Input tracking
     keys: {
         left: false,
         right: false,
         up: false,
-        down: false
+        down: false,
+        space: false // Track space key state
     }
 };
 
@@ -141,6 +143,7 @@ function resizeCanvas() {
 function addEventListeners() {
     // Keyboard controls
     window.addEventListener('keydown', handleKeydown);
+    window.addEventListener('keyup', handleKeyup); // Add keyup listener
 
     // Help button toggle
     helpButton.addEventListener('click', toggleHelpPanel);
@@ -225,7 +228,7 @@ function gameOver() {
     // Show game over overlay
     document.getElementById('final-score').textContent = gameState.score;
     document.getElementById('high-score').textContent = gameState.highScore;
-    gameOverOverlay.classList.remove('hidden');
+    gameOverOverlay.classList.remove('hidden'); // Restore this line
 }
 
 // ==========================================
@@ -262,6 +265,11 @@ function handleKeydown(e) {
                 gameState.nextDirection = { x: 1, y: 0 };
             }
             break;
+        case ' ': // Space key
+            if (gameState.state === CONFIG.GAME_STATE.PLAYING && !gameState.isPaused) {
+                gameState.keys.space = true;
+            }
+            break;
         case 'Escape':
             // Toggle pause state
             togglePause();
@@ -277,6 +285,15 @@ function handleKeydown(e) {
             if (!gameState.isPlaying) {
                 startGame();
             }
+            break;
+    }
+}
+
+// Add a handler for keyup events
+function handleKeyup(e) {
+    switch (e.key) {
+        case ' ': // Space key
+            gameState.keys.space = false;
             break;
     }
 }
@@ -328,8 +345,13 @@ function update(timestamp) {
     // Only update game logic if playing and not paused
     if (gameState.state !== CONFIG.GAME_STATE.PLAYING || gameState.isPaused) return;
 
+    // Determine current speed based on space key state
+    const currentFramesPerMovement = gameState.keys.space
+        ? Math.max(1, gameState.framesPerMovement / CONFIG.BOOST_SPEED_MULTIPLIER) // Ensure speed doesn't go below 1 frame
+        : gameState.framesPerMovement;
+
     // Update movement based on frames
-    if (timestamp - gameState.lastMoveTime > (1000 / 60) * gameState.framesPerMovement) {
+    if (timestamp - gameState.lastMoveTime > (1000 / 60) * currentFramesPerMovement) {
         gameState.lastMoveTime = timestamp;
 
         // Apply nextDirection to current direction

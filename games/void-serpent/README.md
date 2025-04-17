@@ -24,6 +24,7 @@ The game features a single, refined mechanic: navigating a constantly moving ser
 ## Controls
 - **Input Method**: Keyboard only
 - **Movement**: Arrow keys for directional control (Up, Down, Left, Right)
+- **Boost Speed**: Spacebar (hold to move faster)
 - **Pause/Resume**: Escape key
 - **Exit Game**: Q key returns to landing page
 
