@@ -3,7 +3,7 @@
 A collection of minimalist browser-based games implemented using only HTML, CSS, and JavaScript, following a strict black and white aesthetic.
 
 > [!NOTE]
-> Read [CONTRIBUTING.md](CONTRIBUTING.md) for testing your prompting skills and create a new game! 
+> Read [CONTRIBUTING.md](CONTRIBUTING.md) and test your prompting skills by creating a new game in seconds!
 
 ## Features
 
