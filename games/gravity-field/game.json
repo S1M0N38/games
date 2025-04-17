@@ -1,0 +1,8 @@
+{
+    "id": "gravity-field",
+    "title": "Gravity Field",
+    "description": "Manipulate gravity to capture celestial objects while avoiding hazards. A physics-based challenge.",
+    "inputType": "mouse",
+    "storageKey": "gravityFieldHighScore",
+    "fallbackImage": "data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"300\" height=\"160\" viewBox=\"0 0 300 160\"><rect width=\"300\" height=\"160\" fill=\"%23111111\"/><!-- Collection zone (planet) --><circle cx=\"150\" cy=\"80\" r=\"30\" fill=\"%23FFFFFF\"/><!-- Gravity field effect --><circle cx=\"90\" cy=\"70\" r=\"25\" fill=\"none\" stroke=\"%23FFFFFF\" stroke-width=\"1.5\" opacity=\"0.4\"/><circle cx=\"90\" cy=\"70\" r=\"18\" fill=\"none\" stroke=\"%23FFFFFF\" stroke-width=\"1.5\" opacity=\"0.6\"/><circle cx=\"90\" cy=\"70\" r=\"10\" fill=\"none\" stroke=\"%23FFFFFF\" stroke-width=\"1.5\" opacity=\"0.8\"/><!-- Target objects --><circle cx=\"200\" cy=\"50\" r=\"8\" fill=\"%23FFFFFF\"/><circle cx=\"220\" cy=\"100\" r=\"10\" fill=\"%23FFFFFF\"/><!-- Hazard objects --><polygon points=\"70,40 60,57 80,57\" fill=\"%23666666\"/><polygon points=\"210,110 200,127 220,127\" fill=\"%23666666\"/></svg>"
+}

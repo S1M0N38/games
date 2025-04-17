@@ -1,71 +1,54 @@
 // Vibe Games - Main JavaScript
-document.addEventListener('DOMContentLoaded', () => {
-    // Game collection data
-    const games = [
-        {
-            id: 'particle-pursuit',
-            title: 'Particle Pursuit',
-            description: 'Absorb smaller particles to grow while avoiding larger ones in this minimalist mouse-controlled endless game.',
-            path: 'games/particle-pursuit/index.html',
-            inputType: 'mouse',
-            fallbackImage: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="160" viewBox="0 0 300 160"><rect width="300" height="160" fill="%23111111"/><circle cx="150" cy="80" r="18" fill="%23FFFFFF"/><circle cx="100" cy="50" r="10" fill="%23999999"/><circle cx="200" cy="60" r="8" fill="%23AAAAAA"/><circle cx="180" cy="120" r="14" fill="%7377777"/><circle cx="90" cy="110" r="6" fill="%23BBBBBB"/><circle cx="230" cy="90" r="22" fill="%23666666"/><circle cx="70" cy="75" r="12" fill="%23888888"/></svg>'
-        },
-        {
-            id: 'void-serpent',
-            title: 'Void Serpent',
-            description: 'Navigate a serpent through the void to consume light fragments without colliding with boundaries or yourself.',
-            path: 'games/void-serpent/index.html',
-            inputType: 'keyboard',
-            fallbackImage: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="160" viewBox="0 0 300 160"><rect width="300" height="160" fill="%23111111"/><path d="M140,80 L155,80 L170,80 L185,80 L200,80 L200,95 L185,95 L170,95 L155,95 L140,95 L125,95 L110,95 L110,80 L125,80 L140,80" fill="%23FFFFFF"/><rect x="170" y="50" width="15" height="15" fill="%23FFFFFF" opacity="0.8"/><rect x="200" y="120" width="15" height="15" fill="%23FFFFFF" opacity="0.8"/><circle cx="230" cy="70" r="10" fill="%23FFFFFF" opacity="0.8"/></svg>'
-        },
-        {
-            id: 'space-dodger',
-            title: 'Space Dodger',
-            description: 'Pilot a spaceship through an asteroid field, dodge obstacles and collect power-ups.',
-            path: 'games/space-dodger/index.html',
-            inputType: 'mouse',
-            fallbackImage: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="160" viewBox="0 0 300 160"><rect width="300" height="160" fill="%23111111"/><g transform="translate(150, 100) rotate(0)"><polygon points="0,-15 -10,10 0,5 10,10" fill="%23FFFFFF"/></g><!-- Regular Asteroids (Darker Grays) --><circle cx="70" cy="50" r="12" fill="%23888888"/><!-- Square --><rect x="220" y="40" width="20" height="20" fill="%23888888" transform="rotate(30, 230, 50)"/><!-- Pentagon --><polygon points="80,130 95.2,120.9 90.5,104.1 69.5,104.1 64.8,120.9" fill="%23999999"/><!-- Hexagon --><polygon points="230,115 243,122 243,138 230,145 217,138 217,122" fill="%23AAAAAA"/></svg>'
-        },
-        {
-            id: 'reaction-dots',
-            title: 'Reaction Dots',
-            description: 'Test your reflexes by clicking on dots when they change color. Quick reactions lead to higher scores!',
-            path: 'games/reaction-dots/index.html',
-            inputType: 'mouse',
-            fallbackImage: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="160" viewBox="0 0 300 160"><rect width="300" height="160" fill="%23111111"/><circle cx="90" cy="50" r="12" fill="%23666666"/><circle cx="140" cy="50" r="12" fill="%23666666"/><circle cx="190" cy="50" r="12" fill="%23666666"/><circle cx="240" cy="50" r="12" fill="%23666666"/><circle cx="90" cy="90" r="12" fill="%23666666"/><circle cx="140" cy="90" r="12" fill="%23FFFFFF"/><circle cx="190" cy="90" r="12" fill="%23666666"/><circle cx="240" cy="90" r="12" fill="%23666666"/><circle cx="90" cy="130" r="12" fill="%23666666"/><circle cx="140" cy="130" r="12" fill="%23666666"/><circle cx="190" cy="130" r="12" fill="%23666666"/><circle cx="240" cy="130" r="12" fill="%23666666"/><circle cx="140" cy="90" r="20" fill="none" stroke="%23FFFFFF" stroke-width="2" opacity="0.3"/></svg>'
-        },
-        {
-            id: 'balance-beam',
-            title: 'Balance Beam',
-            description: 'Test your precision by keeping a ball balanced on a tilting beam for as long as possible.',
-            path: 'games/balance-beam/index.html',
-            inputType: 'keyboard',
-            fallbackImage: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="160" viewBox="0 0 300 160"><rect width="300" height="160" fill="%23111111"/><rect x="50" y="100" width="200" height="4" fill="%23999999" transform="rotate(-8, 150, 100)"/><circle cx="125" cy="90" r="12" fill="%23FFFFFF"/></svg>' // Updated beam color to gray (#999999)
-        },
-        {
-            id: 'gravity-field',
-            title: 'Gravity Field',
-            description: 'Manipulate gravity to capture celestial objects while avoiding hazards. A physics-based challenge.',
-            path: 'games/gravity-field/index.html',
-            inputType: 'mouse',
-            fallbackImage: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="160" viewBox="0 0 300 160"><rect width="300" height="160" fill="%23111111"/><!-- Collection zone (planet) --><circle cx="150" cy="80" r="30" fill="%23FFFFFF"/><!-- Gravity field effect --><circle cx="90" cy="70" r="25" fill="none" stroke="%23FFFFFF" stroke-width="1.5" opacity="0.4"/><circle cx="90" cy="70" r="18" fill="none" stroke="%23FFFFFF" stroke-width="1.5" opacity="0.6"/><circle cx="90" cy="70" r="10" fill="none" stroke="%23FFFFFF" stroke-width="1.5" opacity="0.8"/><!-- Target objects --><circle cx="200" cy="50" r="8" fill="%23FFFFFF"/><circle cx="220" cy="100" r="10" fill="%23FFFFFF"/><!-- Hazard objects --><polygon points="70,40 60,57 80,57" fill="%23666666"/><polygon points="210,110 200,127 220,127" fill="%23666666"/></svg>'
-        },
-        {
-            id: 'orbit-dodge',
-            title: 'Orbit Dodge',
-            description: 'Click to change orbit direction and avoid incoming obstacles.',
-            path: 'games/orbit-dodge/index.html',
-            inputType: 'mouse',
-            fallbackImage: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="160" viewBox="0 0 300 160"><rect width="300" height="160" fill="%23111111"/><circle cx="150" cy="80" r="40" stroke="%23FFFFFF" stroke-width="1" stroke-dasharray="5 10" fill="none"/><circle cx="190" cy="80" r="10" fill="%23FFFFFF"/><rect x="80" y="40" width="15" height="15" fill="%23999999"/><rect x="220" y="110" width="15" height="15" fill="%23999999"/></svg>'
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        // Fetch the list of game IDs from the manifest file
+        const manifestResponse = await fetch('games/manifest.json');
+        if (!manifestResponse.ok) {
+            throw new Error(`HTTP error! status: ${manifestResponse.status}`);
         }
-        // More games will be added here as developed
-    ];
-    // Render all games to the DOM
-    renderGames(games);
+        const gameIds = await manifestResponse.json();
 
-    // Add subtle entrance animations
-    animateGameCards();
+        // Fetch game data dynamically based on the IDs from the manifest
+        const games = await loadGameData(gameIds);
+
+        // Render all games to the DOM
+        renderGames(games);
+
+        // Add subtle entrance animations
+        animateGameCards();
+    } catch (error) {
+        console.error("Failed to load game list or game data:", error);
+        // Optionally display an error message to the user in the UI
+        const gamesListElement = document.getElementById('gamesList');
+        gamesListElement.innerHTML = '<p class="error-message">Could not load games. Please try again later.</p>';
+    }
 });
+
+/**
+ * Fetches game metadata from game.json files in specified directories.
+ * @param {string[]} gameIds - An array of game IDs (directory names).
+ * @returns {Promise<Array>} - A promise that resolves to an array of game data objects.
+ */
+async function loadGameData(gameIds) {
+    const gameDataPromises = gameIds.map(async (id) => {
+        try {
+            const response = await fetch(`games/${id}/game.json`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            // Ensure the path is correctly set relative to the root index.html
+            data.path = `games/${id}/index.html`;
+            return data;
+        } catch (error) {
+            console.error(`Failed to load game data for ${id}:`, error);
+            return null; // Return null for games that failed to load
+        }
+    });
+
+    const results = await Promise.all(gameDataPromises);
+    return results.filter(data => data !== null); // Filter out any null results
+}
 
 /**
  * Renders game cards into the games list container
@@ -107,29 +90,22 @@ function createGameCard(game) {
     // Check if game has been played before
     const hasPlayed = localStorage.getItem(`game_played_${game.id}`) === 'true';
 
-    // Get high score if it exists - check all possible key formats
+    // Get high score if it exists - use the storageKey from game.json if available
     let highScore = null;
     let storedScore = null;
+    const storageKey = game.storageKey || `${game.id}HighScore`; // Use specific key or default
 
-    // Specific key for reaction-dots
-    if (game.id === 'reaction-dots') {
-        storedScore = localStorage.getItem('reactionDotsHighScore');
-    }
-    // Specific key for gravity-field
-    else if (game.id === 'gravity-field') {
-        storedScore = localStorage.getItem('gravityFieldHighScore');
-    }
-    else {
-        // Convert ID formats (e.g., "void-serpent" to "voidSerpent" for camelCase keys)
+    storedScore = localStorage.getItem(storageKey);
+
+    // Fallback checks for older keys if specific key not found or missing in json
+    if (!storedScore) {
         const camelCaseId = game.id.replace(/-([a-z])/g, (g) => g[1].toUpperCase());
-
-        // Check all common localStorage key patterns for other games
         storedScore = localStorage.getItem(`highscore_${game.id}`) ||
             localStorage.getItem(`${game.id}-high-score`) ||
-            localStorage.getItem(`${game.id}HighScore`) ||
             localStorage.getItem(`${camelCaseId}HighScore`) ||
             localStorage.getItem(`${game.id.replace(/-/g, "_")}_high_score`);
     }
+
 
     if (storedScore && !isNaN(parseInt(storedScore))) {
         highScore = parseInt(storedScore);
@@ -170,7 +146,7 @@ function createGameCard(game) {
         indicator.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            resetGameData(game.id);
+            resetGameData(game.id, game.storageKey); // Pass storageKey
             indicator.remove();
         });
 
@@ -222,30 +198,25 @@ function animateGameCards() {
 /**
  * Resets all localStorage data for a specific game
  * @param {string} gameId - ID of the game to reset
+ * @param {string} [storageKey] - Optional specific storage key from game.json
  */
-function resetGameData(gameId) {
+function resetGameData(gameId, storageKey) {
     // Clear game played status
     localStorage.removeItem(`game_played_${gameId}`);
 
-    // Specific key for reaction-dots
-    if (gameId === 'reaction-dots') {
-        localStorage.removeItem('reactionDotsHighScore');
+    // Clear the specific high score key if provided
+    if (storageKey) {
+        localStorage.removeItem(storageKey);
     }
-    // Specific key for gravity-field
-    else if (gameId === 'gravity-field') {
-        localStorage.removeItem('gravityFieldHighScore');
-    }
-    else {
-        // Clear high scores in all possible formats for other games
-        const camelCaseId = gameId.replace(/-([a-z])/g, (g) => g[1].toUpperCase());
 
-        // Clear all possible high score formats
-        localStorage.removeItem(`highscore_${gameId}`);
-        localStorage.removeItem(`${gameId}-high-score`);
-        localStorage.removeItem(`${gameId}HighScore`);
-        localStorage.removeItem(`${camelCaseId}HighScore`);
-        localStorage.removeItem(`${gameId.replace(/-/g, "_")}_high_score`);
-    }
+    // Clear high scores in all possible fallback formats
+    const camelCaseId = gameId.replace(/-([a-z])/g, (g) => g[1].toUpperCase());
+    localStorage.removeItem(`highscore_${gameId}`);
+    localStorage.removeItem(`${gameId}-high-score`);
+    localStorage.removeItem(`${gameId}HighScore`);
+    localStorage.removeItem(`${camelCaseId}HighScore`);
+    localStorage.removeItem(`${gameId.replace(/-/g, "_")}_high_score`);
+
 
     // Clear any other game-specific data (optional, if games store more)
     const keysToRemove = [];
@@ -253,12 +224,9 @@ function resetGameData(gameId) {
         const key = localStorage.key(i);
         // More robust check if other keys might exist for the game
         if (key && (key.startsWith(gameId) || key.includes(gameId))) {
-            // Avoid removing the 'game_played_' key again if it matches
-            if (key !== `game_played_${gameId}`) {
-                // Also avoid removing the specific reaction-dots key again if it matches
-                if (gameId !== 'reaction-dots' || key !== 'reactionDotsHighScore') {
-                    keysToRemove.push(key);
-                }
+            // Avoid removing keys already handled
+            if (key !== `game_played_${gameId}` && key !== storageKey) {
+                keysToRemove.push(key);
             }
         }
     }

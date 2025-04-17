@@ -1,0 +1,8 @@
+{
+    "id": "example-game",
+    "title": "Example Game Title",
+    "description": "A brief description of the example game. Explain the goal and basic mechanics.",
+    "inputType": "keyboard or mouse",
+    "storageKey": "exampleGameHighScore",
+    "fallbackImage": "data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"300\" height=\"160\" viewBox=\"0 0 300 160\"><rect width=\"300\" height=\"160\" fill=\"%23111111\"/><text x=\"50%\" y=\"50%\" dominant-baseline=\"middle\" text-anchor=\"middle\" font-family=\"Arial\" font-size=\"20\" fill=\"%23FFFFFF\">Example Game</text></svg>"
+}

@@ -1,0 +1,8 @@
+{
+    "id": "orbit-dodge",
+    "title": "Orbit Dodge",
+    "description": "Click to change orbit direction and avoid incoming obstacles.",
+    "inputType": "mouse",
+    "storageKey": "orbitDodgeHighScore",
+    "fallbackImage": "data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"300\" height=\"160\" viewBox=\"0 0 300 160\"><rect width=\"300\" height=\"160\" fill=\"%23111111\"/><circle cx=\"150\" cy=\"80\" r=\"40\" stroke=\"%23FFFFFF\" stroke-width=\"1\" stroke-dasharray=\"5 10\" fill=\"none\"/><circle cx=\"190\" cy=\"80\" r=\"10\" fill=\"%23FFFFFF\"/><rect x=\"80\" y=\"40\" width=\"15\" height=\"15\" fill=\"%23999999\"/><rect x=\"220\" y=\"110\" width=\"15\" height=\"15\" fill=\"%23999999\"/></svg>"
+}

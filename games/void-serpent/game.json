@@ -1,0 +1,9 @@
+{
+    "id": "void-serpent",
+    "title": "Void Serpent",
+    "description": "Navigate a serpent through the void to consume light fragments without colliding with boundaries or yourself.",
+    "path": "games/void-serpent/index.html",
+    "inputType": "keyboard",
+    "storageKey": "voidSerpentHighScore",
+    "fallbackImage": "data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"300\" height=\"160\" viewBox=\"0 0 300 160\"><rect width=\"300\" height=\"160\" fill=\"%23111111\"/><path d=\"M140,80 L155,80 L170,80 L185,80 L200,80 L200,95 L185,95 L170,95 L155,95 L140,95 L125,95 L110,95 L110,80 L125,80 L140,80\" fill=\"%23FFFFFF\"/><rect x=\"170\" y=\"50\" width=\"15\" height=\"15\" fill=\"%23FFFFFF\" opacity=\"0.8\"/><rect x=\"200\" y=\"120\" width=\"15\" height=\"15\" fill=\"%23FFFFFF\" opacity=\"0.8\"/><circle cx=\"230\" cy=\"70\" r=\"10\" fill=\"%23FFFFFF\" opacity=\"0.8\"/></svg>"
+}
