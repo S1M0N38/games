@@ -1,0 +1,8 @@
+{
+    "github.copilot.chat.edits.codesearch.enabled": true,
+    "github.copilot.chat.commitMessageGeneration.instructions": [
+        {
+            "file": ".github/commit-message-instructions.md"
+        }
+    ],
+}
