@@ -192,7 +192,7 @@ function animateGameCards() {
     cards.forEach((card, index) => {
         card.style.opacity = '0';
         card.style.transform = 'translateY(20px)';
-        card.style.animationDelay = `${index * 0.1}s`;
+        card.style.animationDelay = `${index * 0.05}s`; // Reduced delay multiplier from 0.1s
         observer.observe(card);
     });
 }
