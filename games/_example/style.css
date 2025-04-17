@@ -11,10 +11,10 @@
 
     /* Animation */
     --transition-speed: 0.3s;
+    --transition-timing: ease-in-out;
     --glow-size: 10px;
 }
 
-/* =========== Base Styles =========== */
 * {
     margin: 0;
     padding: 0;
@@ -40,7 +40,6 @@ body {
     align-items: center;
 }
 
-/* =========== Game Canvas =========== */
 #game-canvas {
     position: absolute;
     top: 0;
@@ -50,8 +49,7 @@ body {
     background-color: var(--black);
 }
 
-/* =========== UI Elements =========== */
-/* Lives indicator (top-left) */
+/* Lives indicator */
 #lives-container {
     position: absolute;
     top: 20px;
@@ -66,14 +64,14 @@ body {
     height: 15px;
     border-radius: 50%;
     background-color: var(--white);
-    transition: opacity var(--transition-speed) ease-in-out;
+    transition: opacity var(--transition-speed) var(--transition-timing);
 }
 
 .life.lost {
     opacity: 0.3;
 }
 
-/* Score display (top-right) */
+/* Score display */
 #score-container {
     position: absolute;
     top: 20px;
@@ -82,7 +80,7 @@ body {
     z-index: 10;
 }
 
-/* Help button (bottom-right) */
+/* Help button */
 #help-button {
     position: absolute;
     bottom: 20px;
@@ -96,7 +94,7 @@ body {
     align-items: center;
     cursor: pointer;
     font-size: 20px;
-    transition: background-color var(--transition-speed) ease-in-out;
+    transition: background-color var(--transition-speed) var(--transition-timing);
     z-index: 10;
 }
 
@@ -104,7 +102,6 @@ body {
     background-color: var(--gray-dark);
 }
 
-/* =========== Panels and Overlays =========== */
 /* Help panel */
 #help-panel {
     position: absolute;
@@ -115,8 +112,8 @@ body {
     padding: 20px;
     border-radius: 5px;
     max-width: 300px;
-    transition: opacity var(--transition-speed) ease-in-out,
-        transform var(--transition-speed) ease-in-out;
+    transition: opacity var(--transition-speed) var(--transition-timing),
+        transform var(--transition-speed) var(--transition-timing);
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     line-height: 1.6;
     z-index: 20;
@@ -162,7 +159,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: opacity var(--transition-speed) ease-in-out;
+    transition: opacity var(--transition-speed) var(--transition-timing);
     z-index: 30;
 }
 
@@ -192,7 +189,7 @@ body {
     justify-content: center;
     align-items: center;
     gap: 20px;
-    transition: opacity var(--transition-speed) ease-in-out;
+    transition: opacity var(--transition-speed) var(--transition-timing);
     z-index: 30;
 }
 
@@ -213,7 +210,7 @@ body {
     border: 3px solid var(--white);
     position: relative;
     cursor: pointer;
-    transition: background-color var(--transition-speed) ease-in-out;
+    transition: background-color var(--transition-speed) var(--transition-timing);
 }
 
 #restart-button:after {
@@ -241,11 +238,13 @@ body {
     height: 100%;
     background-color: var(--red);
     display: flex;
+    /* Keep flex for centering icon */
     justify-content: center;
     align-items: center;
-    animation: error-border 0.5s infinite alternate;
-    transition: opacity var(--transition-speed) ease-in-out;
+    animation: error-tremble 0.1s infinite linear;
+    transition: opacity var(--transition-speed) var(--transition-timing);
     z-index: 100;
+    border: 5px solid var(--white);
 }
 
 #error-overlay.hidden {
@@ -280,14 +279,26 @@ body {
     transform: rotate(-45deg);
 }
 
-/* =========== Animations =========== */
-@keyframes error-border {
-    from {
-        box-shadow: inset 0 0 0 5px var(--white);
+/* Animations */
+@keyframes error-tremble {
+    0% {
+        transform: translate(1px, 1px);
     }
 
-    to {
-        box-shadow: inset 0 0 0 15px var(--white);
+    25% {
+        transform: translate(-1px, -2px);
+    }
+
+    50% {
+        transform: translate(-1px, 0px);
+    }
+
+    75% {
+        transform: translate(1px, 2px);
+    }
+
+    100% {
+        transform: translate(1px, -1px);
     }
 }
 
@@ -328,8 +339,7 @@ body {
     }
 }
 
-/* =========== Media Queries =========== */
-/* Game is desktop-only by design, but ensuring canvas responsiveness */
+/* Media Queries */
 @media (max-width: 768px) {
     #score-container {
         font-size: 24px;
