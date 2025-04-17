@@ -17,6 +17,7 @@ These guidelines outline the process for creating simple, engaging browser-based
   - `index.html`: The game container and HTML elements
   - `style.css`: Game styling and animations
   - `game.js`: Game logic and mechanics
+  - `game.json`: Metadata about the game (title, description, input type, etc.)
   - `README.md`: Game documentation (including the full in-line Game Design Document)
 
 ---

@@ -19,6 +19,7 @@ These guidelines outline the process for creating simple, engaging browser-based
   - `index.html`: The game container and HTML elements
   - `style.css`: Game styling and animations
   - `game.js`: Game logic and mechanics
+  - `game.json`: Metadata about the game (title, description, input type, etc.)
   - `README.md`: Game documentation (including the full in-line Game Design Document)
 
 ---
@@ -111,8 +112,8 @@ These guidelines outline the process for creating simple, engaging browser-based
      - Controls (mouse OR keyboard only).
      - Technical approach (Canvas vs. DOM, animation techniques, state management).
      - Visual feedback guidelines.
+     
 3. **Implementation Best Practices**:
-
    - Separate concerns: HTML for structure, CSS for presentation, JavaScript for behavior.
    - Use `requestAnimationFrame` for all animations to ensure smooth performance.
    - Emphasize code modularity, clear state management, and proper event cleanup.
@@ -161,6 +162,7 @@ These guidelines outline the process for creating simple, engaging browser-based
    - `index.html`: Game container and HTML structure.
    - `style.css`: Game-specific styling.
    - `game.js`: Game logic and mechanics.
+   - `game.json`: Game metadata.
    - `README.md`: Contains the integrated GDD with all game specifications.
 
 3. The game must run directly in the browser without any build or server-side processes.
@@ -190,10 +192,11 @@ These guidelines outline the process for creating simple, engaging browser-based
 │   ├── game1
 │   │   ├── game.js
 │   │   ├── index.html
-│   │   ├── README.md (includes integrated GDD)
-│   │   └── style.css
+│   │   ├── style.css
+│   │   ├── game.json
+│   │   └── README.md (includes integrated GDD)
 │   ├── game2
-│   └── ... (up to a total of 10 games)
+│   └── ...
 ├── index.html         (Landing page hub)
 ├── style.css          (Styling for the landing page)
 ├── script.js          (Interactivity for the landing hub)
@@ -213,6 +216,7 @@ An example template for a game folder structure is as follows:
 - [game.js](../../games/_example/game.js)
 - [index.html](../../games/_example/index.html)
 - [style.css](../../games/_example/style.css)
+- [game.json](../../games/_example/game.json)
 
 ---
 
@@ -246,6 +250,15 @@ An example template for a game folder structure is as follows:
 
    - Clean up code and ensure it adheres to style guidelines.
    - Include the full GDD in the README.md.
+
+6. **Create Metadata File (Final Step)**:
+   - Create the `game.json` file.
+   - Populate it with the game's `id` (unique identifier, e.g., "my-cool-game"), `title` (display name), `description` (short summary), `inputType` (must be exactly "keyboard" or "mouse"), and `storageKey` (unique key for localStorage high score, e.g., "myCoolGameHighScore").
+   - Create a `fallbackImage`: This is a thumbnail preview for the game hub. Use an SVG data URI for this. The SVG should be simple, represent the game visually using only black, white, and grayscale, and adhere to the overall minimalist aesthetic.
+    Example for `game.json`:
+    - [orbit-dodge](../../games/orbit-dodge/game.json)
+    - [reaction-dots](../../games/reaction-dots/game.json)
+    - [gravity-field](../../games/gravity-field/game.json)
 
 ---
 
