@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
             description: 'Pilot a spaceship through an asteroid field, dodge obstacles and collect power-ups.',
             path: 'games/space-dodger/index.html',
             inputType: 'mouse',
-            fallbackImage: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="160" viewBox="0 0 300 160"><rect width="300" height="160" fill="%23000000"/><g transform="translate(150, 100) rotate(0)"><polygon points="0,-15 -10,10 0,5 10,10" fill="%23FFFFFF"/></g><!-- Regular Asteroids (Darker Grays) --><circle cx="70" cy="50" r="12" fill="%7377777"/><!-- Square --><rect x="220" y="40" width="20" height="20" fill="%23888888" transform="rotate(30, 230, 50)"/><!-- Pentagon --><polygon points="80,130 95.2,120.9 90.5,104.1 69.5,104.1 64.8,120.9" fill="%23999999"/><!-- Hexagon --><polygon points="230,115 243,122 243,138 230,145 217,138 217,122" fill="%23AAAAAA"/></svg>'
+            fallbackImage: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="160" viewBox="0 0 300 160"><rect width="300" height="160" fill="%23111111"/><g transform="translate(150, 100) rotate(0)"><polygon points="0,-15 -10,10 0,5 10,10" fill="%23FFFFFF"/></g><!-- Regular Asteroids (Darker Grays) --><circle cx="70" cy="50" r="12" fill="%23888888"/><!-- Square --><rect x="220" y="40" width="20" height="20" fill="%23888888" transform="rotate(30, 230, 50)"/><!-- Pentagon --><polygon points="80,130 95.2,120.9 90.5,104.1 69.5,104.1 64.8,120.9" fill="%23999999"/><!-- Hexagon --><polygon points="230,115 243,122 243,138 230,145 217,138 217,122" fill="%23AAAAAA"/></svg>'
         },
         {
             id: 'reaction-dots',
@@ -48,10 +48,11 @@ document.addEventListener('DOMContentLoaded', () => {
             description: 'Manipulate gravity to capture celestial objects while avoiding hazards. A physics-based challenge.',
             path: 'games/gravity-field/index.html',
             inputType: 'mouse',
-            fallbackImage: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="160" viewBox="0 0 300 160"><rect width="300" height="160" fill="%23000000"/><!-- Collection zone (planet) --><circle cx="150" cy="80" r="30" fill="%23FFFFFF"/><!-- Gravity field effect --><circle cx="90" cy="70" r="25" fill="none" stroke="%23FFFFFF" stroke-width="1.5" opacity="0.4"/><circle cx="90" cy="70" r="18" fill="none" stroke="%23FFFFFF" stroke-width="1.5" opacity="0.6"/><circle cx="90" cy="70" r="10" fill="none" stroke="%23FFFFFF" stroke-width="1.5" opacity="0.8"/><!-- Target objects --><circle cx="200" cy="50" r="8" fill="%23FFFFFF"/><circle cx="220" cy="100" r="10" fill="%23FFFFFF"/><!-- Hazard objects --><polygon points="70,40 60,57 80,57" fill="%23666666"/><polygon points="210,110 200,127 220,127" fill="%23666666"/></svg>'
+            fallbackImage: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="160" viewBox="0 0 300 160"><rect width="300" height="160" fill="%23111111"/><!-- Collection zone (planet) --><circle cx="150" cy="80" r="30" fill="%23FFFFFF"/><!-- Gravity field effect --><circle cx="90" cy="70" r="25" fill="none" stroke="%23FFFFFF" stroke-width="1.5" opacity="0.4"/><circle cx="90" cy="70" r="18" fill="none" stroke="%23FFFFFF" stroke-width="1.5" opacity="0.6"/><circle cx="90" cy="70" r="10" fill="none" stroke="%23FFFFFF" stroke-width="1.5" opacity="0.8"/><!-- Target objects --><circle cx="200" cy="50" r="8" fill="%23FFFFFF"/><circle cx="220" cy="100" r="10" fill="%23FFFFFF"/><!-- Hazard objects --><polygon points="70,40 60,57 80,57" fill="%23666666"/><polygon points="210,110 200,127 220,127" fill="%23666666"/></svg>'
         }
         // More games will be added here as developed
-    ];    // Render all games to the DOM
+    ];
+    // Render all games to the DOM
     renderGames(games);
 
     // Add subtle entrance animations
@@ -131,12 +132,11 @@ function createGameCard(game) {
     img.alt = `${game.title} preview`;
     img.src = game.fallbackImage;
 
-    // Build card structure - remove the reset button
+    // Build card structure - removed description
     card.innerHTML = `
         <div class="game-image"></div>
         <div class="game-info">
             <h2>${game.title}</h2>
-            <p>${game.description}</p>
             <div class="button-container">
                 <a href="${game.path}" class="play-button" title="Play ${game.title}">▶</a>
             </div>
@@ -145,6 +145,11 @@ function createGameCard(game) {
 
     // Insert image
     card.querySelector('.game-image').appendChild(img);
+
+    // Add hover effects for play button
+    const playButton = card.querySelector('.play-button');
+    playButton.addEventListener('mouseenter', () => card.classList.add('highlight-card'));
+    playButton.addEventListener('mouseleave', () => card.classList.remove('highlight-card'));
 
     // Add high score indicator if applicable
     if (hasPlayed && highScore !== null) {
