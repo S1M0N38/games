@@ -6,5 +6,6 @@
     "balance-beam": "Test your precision by keeping a ball balanced on a tilting beam.",
     "gravity-field": "Manipulate gravity to capture celestial objects while avoiding hazards.",
     "orbit-dodge": "Click to change orbit direction and avoid incoming obstacles.",
-    "core-protector": "Defend a central core from projectiles using a rotating shield."
+    "core-protector": "Defend a central core from projectiles using a rotating shield.",
+    "echo-pulse": "Hit keys when expanding pulse rings align with target rings for timing precision."
 }
