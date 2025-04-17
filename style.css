@@ -55,14 +55,67 @@ header {
 
 header h1 {
     font-size: 2.2rem;
-    margin-bottom: 0.8rem;
+    /* Increase bottom margin for more space */
+    margin-bottom: 1.2rem;
+    /* Increased from 0.8rem */
     font-weight: 600;
+}
+
+/* Style for the link inside H1 */
+header h1 a {
+    color: inherit;
+    /* Inherit color from H1 */
+    text-decoration: none;
+    /* Remove underline */
+    display: inline-block;
+    /* Needed for transform and pseudo-element positioning */
+    position: relative;
+    /* Required for absolute positioning of ::after */
+    /* Smoother transition for transform and color */
+    transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), color 0.4s ease-in-out;
+    padding-bottom: 5px;
+    /* Add padding to make space for the underline */
+}
+
+/* Create the underline pseudo-element */
+header h1 a::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    /* Thickness of the underline */
+    background-color: var(--secondary-text);
+    /* Color of the underline */
+    bottom: 0;
+    left: 0;
+    transform: scaleX(0);
+    /* Initially hidden */
+    transform-origin: bottom right;
+    /* Animation origin */
+    /* Smoother transition for the underline */
+    transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+header h1 a:hover {
+    color: var(--secondary-text);
+    /* Change color slightly */
+    transform: scale(1.03);
+    /* Keep the subtle scale effect */
+}
+
+/* Animate the underline on hover */
+header h1 a:hover::after {
+    transform: scaleX(1);
+    /* Show underline */
+    transform-origin: bottom left;
+    /* Change origin for exit animation */
 }
 
 .tagline {
     font-size: 1.1rem;
     max-width: 600px;
-    margin: 0 auto;
+    margin: 0 auto 0.5rem;
+    /* Added bottom margin */
     color: var(--secondary-text);
 }
 
@@ -269,16 +322,8 @@ footer {
     padding: 1.5rem 0;
     text-align: center;
     border-top: 1px solid var(--card-border);
-}
-
-footer a {
-    color: var(--text-color);
-    text-decoration: none;
-    transition: opacity 0.3s ease-in-out;
-}
-
-footer a:hover {
-    opacity: 0.8;
+    font-size: 0.9rem;
+    /* Slightly smaller font for footer */
 }
 
 /* Responsive Styles */
