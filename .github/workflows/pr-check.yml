@@ -41,7 +41,7 @@ jobs:
           fi
 
           # Check required files
-          required="readme.md style.css index.html game.js game.json"
+          required="README.md style.css index.html game.js game.json"
           actual=$(ls games/$dir | tr '\n' ' ' | sed 's/ $//')
           if [ "$actual" != "$required" ]; then
             echo "Error: games/$dir must contain exactly: $required"; echo "Found: $actual"; exit 1

@@ -25,7 +25,7 @@ Your Pull Request (PR) should meet the following criteria:
 
 - **Required Files:**
   - The new game directory must contain the following five files:
-    - `readme.md`: Describes the game, how to play, full GDD etc.
+    - `README.md`: Describes the game, how to play, full GDD etc.
     - `style.css`: Contains all CSS styles for the game.
     - `index.html`: The main HTML structure.
     - `game.js`: JavaScript logic for the game.
