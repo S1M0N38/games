@@ -1,5 +1,17 @@
 # Contributing to Games
 
+Thanks for you interest in contributing to our games repository! There are two main ways you can contribute:
+1.  **Add a New Game:**
+    If you want try your hand at vibe coding a new game. Don't read the code, accept the diff, embrace the exponential.
+    You don't need to write all the prompt yourself, a couple of them are already in the repository.
+
+2. **Improve the repository:**
+   If you want to improve the rest of the repository (e.g. fixing typos, improving the README, improve the game guidelines, etc.). This is pretty much like any other open source project.
+    
+---
+
+## Add a New Game
+
 Thank you for your interest in contributing a new game! Please follow these steps:
 
 1.  **Fork the Repository:**
@@ -13,11 +25,43 @@ Thank you for your interest in contributing a new game! Please follow these step
 
 You can now start "vibe coding" your game!
 
+<div align="center">
+  <video alt="add-new-game" src=""></video>
+</div>
+
+<details>
+<summary>Roo code</summary>
+
+````
+Create a game following the @/.github/game-guidelines-instructions.md 
+Do not create games similar to the ones in @/games/manifest.json 
+
+### Example Game Template
+
+Here is an example template for a game folder:
+
+- @/games/_example/index.html 
+- @/games/_example/style.css 
+- @/games/_example/game.js 
+- @/games/_example/game.json 
+
+If you want to use code from _example template, you must copy the files to your game folder and modify them as needed.
+
 ---
 
-**Pull Request Requirements:**
+It's **really** important to follow the steps described in the @/.github/development-process-instructions.md 
 
-Your Pull Request (PR) should meet the following criteria:
+Remember to follow the development process in order:
+1. Brainstorm about game ideas (**idea generation**).
+2. Write the **game design document** in the `README.md`.
+3. Implement the game (**development**).
+````
+
+</details>
+
+---
+
+Your Pull Request (PR) for adding a new game **MUST** meet the following criteria:
 
 - **Game Directory:**
   - A new directory for your game must be created inside the `games/` directory.
@@ -30,6 +74,3 @@ Your Pull Request (PR) should meet the following criteria:
     - `index.html`: The main HTML structure.
     - `game.js`: JavaScript logic for the game.
     - `game.json`: Game metadata.
-
-> [!IMPORTANT]
-> The PR must include *only* the new game directory with all its five files.
