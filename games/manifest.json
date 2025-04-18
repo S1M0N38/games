@@ -7,5 +7,6 @@
     "gravity-field": "Manipulate gravity to capture celestial objects while avoiding hazards.",
     "orbit-dodge": "Click to change orbit direction and avoid incoming obstacles.",
     "core-protector": "Defend a central core from projectiles using a rotating shield.",
-    "echo-pulse": "Hit keys when expanding pulse rings align with target rings for timing precision."
+    "echo-pulse": "Hit keys when expanding pulse rings align with target rings for timing precision.",
+    "lane-switch": "Move between three lanes to dodge falling blocks. Survive as long as you can!"
 }
