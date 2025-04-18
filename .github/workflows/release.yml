@@ -1,0 +1,71 @@
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+name: Release tag
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      version: ${{ steps.release.outputs.version }}
+    steps:
+      - uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          token: ${{ secrets.MY_RELEASE_PLEASE_TOKEN }}
+          release-type: simple
+
+  build-release:
+    needs: release-please
+    if: ${{ needs.release-please.outputs.release_created }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: main
+
+      - name: Configure Git
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+
+      - name: Update manifest.json
+        run: |
+          # Install jq for JSON processing
+          sudo apt-get update && sudo apt-get install -y jq
+          
+          # Initialize empty JSON object
+          echo "{}" > manifest.json
+
+          # Find all game.json files, extract id and description, and build manifest
+          for game_file in $(find games -name "game.json"); do
+            id=$(jq -r '.id' "$game_file")
+            description=$(jq -r '.description' "$game_file")
+            
+            # Add to manifest if both values exist and are not null
+            if [[ -n "$id" && "$id" != "null" && -n "$description" && "$description" != "null" ]]; then
+              # Add the new key-value pair to manifest.json
+              jq --arg id "$id" --arg desc "$description" '. + {($id): $desc}' manifest.json > temp.json && mv temp.json manifest.json
+            fi
+          done
+
+          # Format the JSON with proper indentation
+          jq . manifest.json > temp.json && mv temp.json games/manifest.json
+
+      - name: Commit and push manifest.json file
+        run: |
+          if [[ -n $(git status --porcelain games/manifest.json) ]]; then
+            git add games/manifest.json
+            git commit -m "chore: update manifest.json for ${{ needs.release-please.outputs.version }}"
+            git push
+          else
+            echo "No changes to commit"
+          fi
