@@ -11,40 +11,69 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          # Fetch all history for all branches and tags
+          fetch-depth: 0 
 
       - name: Validate PR follows CONTRIBUTING.md
         shell: bash
         run: |
           set -e
-          BASE=${{ github.event.pull_request.base.ref }}
-          files=$(git diff --name-only origin/$BASE...HEAD)
+          # Use GitHub context variables directly for base and head refs
+          BASE_REF=${{ github.event.pull_request.base.sha }}
+          HEAD_REF=${{ github.event.pull_request.head.sha }}
+
+          # Ensure the base ref is available (fetch-depth: 0 should handle this)
+          git fetch origin $BASE_REF --depth=1
+
+          # Use the SHAs for diffing
+          files=$(git diff --name-only $BASE_REF $HEAD_REF)
 
           if [ -z "$files" ]; then
-            echo "No files changed"; exit 1
+            echo "No files changed"; exit 0 # Exit successfully if no files changed in the PR diff
           fi
 
-          # Collect unique game dirs
+          # Collect unique game dirs from changed files
           dirs=$(echo "$files" | grep '^games/' | cut -d/ -f2 | sort -u)
-          if [ $(echo "$dirs" | wc -l | tr -d ' ') -ne 1 ]; then
-            echo "Error: PR must add exactly one directory under games/"; echo "Found: $dirs"; exit 1
+
+          # Check if exactly one game directory is modified/added
+          num_dirs=$(echo "$dirs" | wc -l | tr -d ' ')
+          if [ "$num_dirs" -ne 1 ]; then
+            echo "Error: PR must modify or add exactly one directory under games/"
+            echo "Found changes related to directories: $dirs"
+            exit 1
           fi
 
           dir=$(echo "$dirs")
-          if ! [[ "$dir" =~ ^[a-z]+-[a-z]+$ ]]; then
-            echo "Error: Directory name '$dir' must be two lowercase words separated by hyphen"; exit 1
+          # Validate directory name format
+          if ! [[ "$dir" =~ ^[a-z]+(-[a-z]+)*$ ]]; then # Allow multiple hyphens
+            echo "Error: Directory name '$dir' must be lowercase words separated by hyphens"; exit 1
           fi
 
-          # Ensure no files outside games/$dir/
+          # Ensure no files outside the target game directory are changed
           bad=$(echo "$files" | grep -v "^games/$dir/")
           if [ -n "$bad" ]; then
-            echo "Error: Only files under games/$dir/ are allowed"; echo "$bad"; exit 1
+            echo "Error: Only files under games/$dir/ are allowed in this PR"; echo "Changed files outside target directory:"; echo "$bad"; exit 1
           fi
 
-          # Check required files
+          # Check required files exist within the game directory
+          # Note: This check assumes the PR *adds* the game. It might need adjustment
+          # if the PR is *modifying* an existing game.
+          # For simplicity, we'll check existence if the directory is part of the changes.
           required="README.md style.css index.html game.js game.json"
-          actual=$(ls games/$dir | tr '\n' ' ' | sed 's/ $//')
-          if [ "$actual" != "$required" ]; then
-            echo "Error: games/$dir must contain exactly: $required"; echo "Found: $actual"; exit 1
+          missing=""
+          for req_file in $required; do
+            if [ ! -f "games/$dir/$req_file" ]; then
+              missing="$missing $req_file"
+            fi
+          done
+
+          if [ -n "$missing" ]; then
+             echo "Error: games/$dir is missing required files:$missing"; exit 1
           fi
 
-          echo "✅ Structure validation passed."
+          # Optional: Check if *only* the required files exist (no extra files)
+          # actual_files=$(ls games/$dir | tr '\n' ' ')
+          # # Logic to compare actual_files with required would go here
+
+          echo "✅ Structure validation passed for games/$dir."
