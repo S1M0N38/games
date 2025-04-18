@@ -3,14 +3,14 @@ const CONFIG = {
     STORAGE_KEY: 'laneSwitchHighScore',
     LANES: 3,
     LANE_WIDTH_RATIO: 1 / 3,
-    BLOCK_WIDTH: 80,       // increased from 60
-    BLOCK_HEIGHT: 30,      // increased from 15
+    BLOCK_WIDTH: 100,       // increased from 80 to 100
+    BLOCK_HEIGHT: 30,
     INITIAL_SPEED: 300,
     INITIAL_SPAWN_INTERVAL: 0.8,
     SPEED_INCREMENT: 1.15,
     STATE: { INTRO: 'intro', PLAY: 'playing', PAUSED: 'paused', OVER: 'gameover', ERROR: 'error' },
-    LANE_SWITCH_SPEED: 10,     // new: how fast player X interpolates (higher = snappier)
-    HIT_FLASH_TIME: 0.2        // new: how long the red flash lasts on hit
+    LANE_SWITCH_SPEED: 10,
+    HIT_FLASH_TIME: 0.2
 };
 
 let canvas, ctx, gameState = {}, elements = {};
@@ -215,7 +215,7 @@ function render() {
     // draw player, flash red if recently hit
     ctx.fillStyle = gameState.hitTimer > 0 ? '#FF0000' : '#FFFFFF';
     ctx.beginPath();
-    ctx.arc(gameState.playerX, canvas.height - 30, 15, 0, 2 * Math.PI);  // radius increased from 10 to 15
+    ctx.arc(gameState.playerX, canvas.height - 30, 20, 0, 2 * Math.PI);  // radius increased from 15 to 20
     ctx.fill();
     // draw obstacles
     ctx.fillStyle = '#666666';
