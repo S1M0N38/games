@@ -11,6 +11,7 @@ const CONFIG = {
     FLASH_DURATION: 0.2, // seconds red flash on life loss
     VISUAL: {
         MAIN_COLOR: '#FFFFFF',
+        OBSTACLE_COLOR: '#666666',
         ERROR_COLOR: '#FF0000',
     },
     GAME_STATE: {
@@ -229,8 +230,9 @@ function spawnGate() {
 
 function render() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawAvatar();
+    // draw obstacles first (background), then avatar (foreground)
     gameState.gates.forEach(drawGate);
+    drawAvatar();
 }
 
 function drawAvatar() {
@@ -243,6 +245,7 @@ function drawAvatar() {
 
 function drawGate(gate) {
     const x = gate.x, y = canvas.height / 2, size = shapeSize();
+    ctx.fillStyle = CONFIG.VISUAL.OBSTACLE_COLOR;
     drawShape(ctx, x, y, size, CONFIG.SHAPES[gate.type]);
 }
 
@@ -255,7 +258,7 @@ function shapeSize() {
 }
 
 function drawShape(ctx, cx, cy, size, type) {
-    ctx.fillStyle = CONFIG.VISUAL.MAIN_COLOR;
+    // fillStyle set by caller for dynamic coloring
     ctx.beginPath();
     switch (type) {
         case 'circle':
