@@ -1,26 +1,13 @@
-# VIBE GAMES
+<div align="center">
+  <h1>VIBE GAMES</h1>
+  <div><video alt="vibe-games" src="https://github.com/user-attachments/assets/af45bcfe-6b44-4e42-8e08-b9d582aa7d7d"/></div>
+  <p><em>A collection of minimalist browser-based games implemented using only HTML, CSS, and JavaScript.</em></p>
+  <hr>
+</div>
 
-A collection of minimalist browser-based games implemented using only HTML, CSS, and JavaScript, following a strict black and white aesthetic.
+This is an experiment to test the current capabilities of Large Language Models (LLMs) in generating simple games.
+
+All games in the collection are created by prompting the AI to generate a new game following a set of rules (see [Game Guidelines](.github/game-guidelines-instructions.md) and [Development Process](.github/development-process-instructions.md)).
 
 > [!NOTE]
-> Read [CONTRIBUTING.md](.github/CONTRIBUTING.md) and test your prompting skills by creating a new game in seconds!
-
-## Features
-
-- Pure HTML, CSS, and JavaScript implementation
-- No external libraries or frameworks
-- Automatically deployed via GitHub Pages
-
-## Development
-
-Each game is contained in its own directory under the `games/` folder. To add a new game:
-
-1. Create a new folder under `games/` with your game name
-2. Create a README.md file with the Game Design Document
-3. Implement the game using index.html, style.css, and script.js files
-4. Create a new branch with the name of your game
-5. Submit a Pull Request to merge your game into the main branch
-
-## Deployment
-
-This repository is configured with GitHub Actions to automatically deploy to GitHub Pages when changes are pushed to the main branch.
+> Read [CONTRIBUTING.md](.github/CONTRIBUTING.md) and test your prompting skills by creating a new game in minutes!
