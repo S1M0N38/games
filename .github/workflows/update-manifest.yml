@@ -37,10 +37,21 @@ jobs:
           BASE=$(echo "$PR_DATA" | jq -r '.base.sha')
           HEAD=$(echo "$PR_DATA" | jq -r '.head.sha')
           HEAD_REF=$(echo "$PR_DATA" | jq -r '.head.ref')
+          PR_REPO=$(echo "$PR_DATA" | jq -r '.head.repo.full_name')
           
-          # Checkout the PR's head commit to get access to its files
-          git fetch origin "$HEAD" --depth=1
-          git checkout "$HEAD"
+          # Checkout the PR's branch instead of a specific commit
+          if [[ "$PR_REPO" == "${{ github.repository }}" ]]; then
+            # If PR is from the same repo
+            git fetch origin "$HEAD_REF" --depth=1
+            git checkout "$HEAD_REF"
+          else
+            # If PR is from a fork
+            git fetch "https://github.com/$PR_REPO.git" "$HEAD_REF" --depth=1
+            git checkout FETCH_HEAD
+            git checkout -b "$HEAD_REF"
+          fi
+          
+          echo "head_ref=$HEAD_REF" >> $GITHUB_OUTPUT
           
           files=$(git diff --name-only "$BASE" "$HEAD")
           dir=$(echo "$files" | grep '^games/' | cut -d/ -f2 | sort -u)
@@ -108,7 +119,7 @@ jobs:
           if [[ -n $(git status --porcelain games/manifest.json) ]]; then
             git add games/manifest.json
             git commit -m "chore: update manifest.json for ${{ steps.info.outputs.id }}"
-            git push --no-verify
+            git push origin "${{ steps.find.outputs.head_ref }}" --no-verify
           else
             echo "No changes to manifest.json to commit"
           fi
