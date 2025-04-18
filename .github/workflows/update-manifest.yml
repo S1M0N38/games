@@ -98,9 +98,17 @@ jobs:
           jq --arg id "$GAME_ID" --arg desc "$GAME_DESC" '.[$id]=$desc' "$MANIFEST" > "$tmp" && mv "$tmp" "$MANIFEST"
           echo "Updated manifest.json with new game information"
 
+      - name: Configure Git
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+
       - name: Commit & push manifest update
-        uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          commit_message: "chore: update manifest.json for ${{ steps.info.outputs.id }}"
-          file_pattern: "games/manifest.json"
-          push_options: "--no-verify"
+        run: |
+          if [[ -n $(git status --porcelain games/manifest.json) ]]; then
+            git add games/manifest.json
+            git commit -m "chore: update manifest.json for ${{ steps.info.outputs.id }}"
+            git push --no-verify
+          else
+            echo "No changes to manifest.json to commit"
+          fi
