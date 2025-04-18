@@ -1,0 +1,8 @@
+{
+    "id": "shape-shift",
+    "title": "Shape Shift",
+    "description": "Cycle through geometric shapes to pass through matching gates in an endless runner with increasing difficulty.",
+    "inputType": "keyboard",
+    "storageKey": "shapeShiftHighScore",
+    "fallbackImage": "data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"300\" height=\"160\"><rect width=\"300\" height=\"160\" fill=\"%23000000\"/><circle cx=\"60\" cy=\"80\" r=\"30\" fill=\"%23FFFFFF\"/><rect x=\"120\" y=\"50\" width=\"60\" height=\"60\" fill=\"%23FFFFFF\"/><polygon points=\"240,55 220,115 260,115\" fill=\"%23FFFFFF\"/></svg>"
+}
