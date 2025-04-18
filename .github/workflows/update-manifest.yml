@@ -90,9 +90,12 @@ jobs:
             exit 1
           fi
           
-          JQ_ARG=".[\\"${{ steps.info.outputs.id }}\\"]=\\"${{ steps.info.outputs.description }}\\""
+          # Use --arg to safely pass variables to jq
+          GAME_ID="${{ steps.info.outputs.id }}"
+          GAME_DESC="${{ steps.info.outputs.description }}"
+          
           tmp=$(mktemp)
-          jq "$JQ_ARG" "$MANIFEST" > "$tmp" && mv "$tmp" "$MANIFEST"
+          jq --arg id "$GAME_ID" --arg desc "$GAME_DESC" '.[$id]=$desc' "$MANIFEST" > "$tmp" && mv "$tmp" "$MANIFEST"
           echo "Updated manifest.json with new game information"
 
       - name: Commit & push manifest update
