@@ -5,75 +5,72 @@ on:
     branches: [ main ]
 
 jobs:
-  check-game-pr:
+  filter:
     runs-on: ubuntu-latest
-    name: Validate new game directory structure
+    outputs:
+      games: ${{ steps.filter.outputs.games }}
+      other: ${{ steps.filter.outputs.other }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          # Fetch all history for all branches and tags
-          fetch-depth: 0 
+          fetch-depth: 0
+      - id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            games:
+              - 'games/**'
+            other:
+              - '*'
+              - '!games/**'
 
-      - name: Validate PR follows CONTRIBUTING.md
-        shell: bash
+  validate:
+    needs: filter
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail if PR contains changes outside games/
+        if: needs.filter.outputs.other == 'true'
+        run: |
+          echo "Error: Only files under games/ are allowed in this PR." >&2
+          exit 1
+
+      - name: Skip if no changes in games/
+        if: needs.filter.outputs.games == 'false'
+        run: echo "No game-related changes detected, skipping validation."
+
+      - name: Validate game directory
+        if: needs.filter.outputs.games == 'true'
         run: |
           set -e
-          # Use GitHub context variables directly for base and head refs
-          BASE_REF=${{ github.event.pull_request.base.sha }}
-          HEAD_REF=${{ github.event.pull_request.head.sha }}
+          BASE=${{ github.event.pull_request.base.sha }}
+          HEAD=${{ github.event.pull_request.head.sha }}
+          git fetch origin "$BASE" --depth=1
 
-          # Ensure the base ref is available (fetch-depth: 0 should handle this)
-          git fetch origin $BASE_REF --depth=1
-
-          # Use the SHAs for diffing
-          files=$(git diff --name-only $BASE_REF $HEAD_REF)
-
-          if [ -z "$files" ]; then
-            echo "No files changed"; exit 0 # Exit successfully if no files changed in the PR diff
-          fi
-
-          # Collect unique game dirs from changed files
+          files=$(git diff --name-only "$BASE" "$HEAD")
           dirs=$(echo "$files" | grep '^games/' | cut -d/ -f2 | sort -u)
+          count=$(echo "$dirs" | wc -l | tr -d ' ')
 
-          # Check if exactly one game directory is modified/added
-          num_dirs=$(echo "$dirs" | wc -l | tr -d ' ')
-          if [ "$num_dirs" -ne 1 ]; then
-            echo "Error: PR must modify or add exactly one directory under games/"
-            echo "Found changes related to directories: $dirs"
+          if [ "$count" -ne 1 ]; then
+            echo "Error: PR must modify exactly one directory under games/ (found $count)." >&2
             exit 1
           fi
 
           dir=$(echo "$dirs")
-          # Validate directory name format
-          if ! [[ "$dir" =~ ^[a-z]+(-[a-z]+)*$ ]]; then # Allow multiple hyphens
-            echo "Error: Directory name '$dir' must be lowercase words separated by hyphens"; exit 1
+          if [[ ! "$dir" =~ ^[a-z]+(-[a-z]+)*$ ]]; then
+            echo "Error: Directory name '$dir' invalid; use lowercase words separated by hyphens." >&2
+            exit 1
           fi
 
-          # Ensure no files outside the target game directory are changed
-          bad=$(echo "$files" | grep -v "^games/$dir/")
-          if [ -n "$bad" ]; then
-            echo "Error: Only files under games/$dir/ are allowed in this PR"; echo "Changed files outside target directory:"; echo "$bad"; exit 1
-          fi
-
-          # Check required files exist within the game directory
-          # Note: This check assumes the PR *adds* the game. It might need adjustment
-          # if the PR is *modifying* an existing game.
-          # For simplicity, we'll check existence if the directory is part of the changes.
-          required="README.md style.css index.html game.js game.json"
-          missing=""
-          for req_file in $required; do
-            if [ ! -f "games/$dir/$req_file" ]; then
-              missing="$missing $req_file"
-            fi
+          required=(README.md style.css index.html game.js game.json)
+          missing=()
+          for f in "${required[@]}"; do
+            [ -f "games/$dir/$f" ] || missing+=("$f")
           done
 
-          if [ -n "$missing" ]; then
-             echo "Error: games/$dir is missing required files:$missing"; exit 1
+          if [ ${#missing[@]} -gt 0 ]; then
+            echo "Error: games/$dir missing required files: ${missing[*]}" >&2
+            exit 1
           fi
-
-          # Optional: Check if *only* the required files exist (no extra files)
-          # actual_files=$(ls games/$dir | tr '\n' ' ')
-          # # Logic to compare actual_files with required would go here
 
           echo "✅ Structure validation passed for games/$dir."
