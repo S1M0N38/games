@@ -1,0 +1,50 @@
+name: PR Game Structure Check
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  check-game-pr:
+    runs-on: ubuntu-latest
+    name: Validate new game directory structure
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate PR follows CONTRIBUTING.md
+        shell: bash
+        run: |
+          set -e
+          BASE=${{ github.event.pull_request.base.ref }}
+          files=$(git diff --name-only origin/$BASE...HEAD)
+
+          if [ -z "$files" ]; then
+            echo "No files changed"; exit 1
+          fi
+
+          # Collect unique game dirs
+          dirs=$(echo "$files" | grep '^games/' | cut -d/ -f2 | sort -u)
+          if [ $(echo "$dirs" | wc -l | tr -d ' ') -ne 1 ]; then
+            echo "Error: PR must add exactly one directory under games/"; echo "Found: $dirs"; exit 1
+          fi
+
+          dir=$(echo "$dirs")
+          if ! [[ "$dir" =~ ^[a-z]+-[a-z]+$ ]]; then
+            echo "Error: Directory name '$dir' must be two lowercase words separated by hyphen"; exit 1
+          fi
+
+          # Ensure no files outside games/$dir/
+          bad=$(echo "$files" | grep -v "^games/$dir/")
+          if [ -n "$bad" ]; then
+            echo "Error: Only files under games/$dir/ are allowed"; echo "$bad"; exit 1
+          fi
+
+          # Check required files
+          required="readme.md style.css index.html game.js game.json"
+          actual=$(ls games/$dir | tr '\n' ' ' | sed 's/ $//')
+          if [ "$actual" != "$required" ]; then
+            echo "Error: games/$dir must contain exactly: $required"; echo "Found: $actual"; exit 1
+          fi
+
+          echo "✅ Structure validation passed."
