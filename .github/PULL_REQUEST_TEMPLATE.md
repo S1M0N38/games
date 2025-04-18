@@ -2,7 +2,7 @@
 Thank you for contributing a new game!
 
 Please ensure your submission meets the requirements outlined in the CONTRIBUTING.md guide:
-https://github.com/S1M0N38/games/blob/main/CONTRIBUTING.md 
+https://github.com/S1M0N38/games/blob/main/.github/CONTRIBUTING.md
 -->
 
 ## New Game Submission
