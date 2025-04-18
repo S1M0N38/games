@@ -9,7 +9,6 @@ A collection of minimalist browser-based games implemented using only HTML, CSS,
 
 - Pure HTML, CSS, and JavaScript implementation
 - No external libraries or frameworks
-- Mobile-friendly design
 - Automatically deployed via GitHub Pages
 
 ## Development
