@@ -1,0 +1,8 @@
+{
+    "id": "lane-switch",
+    "title": "Lane Switcher",
+    "description": "Move between three lanes to dodge falling blocks. Survive as long as you can!",
+    "inputType": "keyboard",
+    "storageKey": "laneSwitchHighScore",
+    "fallbackImage": "data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"300\" height=\"160\" viewBox=\"0 0 300 160\"><rect width=\"300\" height=\"160\" fill=\"%23111111\"/><line x1=\"100\" y1=\"0\" x2=\"100\" y2=\"160\" stroke=\"%23FFFFFF\" stroke-width=\"1\" stroke-dasharray=\"5 5\"/><line x1=\"200\" y1=\"0\" x2=\"200\" y2=\"160\" stroke=\"%23FFFFFF\" stroke-width=\"1\" stroke-dasharray=\"5 5\"/><circle cx=\"150\" cy=\"140\" r=\"10\" fill=\"%23FFFFFF\"/><rect x=\"130\" y=\"60\" width=\"40\" height=\"10\" fill=\"%23666666\"/></svg>"
+}
