@@ -1,12 +1,13 @@
 {
-    "particle-pursuit": "Absorb smaller particles to grow while avoiding larger ones.",
-    "void-serpent": "Navigate a serpent through the void to consume light fragments without colliding with boundaries or yourself.",
-    "space-dodger": "Pilot a spaceship through an asteroid field and dodge obstacles.",
-    "reaction-dots": "Test your reflexes by clicking on dots when they change color.",
-    "balance-beam": "Test your precision by keeping a ball balanced on a tilting beam.",
-    "gravity-field": "Manipulate gravity to capture celestial objects while avoiding hazards.",
-    "orbit-dodge": "Click to change orbit direction and avoid incoming obstacles.",
-    "core-protector": "Defend a central core from projectiles using a rotating shield.",
-    "echo-pulse": "Hit keys when expanding pulse rings align with target rings for timing precision.",
-    "lane-switch": "Move between three lanes to dodge falling blocks. Survive as long as you can!"
+  "example-game": "A brief description of the example game. Explain the goal and basic mechanics.",
+  "void-serpent": "Navigate a serpent through the void to consume light fragments without colliding with boundaries or yourself.",
+  "space-dodger": "Pilot a spaceship through an asteroid field, dodge obstacles and collect power-ups.",
+  "orbit-dodge": "Click to change orbit direction and avoid incoming obstacles.",
+  "balance-beam": "Test your precision by keeping a ball balanced on a tilting beam for as long as possible.",
+  "reaction-dots": "Test your reflexes by clicking on dots when they change color. Quick reactions lead to higher scores!",
+  "core-protector": "Use a shield to protect the central core from incoming projectiles. A test of reflexes.",
+  "gravity-field": "Manipulate gravity to capture celestial objects while avoiding hazards. A physics-based challenge.",
+  "particle-pursuit": "Absorb smaller particles to grow while avoiding larger ones in this minimalist mouse-controlled endless game.",
+  "lane-switch": "Move between three lanes to dodge falling blocks. Survive as long as you can!",
+  "echo-pulse": "Press spacebar when expanding pulse rings align with the target ring. A minimalist rhythm game testing your timing precision."
 }
