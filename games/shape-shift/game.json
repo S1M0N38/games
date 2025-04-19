@@ -4,5 +4,5 @@
     "description": "Cycle through geometric shapes to pass through matching gates in an endless runner with increasing difficulty.",
     "inputType": "keyboard",
     "storageKey": "shapeShiftHighScore",
-    "fallbackImage": "data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"300\" height=\"160\"><rect width=\"300\" height=\"160\" fill=\"%23000000\"/><circle cx=\"60\" cy=\"80\" r=\"30\" fill=\"%23FFFFFF\"/><rect x=\"120\" y=\"50\" width=\"60\" height=\"60\" fill=\"%23FFFFFF\"/><polygon points=\"240,55 220,115 260,115\" fill=\"%23FFFFFF\"/></svg>"
+    "fallbackImage": "data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"300\" height=\"160\" viewBox=\"0 0 300 160\"><rect width=\"300\" height=\"160\" fill=\"%23111111\"/><rect x=\"70\" y=\"65\" width=\"30\" height=\"30\" fill=\"%23FFFFFF\"/><rect x=\"170\" y=\"60\" width=\"40\" height=\"40\" fill=\"%23666666\"/><circle cx=\"250\" cy=\"80\" r=\"20\" fill=\"%23666666\"/></svg>"
 }
