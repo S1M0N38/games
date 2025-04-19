@@ -137,3 +137,9 @@ dist
 test-results
 tests/screenshots
 playwright-report
+video/00-create-new-game.mp4
+video/01-commit-first-version.mp4
+video/02-visual-feedback.mp4
+video/03-final-touches.mp4
+video/games-add-game/games-add-game-Cover.jpg
+video/games-add-game/games-add-game.mp4
