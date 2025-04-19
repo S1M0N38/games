@@ -7,7 +7,7 @@ Thanks for you interest in contributing to our games repository! There are two m
 
 2. **Improve the repository:**
    If you want to improve the rest of the repository (e.g. fixing typos, improving the README, improve the game guidelines, etc.). This is pretty much like any other open source project.
-    
+
 ---
 
 ## Add a New Game
@@ -26,11 +26,13 @@ Thank you for your interest in contributing a new game! Please follow these step
 You can now start "vibe coding" your game!
 
 <div align="center">
-  <video alt="add-new-game" src=""></video>
+  <video alt="add-new-game" src="https://github.com/user-attachments/assets/754dd0c0-9493-46c3-9675-7420d8691991"></video>
 </div>
 
+#### Prompts
+
 <details>
-<summary>Roo code</summary>
+<summary>Roo code format</summary>
 
 ````
 Create a game following the @/.github/game-guidelines-instructions.md 
@@ -58,6 +60,15 @@ Remember to follow the development process in order:
 ````
 
 </details>
+
+<details>
+<summary><em>Other prompts format ...</em></summary>
+
+````
+````
+
+</details>
+
 
 ---
 
