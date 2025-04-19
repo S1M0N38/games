@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.0](https://github.com/S1M0N38/games/compare/v1.0.0...v1.1.0) (2025-04-19)
+
+
+### Features
+
+* **shape-shift:** add game ([#9](https://github.com/S1M0N38/games/issues/9)) ([6dc3d8e](https://github.com/S1M0N38/games/commit/6dc3d8ea123282febb3bc4f075a84f9470e47d72))
+* **shape-shift:** add game and update svg image ([a717e53](https://github.com/S1M0N38/games/commit/a717e53f98fc56645988fbe820e051ea1c64b74e))
+
 ## 1.0.0 (2025-04-18)
 
 
