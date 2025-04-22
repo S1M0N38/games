@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.2.0](https://github.com/S1M0N38/games/compare/v1.1.0...v1.2.0) (2025-04-22)
+
+
+### Features
+
+* add life loss feedback with visual indication to template ([bb747bf](https://github.com/S1M0N38/games/commit/bb747bf0ae2d3cfe2f31cb05548d563113f6d959))
+* **gap-hop:** add game structure and core mechanics ([5a675c8](https://github.com/S1M0N38/games/commit/5a675c863307f53a8ac4c11861ef85f83c42a1d2))
+* **gap-hop:** add gap-hop game to manifest ([e73d023](https://github.com/S1M0N38/games/commit/e73d02327c501d9eccab51cf4df1ab9a71266809))
+* **mirror-dash:** add game structure and mechanics ([8686b88](https://github.com/S1M0N38/games/commit/8686b88055d24b2bfba7b4b581aef67064a21401))
+* **mirror-dash:** add mirror-dash to manifest.json ([ac2a424](https://github.com/S1M0N38/games/commit/ac2a4247602ba6241f448e860d4731017676d8d9))
+
 ## [1.1.0](https://github.com/S1M0N38/games/compare/v1.0.0...v1.1.0) (2025-04-19)
 
 
