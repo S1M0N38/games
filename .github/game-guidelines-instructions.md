@@ -59,7 +59,9 @@ These guidelines outline the process for creating simple, engaging browser-based
     - Start with simple CSS animations for most needs and add complexity only when explicitly requested.
     - Use the appropriate technology (CSS or Canvas) based on what makes the most sense for the specific animation needs.
   - **Desktop-Only**:
-    - The games are designed exclusively for desktop environments (no touchscreen or mobile optimization).
+   - The games are designed exclusively for desktop environments (no touchscreen or mobile optimization).
+ - **Life Loss Feedback**:
+   - When the player loses one of their available lives, the entity representing the player (e.g., a dot, shape) must briefly flash red (`#FF0000`) as immediate visual feedback. This effect should be temporary and distinct from other game visuals.
 
 - **Data Persistence**:
 

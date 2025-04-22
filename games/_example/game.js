@@ -6,7 +6,9 @@ const CONFIG = {
     VISUAL: {
         MAIN_COLOR: '#FFFFFF',
         SECONDARY_COLOR: '#999999',
+        ERROR_COLOR: '#FF0000', // Red for feedback/errors
         TRANSITION_SPEED: 0.3, // seconds
+        FLASH_DURATION: 200, // ms for player flash on life loss
     },
 
     PHYSICS: {
@@ -30,6 +32,7 @@ const gameState = {
     highScore: 0,
     isPlaying: false,
     isPaused: false,
+    isFlashingRed: false, // State for player flash feedback
 
     lastTime: 0,
     delta: 0,
@@ -270,8 +273,19 @@ function updateScore() {
 }
 
 function reduceLife() {
+    if (gameState.lives <= 0) return; // Prevent reducing life if already game over
+
     gameState.lives--;
     updateLivesDisplay();
+
+    // Trigger red flash feedback
+    gameState.isFlashingRed = true;
+    // Clear previous flash timer if player loses lives rapidly
+    gameState.timers = gameState.timers.filter(timer => clearTimeout(timer));
+    gameState.timers.push(setTimeout(() => {
+        gameState.isFlashingRed = false;
+    }, CONFIG.VISUAL.FLASH_DURATION));
+
     if (gameState.lives <= 0) {
         gameOver();
     }
@@ -304,6 +318,23 @@ function renderGameOver() {
 
 function renderGameElements() {
     // TODO: Render all game-specific elements (player, enemies, etc.)
+
+    // --- Example Player Rendering ---
+    // This is a placeholder. Actual games will have their own player rendering.
+    const playerX = canvas.width / 2; // Example position
+    const playerY = canvas.height - 50; // Example position
+    const playerRadius = 15; // Example size
+
+    // Set color based on flashing state
+    ctx.fillStyle = gameState.isFlashingRed ? CONFIG.VISUAL.ERROR_COLOR : CONFIG.VISUAL.MAIN_COLOR;
+
+    ctx.beginPath();
+    ctx.arc(playerX, playerY, playerRadius, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Reset fillStyle if changed, important if other elements are drawn after
+    ctx.fillStyle = CONFIG.VISUAL.MAIN_COLOR;
+    // --- End Example Player Rendering ---
 }
 
 // Error handling
