@@ -57,6 +57,10 @@ Remember to follow the development process in order:
 1. Brainstorm about game ideas (**idea generation**).
 2. Write the **game design document** in the `README.md`.
 3. Implement the game (**development**).
+  
+### Important Note
+You may ONLY create and modify files within your new game directory.
+Do NOT modify @/games/manifest.json - this file will be updated manually later.
 ````
 
 </details>
