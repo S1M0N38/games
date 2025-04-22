@@ -61,10 +61,9 @@ These guidelines outline the process for creating simple, engaging browser-based
   - **Desktop-Only**:
    - The games are designed exclusively for desktop environments (no touchscreen or mobile optimization).
  - **Life Loss Feedback**:
-   - When the player loses one of their available lives, the entity representing the player (e.g., a dot, shape) must briefly flash red (`#FF0000`) as immediate visual feedback. This effect should be temporary and distinct from other game visuals.
-   - After life loss, it is acceptable to implement a brief invincibility period (2-3 seconds) during which the player cannot lose another life.
-   - During this invincibility period, the player entity should visually blink/flash (alternating between visible and invisible states) to clearly indicate the temporary invulnerable state.
-   - The blinking effect should maintain the monochromatic aesthetic, using only white and transparency (not introducing additional colors).
+   - Upon losing a life, the player entity must immediately flash red (`#FF0000`) at full opacity for the configured flash duration as clear feedback, and invincibility begins.
+   - After the red flash, the player enters an invincibility period (2-3 seconds) during which it blinks at a consistent interval (e.g., every 200 ms), alternating between fully visible (white) and fully transparent to indicate temporary invulnerability.
+   - The blinking phase must use only white and transparency, preserving the monochromatic aesthetic.
 
 - **Data Persistence**:
 
