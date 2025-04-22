@@ -1,0 +1,8 @@
+{
+    "id": "gap-hop",
+    "title": "Gap Hop",
+    "description": "Use Spacebar to jump over incoming spikes in an endless runner, with spawn frequency and speed ramping up.",
+    "inputType": "keyboard",
+    "storageKey": "gapHopHighScore",
+    "fallbackImage": "data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"300\" height=\"160\" viewBox=\"0 0 300 160\"><rect width=\"300\" height=\"160\" fill=\"%23000000\"/><circle cx=\"60\" cy=\"110\" r=\"10\" fill=\"%23FFFFFF\"/><polygon points=\"120,120 130,100 140,120\" fill=\"%23FFFFFF\"/></svg>"
+}
