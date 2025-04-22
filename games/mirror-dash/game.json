@@ -1,0 +1,8 @@
+{
+    "id": "mirror-dash",
+    "title": "Mirror Dash",
+    "description": "Control two mirrored squares to dodge obstacles from both ends. Survive as long as possible in this minimalist endless reflex game.",
+    "inputType": "keyboard",
+    "storageKey": "mirrorDashHighScore",
+    "fallbackImage": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='160' viewBox='0 0 300 160'><rect width='300' height='160' fill='%23000'/><rect x='60' y='130' width='30' height='30' fill='%23fff'/><rect x='210' y='0' width='30' height='30' fill='%23fff' opacity='0.5'/><rect x='60' y='0' width='180' height='10' fill='%23999'/><rect x='60' y='150' width='180' height='10' fill='%23999'/></svg>"
+}
